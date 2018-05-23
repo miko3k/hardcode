@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="run hardcode-guava" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="org.deletethis.hardcode.guava.test.Main" />
+    <module name="hardcode-guava" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/hardcode" />
+    <method>
+      <option name="Make" enabled="false" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="hardcode-guava install" run_configuration_type="MavenRunConfiguration" />
+    </method>
+  </configuration>
+</component>
