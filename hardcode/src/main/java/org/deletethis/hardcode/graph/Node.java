@@ -1,6 +1,6 @@
 package org.deletethis.hardcode.graph;
 
-import org.deletethis.hardcode.ConstructionStrategy;
+import org.deletethis.hardcode.codegen.ConstructionStrategy;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,7 +1,6 @@
 package org.deletethis.hardcode.nodes.introspection;
 
-import org.deletethis.hardcode.HardcoderException;
-import org.deletethis.hardcode.ParameterWrapper;
+import org.deletethis.hardcode.HardcodeException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -20,7 +19,7 @@ public class ConstructorWrapper {
         List<ParameterWrapper> tmp = new ArrayList<>(params.length);
         for(Parameter p: params) {
             if(!p.isNamePresent())
-                throw new HardcoderException(constructor.getDeclaringClass().getName() + ": constructor parameter names not present");
+                throw new HardcodeException(constructor.getDeclaringClass().getName() + ": constructor parameter names not present");
 
             String name = p.getName();
             Class<?> type = p.getType();

@@ -1,6 +1,6 @@
 package org.deletethis.hardcode.nodes.introspection;
 
-import org.deletethis.hardcode.HardcoderException;
+import org.deletethis.hardcode.HardcodeException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -19,7 +19,7 @@ public class FieldInstrospectionStartegy implements IntrospectionStartegy {
             try {
                 return field.get(Objects.requireNonNull(object));
             } catch (IllegalAccessException e) {
-                throw new HardcoderException(e);
+                throw new HardcodeException(e);
             }
         }
     }
@@ -46,7 +46,7 @@ public class FieldInstrospectionStartegy implements IntrospectionStartegy {
                     continue;
 
                 if(result.containsKey(field.getName())) {
-                    throw new HardcoderException(clz.getName() + ": duplicate field: " + field.getName());
+                    throw new HardcodeException(clz.getName() + ": duplicate field: " + field.getName());
                 }
                 result.put(field.getName(), new MemberImpl(field));
             }

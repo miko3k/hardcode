@@ -1,4 +1,4 @@
-package org.deletethis.hardcode;
+package org.deletethis.hardcode.nodes.introspection;
 
 public class ParameterWrapper {
     private final String name;

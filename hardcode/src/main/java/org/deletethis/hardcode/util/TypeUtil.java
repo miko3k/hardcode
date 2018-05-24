@@ -1,9 +1,9 @@
-package org.deletethis.hardcode;
+package org.deletethis.hardcode.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Util {
+public class TypeUtil {
     private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS;
 
     static {

@@ -8,9 +8,9 @@ import org.deletethis.hardcode.graph.NodeFactoryContext;
 
 import java.util.Optional;
 import java.util.function.Function;
-import org.deletethis.hardcode.CodegenContext;
-import org.deletethis.hardcode.ConstructionStrategy;
-import org.deletethis.hardcode.Expression;
+import org.deletethis.hardcode.codegen.CodegenContext;
+import org.deletethis.hardcode.codegen.ConstructionStrategy;
+import org.deletethis.hardcode.codegen.Expression;
 
 public class PrimitiveNodeFactory implements NodeFactory {
     private static class Literal<T> implements ConstructionStrategy {

@@ -1,13 +1,13 @@
 package org.deletethis.hardcode.test;
 
-import org.deletethis.hardcode.Hardcoder;
+import org.deletethis.hardcode.Hardcode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
-    private static void doIt(Hardcoder hardcoder, Object o) {
+    private static void doIt(Hardcode hardcoder, Object o) {
         System.out.println(hardcoder.method("foo", o));
     }
 
@@ -18,7 +18,7 @@ public class Main {
     }
     
     public static void main(String[] args) {
-        Hardcoder bld = Hardcoder.builtinConfig();
+        Hardcode bld = Hardcode.builtinConfig();
 
         doIt(bld, "hello world\n");
         doIt(bld, new Data("hello", 1, 50L));

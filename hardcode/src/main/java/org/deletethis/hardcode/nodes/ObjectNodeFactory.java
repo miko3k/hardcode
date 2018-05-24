@@ -2,8 +2,8 @@ package org.deletethis.hardcode.nodes;
 
 import org.deletethis.hardcode.nodes.introspection.ConstructorWrapper;
 import com.squareup.javapoet.CodeBlock;
-import org.deletethis.hardcode.ParameterWrapper;
-import org.deletethis.hardcode.Util;
+import org.deletethis.hardcode.nodes.introspection.ParameterWrapper;
+import org.deletethis.hardcode.util.TypeUtil;
 import org.deletethis.hardcode.graph.Node;
 import org.deletethis.hardcode.graph.NodeFactory;
 import org.deletethis.hardcode.graph.NodeFactoryContext;
@@ -13,9 +13,9 @@ import org.deletethis.hardcode.nodes.introspection.IntrospectionStartegy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import org.deletethis.hardcode.CodegenContext;
-import org.deletethis.hardcode.ConstructionStrategy;
-import org.deletethis.hardcode.Expression;
+import org.deletethis.hardcode.codegen.CodegenContext;
+import org.deletethis.hardcode.codegen.ConstructionStrategy;
+import org.deletethis.hardcode.codegen.Expression;
 
 public class ObjectNodeFactory implements NodeFactory {
 
@@ -121,7 +121,7 @@ public class ObjectNodeFactory implements NodeFactory {
                 }
             } else {
                 Class<?> valueClass = value.getClass();
-                if(!Util.wrapType(type).isAssignableFrom(valueClass)) {
+                if(!TypeUtil.wrapType(type).isAssignableFrom(valueClass)) {
                     throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign " + valueClass.getName() + " to " + type.getName());
                 }
             }

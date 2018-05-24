@@ -1,8 +1,8 @@
 package org.deletethis.hardcode.graph;
 
-import org.deletethis.hardcode.CodegenContext;
-import org.deletethis.hardcode.ConstructionStrategy;
-import org.deletethis.hardcode.Expression;
+import org.deletethis.hardcode.codegen.CodegenContext;
+import org.deletethis.hardcode.codegen.ConstructionStrategy;
+import org.deletethis.hardcode.codegen.Expression;
 
 import java.util.*;
 

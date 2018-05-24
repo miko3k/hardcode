@@ -3,7 +3,7 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.NameAllocator;
+import org.deletethis.hardcode.codegen.Expression;
 import org.deletethis.hardcode.graph.*;
 import org.deletethis.hardcode.nodes.CollectionNodeFactory;
 import org.deletethis.hardcode.nodes.ObjectNodeFactory;
@@ -13,15 +13,15 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 import org.deletethis.hardcode.nodes.MapNodeFactory;
 
-public class Hardcoder {
+public class Hardcode {
     private final List<NodeFactory> nodeFactoryList;
 
-    private Hardcoder(List<NodeFactory> nodeFactoryList) {
+    private Hardcode(List<NodeFactory> nodeFactoryList) {
         this.nodeFactoryList = new ArrayList<>(nodeFactoryList);
         this.nodeFactoryList.sort(Comparator.comparing(NodeFactory::getOrdering));
     }
 
-    private Hardcoder(List<NodeFactory> a, List<NodeFactory> b) {
+    private Hardcode(List<NodeFactory> a, List<NodeFactory> b) {
         this.nodeFactoryList = new ArrayList<>(a);
         this.nodeFactoryList.addAll(b);
         this.nodeFactoryList.sort(Comparator.comparing(NodeFactory::getOrdering));
@@ -37,7 +37,7 @@ public class Hardcoder {
         return nodeFactoryList;
     }
 
-    private static  ArrayList<NodeFactory> def() {
+    private static ArrayList<NodeFactory> def() {
         ServiceLoader<NodeFactory> nodeFactoriesLoader
                 = ServiceLoader.load(NodeFactory.class);
 
@@ -48,24 +48,24 @@ public class Hardcoder {
         return list;
     }
 
-    public static Hardcoder builtinConfig() {
-        return new Hardcoder(builtin());
+    public static Hardcode builtinConfig() {
+        return new Hardcode(builtin());
     }
 
-    public static Hardcoder builtinConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcoder(builtin(), nodeFactories);
+    public static Hardcode builtinConfig(List<NodeFactory> nodeFactories) {
+        return new Hardcode(builtin(), nodeFactories);
     }
 
-    public static Hardcoder customConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcoder(nodeFactories);
+    public static Hardcode customConfig(List<NodeFactory> nodeFactories) {
+        return new Hardcode(nodeFactories);
     }
 
-    public static Hardcoder defaultConfig() {
-        return new Hardcoder(def());
+    public static Hardcode defaultConfig() {
+        return new Hardcode(def());
     }
 
-    public static Hardcoder defaultConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcoder(def(), nodeFactories);
+    public static Hardcode defaultConfig(List<NodeFactory> nodeFactories) {
+        return new Hardcode(def(), nodeFactories);
     }
 
     private class Run {
