@@ -1,4 +1,4 @@
-package org.deletethis.hardcode.codegen;
+package org.deletethis.hardcode.objects;
 
 import com.squareup.javapoet.CodeBlock;
 

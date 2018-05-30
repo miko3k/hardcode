@@ -2,8 +2,8 @@ package org.deletethis.hardcode.graph;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.NameAllocator;
-import org.deletethis.hardcode.codegen.CodegenContext;
-import org.deletethis.hardcode.codegen.Expression;
+import org.deletethis.hardcode.objects.CodegenContext;
+import org.deletethis.hardcode.objects.Expression;
 
 import java.beans.Introspector;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class Printer implements CodegenContext {
     private final CodeBlock.Builder body;
     private final NameAllocator nameAllocator = new NameAllocator();
     private final Map<Node, Expression> exprMap = new HashMap<>();
-    Map<String, Integer> variableNumbers = new HashMap<>();
+    private Map<String, Integer> variableNumbers = new HashMap<>();
 
     public Printer(CodeBlock.Builder body) {
         this.body = body;
@@ -24,8 +24,8 @@ public class Printer implements CodegenContext {
     
     @Override
     public String allocateVariable(String hint) {
-        // we allocate plenty of same variables, let's add a number before
-        // adding underscores
+        // we allocate plenty of variables with the same name,
+        // let's add a number before NameAllocator starts adding underscores
         String s = Introspector.decapitalize(hint);
         String base;
         Integer n = variableNumbers.get(s);

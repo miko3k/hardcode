@@ -1,16 +1,17 @@
-package org.deletethis.hardcode.nodes;
+package org.deletethis.hardcode.objects.nodes;
 
 import com.squareup.javapoet.CodeBlock;
 import java.util.List;
-import org.deletethis.hardcode.graph.Node;
-import org.deletethis.hardcode.graph.NodeFactory;
-import org.deletethis.hardcode.graph.NodeFactoryContext;
+
+import org.deletethis.hardcode.objects.NodeDefinition;
+import org.deletethis.hardcode.objects.NodeFactory;
+import org.deletethis.hardcode.objects.NodeFactoryContext;
 
 import java.util.Optional;
 import java.util.function.Function;
-import org.deletethis.hardcode.codegen.CodegenContext;
-import org.deletethis.hardcode.codegen.ConstructionStrategy;
-import org.deletethis.hardcode.codegen.Expression;
+import org.deletethis.hardcode.objects.CodegenContext;
+import org.deletethis.hardcode.objects.ConstructionStrategy;
+import org.deletethis.hardcode.objects.Expression;
 
 public class PrimitiveNodeFactory implements NodeFactory {
     private static class Literal<T> implements ConstructionStrategy {
@@ -38,28 +39,28 @@ public class PrimitiveNodeFactory implements NodeFactory {
         return false;
     }
 
-    private <T> Optional<Node> create(Class<?> clz, T value, Function<T, CodeBlock> fn) {
-        return Optional.of(new Node(clz, new Literal<>(value, fn)));
+    private <T> Optional<NodeDefinition> create(NodeFactoryContext context, Class<?> clz, T value, Function<T, CodeBlock> fn) {
+        return Optional.of(context.createNode(clz, new Literal<>(value, fn)));
     }
     
     @Override
-    public Optional<Node> createNode(NodeFactoryContext context, Object object) {
+    public Optional<NodeDefinition> createNode(NodeFactoryContext context, Object object) {
         if(object instanceof Integer) {
-            return create(Integer.class, (Integer)object, (val)->CodeBlock.of("$L", val));
+            return create(context, Integer.class, (Integer)object, (val)->CodeBlock.of("$L", val));
         }
         if(object instanceof Long) {
-            return create(Long.class, (Long)object, (val)->CodeBlock.of("$LL", val));
+            return create(context, Long.class, (Long)object, (val)->CodeBlock.of("$LL", val));
         }
         if(object instanceof Boolean) {
-            return create(Boolean.class, (Boolean)object, (val)->CodeBlock.of("$L", val));
+            return create(context, Boolean.class, (Boolean)object, (val)->CodeBlock.of("$L", val));
         }
         // string is also primitive
         if(object instanceof String) {
-            return create(String.class, (String)object, (val)->CodeBlock.of("$S", val));
+            return create(context, String.class, (String)object, (val)->CodeBlock.of("$S", val));
         }
         if(object instanceof Enum) {
             Class<?> clz = object.getClass();
-            return create(clz, (Enum<?>)object, (val)->CodeBlock.of("$T.$L", clz, val));
+            return create(context, clz, (Enum<?>)object, (val)->CodeBlock.of("$T.$L", clz, val));
         }
         
         return Optional.empty();

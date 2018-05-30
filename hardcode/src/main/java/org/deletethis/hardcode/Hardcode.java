@@ -3,15 +3,16 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import org.deletethis.hardcode.codegen.Expression;
+import org.deletethis.hardcode.objects.Expression;
+import org.deletethis.hardcode.objects.NodeFactory;
 import org.deletethis.hardcode.graph.*;
-import org.deletethis.hardcode.nodes.CollectionNodeFactory;
-import org.deletethis.hardcode.nodes.ObjectNodeFactory;
-import org.deletethis.hardcode.nodes.PrimitiveNodeFactory;
+import org.deletethis.hardcode.objects.nodes.CollectionNodeFactory;
+import org.deletethis.hardcode.objects.nodes.ObjectNodeFactory;
+import org.deletethis.hardcode.objects.nodes.PrimitiveNodeFactory;
 
 import javax.lang.model.element.Modifier;
 import java.util.*;
-import org.deletethis.hardcode.nodes.MapNodeFactory;
+import org.deletethis.hardcode.objects.nodes.MapNodeFactory;
 
 public class Hardcode {
     private final List<NodeFactory> nodeFactoryList;
@@ -68,27 +69,18 @@ public class Hardcode {
         return new Hardcode(def(), nodeFactories);
     }
 
-    private class Run {
-        private final Graph graph;
-        private final Expression expr;
-
-        public Run(CodeBlock.Builder body, Object o) {
-            GraphBuilder graphBuilderCore = new GraphBuilder(nodeFactoryList);
-            graph = graphBuilderCore.buildGraph(o);
-            //graph.printNodes(System.out);
-
-            Printer p = new Printer(body);
-            expr = p.print(graph);
-        }
+    public Graph buildGraph(Object root) {
+        GraphBuilder graphBuilderCore = new GraphBuilder(nodeFactoryList);
+        return graphBuilderCore.buildGraph(root);
     }
-
 
     public CodeBlock value(CodeBlock.Builder body, Object o) {
-        Run r = new Run(body, o);
-        return r.expr.getCode();
+        Graph graph = buildGraph(o);
+        Printer p = new Printer(body);
+        return p.print(graph).getCode();
     }
 
-    public MethodSpec method(String name, Object o) {
+    public MethodSpec method(String name, Graph graph) {
         AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
         builder.addMember("value", "$S", "unchecked");
 
@@ -97,16 +89,22 @@ public class Hardcode {
         ms.addAnnotation(builder.build());
         CodeBlock.Builder bld = CodeBlock.builder();
 
-        Run r = new Run(bld, o);
-        Class<?> type = r.graph.getRoot().getType();
+        Printer p = new Printer(bld);
+        Expression expression = p.print(graph);
+
+        Class<?> type = graph.getRoot().getType();
         if(type == null) {
             ms.returns(Object.class);
         } else {
             ms.returns(type);
         }
 
-        bld.addStatement("return $L", r.expr.getCode());
+        bld.addStatement("return $L", expression.getCode());
         ms.addCode(bld.build());
         return ms.build();
     }
+
+    public MethodSpec method(String name, Object o) {
+        return method(name, buildGraph(o));
     }
+}

@@ -1,18 +1,18 @@
 package org.deletethis.hardcode.graph;
 
-import org.deletethis.hardcode.codegen.ConstructionStrategy;
+import org.deletethis.hardcode.objects.ConstructionStrategy;
+import org.deletethis.hardcode.objects.NodeDefinition;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public class Node {
+public class Node implements NodeDefinition {
     private final ConstructionStrategy constructor;
     private final Class<?> type;
     private final List<Node> parameters;
-    private int refCount = 0;
+    /** same not may appear here multipe times, if it appears several times as a paramter of other node */
+    private final List<Node> users = new ArrayList<>();
 
-    public Node(Class<?> type, List<Node> parameters, ConstructionStrategy constructor) {
+    Node(Class<?> type, List<Node> parameters, ConstructionStrategy constructor) {
         this.constructor = Objects.requireNonNull(constructor);
         this.type = type;
         this.parameters = Objects.requireNonNull(parameters);
@@ -34,8 +34,8 @@ public class Node {
         return type;
     }
 
-    public void increateRefCount() {
-        ++refCount;
+    public void addUser(Node node) {
+        users.add(node);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class Node {
         StringBuilder bld = new StringBuilder();
         bld.append(System.identityHashCode(this));
         bld.append("[");
-        bld.append(refCount);
+        bld.append(users.size());
         bld.append("]");
         bld.append(": ");
         bld.append(constructor);
@@ -65,6 +65,6 @@ public class Node {
     }
 
     public int getRefCount() {
-        return refCount;
+        return users.size();
     }
 }

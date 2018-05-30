@@ -1,4 +1,0 @@
-org.deletethis.hardcode.nodes.PrimitiveNodeFactory
-org.deletethis.hardcode.nodes.CollectionNodeFactory
-org.deletethis.hardcode.nodes.MapNodeFactory
-org.deletethis.hardcode.nodes.ObjectNodeFactory

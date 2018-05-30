@@ -1,21 +1,21 @@
-package org.deletethis.hardcode.nodes;
+package org.deletethis.hardcode.objects.nodes;
 
-import org.deletethis.hardcode.nodes.introspection.ConstructorWrapper;
+import org.deletethis.hardcode.objects.nodes.introspection.ConstructorWrapper;
 import com.squareup.javapoet.CodeBlock;
-import org.deletethis.hardcode.nodes.introspection.ParameterWrapper;
+import org.deletethis.hardcode.objects.nodes.introspection.ParameterWrapper;
+import org.deletethis.hardcode.objects.NodeDefinition;
 import org.deletethis.hardcode.util.TypeUtil;
-import org.deletethis.hardcode.graph.Node;
-import org.deletethis.hardcode.graph.NodeFactory;
-import org.deletethis.hardcode.graph.NodeFactoryContext;
-import org.deletethis.hardcode.nodes.introspection.FieldInstrospectionStartegy;
-import org.deletethis.hardcode.nodes.introspection.IntrospectionStartegy;
+import org.deletethis.hardcode.objects.NodeFactory;
+import org.deletethis.hardcode.objects.NodeFactoryContext;
+import org.deletethis.hardcode.objects.nodes.introspection.FieldInstrospectionStartegy;
+import org.deletethis.hardcode.objects.nodes.introspection.IntrospectionStartegy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import org.deletethis.hardcode.codegen.CodegenContext;
-import org.deletethis.hardcode.codegen.ConstructionStrategy;
-import org.deletethis.hardcode.codegen.Expression;
+import org.deletethis.hardcode.objects.CodegenContext;
+import org.deletethis.hardcode.objects.ConstructionStrategy;
+import org.deletethis.hardcode.objects.Expression;
 
 public class ObjectNodeFactory implements NodeFactory {
 
@@ -98,7 +98,7 @@ public class ObjectNodeFactory implements NodeFactory {
 
 
     @Override
-    public Optional<Node> createNode(NodeFactoryContext context, Object someObject) {
+    public Optional<NodeDefinition> createNode(NodeFactoryContext context, Object someObject) {
         Objects.requireNonNull(someObject);
 
         Class<?> clz = someObject.getClass();
@@ -107,7 +107,7 @@ public class ObjectNodeFactory implements NodeFactory {
         
         Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
         ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
-        List<Node> arguments = new ArrayList<>();
+        List<NodeDefinition> arguments = new ArrayList<>();
 
         for(ParameterWrapper p: cons.getParameters()) {
             String name = p.getName();
@@ -125,10 +125,10 @@ public class ObjectNodeFactory implements NodeFactory {
                     throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign " + valueClass.getName() + " to " + type.getName());
                 }
             }
-            Node n = context.getNode(value);
+            NodeDefinition n = context.getNode(value);
             arguments.add(n);
         }
-        Node result = new Node(clz, arguments, new CallConstructor(clz));
+        NodeDefinition result = context.createNode(clz, arguments, new CallConstructor(clz));
         return Optional.of(result);
     }
 

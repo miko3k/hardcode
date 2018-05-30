@@ -1,9 +1,9 @@
-package org.deletethis.hardcode.graph;
+package org.deletethis.hardcode.objects;
 
 import java.util.Optional;
 
 public interface NodeFactory {
     boolean enableReferenceDetection();
-    Optional<Node> createNode(NodeFactoryContext context, Object object);
+    Optional<NodeDefinition> createNode(NodeFactoryContext context, Object object);
     int getOrdering();
 }

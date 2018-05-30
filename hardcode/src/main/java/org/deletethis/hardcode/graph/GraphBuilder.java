@@ -1,8 +1,6 @@
 package org.deletethis.hardcode.graph;
 
-import org.deletethis.hardcode.codegen.CodegenContext;
-import org.deletethis.hardcode.codegen.ConstructionStrategy;
-import org.deletethis.hardcode.codegen.Expression;
+import org.deletethis.hardcode.objects.*;
 
 import java.util.*;
 
@@ -46,18 +44,31 @@ public class GraphBuilder {
                 return n;
             }
 
+            NodeFactoryContext ctx = new NodeFactoryContext() {
+                @Override
+                public NodeDefinition getNode(Object object) {
+                    return GraphBuilder.this.createNode(object);
+                }
+
+                @SuppressWarnings("unchecked")
+                public NodeDefinition createNode(Class<?> type, List<NodeDefinition> parameters, ConstructionStrategy constructor) {
+                    // super hacky cast, but should work, there's no other class implementing {@link NodeDefinition} iterface
+                    return new Node(type, (List<Node>)(List<?>)(parameters), constructor);
+                }
+            };
+
             for(NodeFactory factory: nodeFactories) {
-                Optional<Node> node = factory.createNode(this::createNode, o);
-                if(node.isPresent()) {
-                    n = node.get();
+                Optional<NodeDefinition> nodeOptional = factory.createNode(ctx, o);
+                if(nodeOptional.isPresent()) {
+                    Node node = (Node)nodeOptional.get();
                     if(factory.enableReferenceDetection()) {
-                        objectMap.put(o, n);
+                        objectMap.put(o, node);
                     }
-                    for(Node param: n.getParameters()) {
-                        param.increateRefCount();
+                    for(Node param: node.getParameters()) {
+                        param.addUser(node);
                     }
-                    allNodes.add(n);
-                    return n;
+                    allNodes.add(node);
+                    return node;
                 }
             }
             throw new IllegalArgumentException();
