@@ -3,14 +3,15 @@ package org.deletethis.hardcode.graph;
 import java.util.*;
 
 public class Node {
+    private final Dag graph;
     private final ObjectInfo objectInfo;
-    private final List<Node> successors;
-    /** same not may appear here multipe times, if it appears several times as a paramter of other node */
+    private final List<Node> successors = new ArrayList<>();
+    /** same node may appear here multipe times, if it appears several times as a successor of the other node */
     private final List<Node> predecessors = new ArrayList<>();
 
-    Node(ObjectInfo objectInfo, List<Node> successors) {
+    public Node(Dag graph, ObjectInfo objectInfo) {
+        this.graph = graph;
         this.objectInfo = objectInfo;
-        this.successors = successors;
     }
 
     public ObjectInfo getObjectInfo() {
@@ -18,13 +19,18 @@ public class Node {
     }
 
     public List<Node> getSuccessors() {
-        return successors;
+        return Collections.unmodifiableList(successors);
     }
 
 
-    public void addPredecessor(Node node) {
+    void addPredecessor(Node node) {
         predecessors.add(node);
     }
+
+    void addSuccessor(Node node) {
+        successors.add(node);
+    }
+
 
     @Override
     public String toString() {
@@ -52,11 +58,19 @@ public class Node {
         return bld.toString();
     }
 
-    public int getRefCount() {
+    public List<Node> getPredecessors() {
+        return Collections.unmodifiableList(predecessors);
+    }
+
+    public int getInDegree() {
         return predecessors.size();
     }
 
-    public List<Node> getPredecessors() {
-        return predecessors;
+    public int getOutDegree() {
+        return successors.size();
+    }
+
+    public Dag getGraph() {
+        return graph;
     }
 }

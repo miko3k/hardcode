@@ -60,7 +60,7 @@ public class Printer implements CodegenContext {
         ObjectInfo objectInfo = n.getObjectInfo();
         expression = objectInfo.getCode(context, args);
 
-        if(n.getRefCount() > 1 && !expression.isSimple()) {
+        if(n.getOutDegree() > 1 && !expression.isSimple()) {
             String var = allocateVariable(objectInfo.getType().getSimpleName());
             body.addStatement("$T $L = $L", objectInfo.getType(), var, expression.getCode());
             expression = Expression.simple(var);
@@ -69,7 +69,7 @@ public class Printer implements CodegenContext {
         return expression;
     }
 
-    public Expression print(Graph graph) {
+    public Expression print(Dag graph) {
         return print(this, graph.getRoot());
     }
 }

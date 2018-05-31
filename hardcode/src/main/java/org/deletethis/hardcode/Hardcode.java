@@ -69,18 +69,18 @@ public class Hardcode {
         return new Hardcode(def(), nodeFactories);
     }
 
-    public Graph buildGraph(Object root) {
+    public Dag buildGraph(Object root) {
         GraphBuilder graphBuilderCore = new GraphBuilder(nodeFactoryList);
         return graphBuilderCore.buildGraph(root);
     }
 
     public CodeBlock value(CodeBlock.Builder body, Object o) {
-        Graph graph = buildGraph(o);
+        Dag graph = buildGraph(o);
         Printer p = new Printer(body);
         return p.print(graph).getCode();
     }
 
-    public MethodSpec method(String name, Graph graph) {
+    public MethodSpec method(String name, Dag graph) {
         AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
         builder.addMember("value", "$S", "unchecked");
 

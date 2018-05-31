@@ -4,19 +4,36 @@ import com.squareup.javapoet.CodeBlock;
 
 import java.io.PrintStream;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
-public class Graph {
-    private Node root;
-    private Set<Node> allNodes;
-
-    public Graph(Node n, Set<Node> allNodes) {
-        this.root = n;
-        this.allNodes = allNodes;
-    }
+public class Dag {
+    private Node root = null;
+    private Set<Node> allNodes = new HashSet<>();
 
     public Node getRoot() {
         return root;
+    }
+
+    public void setRoot(Node node) {
+        if(node.getInDegree() != 0) {
+            throw new IllegalArgumentException();
+        }
+        root = node;
+    }
+
+    public Node createNode(ObjectInfo objectInfo) {
+        Node n = new Node(this, objectInfo);
+        allNodes.add(n);
+        return n;
+    }
+
+    public void createEdge(Node from, Node to) {
+        if(from.getGraph() != this) throw new IllegalArgumentException();
+        if(to.getGraph() != this) throw new IllegalArgumentException();
+
+        from.addSuccessor(to);
+        to.addPredecessor(from);
     }
 
     public void printNodes(PrintStream out) {
@@ -45,7 +62,7 @@ public class Graph {
                 c = " color=blue";
             }
 
-            out.println("  " + System.identityHashCode(n) + " [label=" + CodeBlock.of("$S", n.getObjectInfo().toString()) + c + "];");
+            out.println("  " + System.identityHashCode(n) + " [label=" + CodeBlock.of("$S", n.getObjectInfo()) + c + "];");
         }
         for(Node n1: allNodes) {
             for(Node n2: n1.getSuccessors()) {

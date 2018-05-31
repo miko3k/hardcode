@@ -2,7 +2,7 @@ package org.deletethis.hardcode.test;
 
 import org.deletethis.hardcode.Hardcode;
 import org.deletethis.hardcode.graph.ArticulationPoints;
-import org.deletethis.hardcode.graph.Graph;
+import org.deletethis.hardcode.graph.Dag;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -11,7 +11,9 @@ import java.util.Map;
 
 public class Main {
     private static void doIt(Hardcode hardcoder, Object o) {
-        System.out.println(hardcoder.method("foo", o));
+        Dag graph = hardcoder.buildGraph(o);
+        graph.printNodes(System.out);
+        System.out.println(hardcoder.method("foo", graph));
     }
 
 
@@ -59,7 +61,7 @@ public class Main {
         n7.add(n8);
 
         try(PrintStream fw = new PrintStream(new FileOutputStream("d:/tmp/aa.gv"))) {
-            Graph g = hc.buildGraph(n2);
+            Dag g = hc.buildGraph(n2);
             g.printGraphviz(fw, true, ArticulationPoints.find(g.getRoot(), false));
             System.out.println(hc.method("foo", g));
         }

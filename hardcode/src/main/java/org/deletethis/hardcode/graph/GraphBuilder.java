@@ -7,7 +7,7 @@ import java.util.*;
 public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
     private final Map<Object, Node> objectMap = new IdentityHashMap<>();
-    private final Set<Node> allNodes = new HashSet<>();
+    private final Dag dag = new Dag();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
     public GraphBuilder(List<NodeFactory> nodeFactories) {
@@ -35,9 +35,7 @@ public class GraphBuilder {
         //System.out.println("NODE: " + o);
         
         if(o == null) {
-            Node n = new Node(NULL, Collections.emptyList());
-            allNodes.add(n);
-            return n;
+            return dag.createNode(NULL);
         }
 
         if(!objectsInProgress.add(o)) {
@@ -54,20 +52,16 @@ public class GraphBuilder {
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    List<Node> list = new ArrayList<>(nodeDef.getParameters().size());
-                    for(Object param: nodeDef.getParameters()) {
-                        list.add(createNode(param));
-                    }
+                    Node node = dag.createNode(nodeDef.getObjectInfo());
 
-                    Node node = new Node(nodeDef.getObjectInfo(), list);
+                    for(Object param: nodeDef.getParameters()) {
+                        Node n2 = createNode(param);
+                        dag.createEdge(node, n2);
+                    }
 
                     if(factory.enableReferenceDetection()) {
                         objectMap.put(o, node);
                     }
-                    for(Node param: node.getSuccessors()) {
-                        param.addPredecessor(node);
-                    }
-                    allNodes.add(node);
                     return node;
                 }
             }
@@ -77,11 +71,12 @@ public class GraphBuilder {
         }
     }
 
-    public Graph buildGraph(Object o) {
+    public Dag buildGraph(Object o) {
         Node n = createNode(o);
         if(!objectsInProgress.isEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }
-        return new Graph(n, allNodes);
+        dag.setRoot(n);
+        return dag;
     }
 }
