@@ -2,32 +2,32 @@ package org.deletethis.hardcode.graph;
 
 import java.util.*;
 
-public class Node {
-    private final Dag graph;
-    private final ObjectInfo objectInfo;
-    private final List<Node> successors = new ArrayList<>();
+public class DagVertex<T> {
+    private final Dag<T> graph;
+    private final T payload;
+    private final List<DagVertex<T>> successors = new ArrayList<>();
     /** same node may appear here multipe times, if it appears several times as a successor of the other node */
-    private final List<Node> predecessors = new ArrayList<>();
+    private final List<DagVertex<T>> predecessors = new ArrayList<>();
 
-    public Node(Dag graph, ObjectInfo objectInfo) {
+    public DagVertex(Dag<T> graph, T payload) {
         this.graph = graph;
-        this.objectInfo = objectInfo;
+        this.payload = payload;
     }
 
-    public ObjectInfo getObjectInfo() {
-        return objectInfo;
+    public T getPayload() {
+        return payload;
     }
 
-    public List<Node> getSuccessors() {
+    public List<DagVertex<T>> getSuccessors() {
         return Collections.unmodifiableList(successors);
     }
 
 
-    void addPredecessor(Node node) {
+    void addPredecessor(DagVertex<T> node) {
         predecessors.add(node);
     }
 
-    void addSuccessor(Node node) {
+    void addSuccessor(DagVertex<T> node) {
         successors.add(node);
     }
 
@@ -40,10 +40,10 @@ public class Node {
         bld.append(predecessors.size());
         bld.append("]");
         bld.append(": ");
-        bld.append(objectInfo);
+        bld.append(payload);
 
         boolean first = true;
-        for(Node n: successors) {
+        for(DagVertex n: successors) {
             if(first) {
                 bld.append("(");
                 first = false;
@@ -58,7 +58,7 @@ public class Node {
         return bld.toString();
     }
 
-    public List<Node> getPredecessors() {
+    public List<DagVertex<T>> getPredecessors() {
         return Collections.unmodifiableList(predecessors);
     }
 
@@ -70,7 +70,7 @@ public class Node {
         return successors.size();
     }
 
-    public Dag getGraph() {
+    public Dag<T> getGraph() {
         return graph;
     }
 }

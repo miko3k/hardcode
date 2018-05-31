@@ -1,6 +1,6 @@
 package org.deletethis.hardcode.objects;
 
-import org.deletethis.hardcode.graph.ObjectInfo;
+import org.deletethis.hardcode.ObjectInfo;
 
 import java.util.List;
 

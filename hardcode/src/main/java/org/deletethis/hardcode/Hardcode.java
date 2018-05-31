@@ -3,6 +3,8 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import org.deletethis.hardcode.impl.GraphBuilder;
+import org.deletethis.hardcode.impl.Printer;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeFactory;
 import org.deletethis.hardcode.graph.*;
@@ -69,18 +71,16 @@ public class Hardcode {
         return new Hardcode(def(), nodeFactories);
     }
 
-    public Dag buildGraph(Object root) {
-        GraphBuilder graphBuilderCore = new GraphBuilder(nodeFactoryList);
-        return graphBuilderCore.buildGraph(root);
+    public Dag<ObjectInfo> buildGraph(Object root) {
+        return GraphBuilder.buildGraph(nodeFactoryList, root);
     }
 
     public CodeBlock value(CodeBlock.Builder body, Object o) {
-        Dag graph = buildGraph(o);
-        Printer p = new Printer(body);
-        return p.print(graph).getCode();
+        Dag<ObjectInfo> graph = buildGraph(o);
+        return Printer.print(body, graph).getCode();
     }
 
-    public MethodSpec method(String name, Dag graph) {
+    public MethodSpec method(String name, Dag<ObjectInfo> graph) {
         AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
         builder.addMember("value", "$S", "unchecked");
 
@@ -89,10 +89,9 @@ public class Hardcode {
         ms.addAnnotation(builder.build());
         CodeBlock.Builder bld = CodeBlock.builder();
 
-        Printer p = new Printer(bld);
-        Expression expression = p.print(graph);
+        Expression expression = Printer.print(bld, graph);
 
-        Class<?> type = graph.getRoot().getObjectInfo().getType();
+        Class<?> type = graph.getRoot().getPayload().getType();
         if(type == null) {
             ms.returns(Object.class);
         } else {

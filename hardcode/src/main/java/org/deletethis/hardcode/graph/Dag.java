@@ -7,28 +7,28 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Dag {
-    private Node root = null;
-    private Set<Node> allNodes = new HashSet<>();
+public class Dag<T> {
+    private DagVertex<T> root = null;
+    private Set<DagVertex<T>> allNodes = new HashSet<>();
 
-    public Node getRoot() {
+    public DagVertex<T> getRoot() {
         return root;
     }
 
-    public void setRoot(Node node) {
+    public void setRoot(DagVertex<T> node) {
         if(node.getInDegree() != 0) {
             throw new IllegalArgumentException();
         }
         root = node;
     }
 
-    public Node createNode(ObjectInfo objectInfo) {
-        Node n = new Node(this, objectInfo);
+    public DagVertex<T> createNode(T objectInfo) {
+        DagVertex<T> n = new DagVertex<>(this, objectInfo);
         allNodes.add(n);
         return n;
     }
 
-    public void createEdge(Node from, Node to) {
+    public void createEdge(DagVertex<T> from, DagVertex<T> to) {
         if(from.getGraph() != this) throw new IllegalArgumentException();
         if(to.getGraph() != this) throw new IllegalArgumentException();
 
@@ -37,7 +37,7 @@ public class Dag {
     }
 
     public void printNodes(PrintStream out) {
-        for(Node n: allNodes) {
+        for(DagVertex n: allNodes) {
             out.println(n);
         }
 
@@ -47,7 +47,7 @@ public class Dag {
         printGraphviz(out, arrows, Collections.emptySet());
     }
 
-    public void printGraphviz(PrintStream out, boolean arrows, Set<Node> highlight) {
+    public void printGraphviz(PrintStream out, boolean arrows, Set<DagVertex<T>> highlight) {
         String connector = arrows ? " -> " : " -- ";
 
 
@@ -56,20 +56,20 @@ public class Dag {
         } else {
             out.println("graph objects {");
         }
-        for(Node n: allNodes) {
+        for(DagVertex n: allNodes) {
             String c = "";
             if(highlight.contains(n)) {
                 c = " color=blue";
             }
 
-            out.println("  " + System.identityHashCode(n) + " [label=" + CodeBlock.of("$S", n.getObjectInfo()) + c + "];");
+            out.println("  " + System.identityHashCode(n) + " [label=" + CodeBlock.of("$S", n.getPayload()) + c + "];");
         }
-        for(Node n1: allNodes) {
-            for(Node n2: n1.getSuccessors()) {
+        for(DagVertex<T> n1: allNodes) {
+            for(DagVertex<T> n2: n1.getSuccessors()) {
                 out.println("  " + System.identityHashCode(n1) + connector + System.identityHashCode(n2) + ";");
             }
             if(arrows) {
-                for(Node n2: n1.getPredecessors()) {
+                for(DagVertex<T> n2: n1.getPredecessors()) {
                     out.println("  " + System.identityHashCode(n1) + connector + System.identityHashCode(n2) + " [style=\"dotted\"];");
                 }
 

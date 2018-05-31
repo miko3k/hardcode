@@ -1,16 +1,19 @@
-package org.deletethis.hardcode.graph;
+package org.deletethis.hardcode.impl;
 
+import org.deletethis.hardcode.ObjectInfo;
+import org.deletethis.hardcode.graph.Dag;
+import org.deletethis.hardcode.graph.DagVertex;
 import org.deletethis.hardcode.objects.*;
 
 import java.util.*;
 
 public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
-    private final Map<Object, Node> objectMap = new IdentityHashMap<>();
-    private final Dag dag = new Dag();
+    private final Map<Object, DagVertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
+    private final Dag<ObjectInfo> dag = new Dag<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    public GraphBuilder(List<NodeFactory> nodeFactories) {
+    private GraphBuilder(List<NodeFactory> nodeFactories) {
         this.nodeFactories = nodeFactories;
     }
 
@@ -31,7 +34,7 @@ public class GraphBuilder {
         }
     };
 
-    public Node createNode(Object o) {
+    private DagVertex<ObjectInfo> createNode(Object o) {
         //System.out.println("NODE: " + o);
         
         if(o == null) {
@@ -42,7 +45,7 @@ public class GraphBuilder {
             throw new IllegalStateException("cycle detected");
         }
         try {
-            Node n = objectMap.get(o);
+            DagVertex<ObjectInfo> n = objectMap.get(o);
             if (n != null) {
                 return n;
             }
@@ -52,10 +55,10 @@ public class GraphBuilder {
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    Node node = dag.createNode(nodeDef.getObjectInfo());
+                    DagVertex<ObjectInfo> node = dag.createNode(nodeDef.getObjectInfo());
 
                     for(Object param: nodeDef.getParameters()) {
-                        Node n2 = createNode(param);
+                        DagVertex<ObjectInfo> n2 = createNode(param);
                         dag.createEdge(node, n2);
                     }
 
@@ -71,12 +74,14 @@ public class GraphBuilder {
         }
     }
 
-    public Dag buildGraph(Object o) {
-        Node n = createNode(o);
-        if(!objectsInProgress.isEmpty()) {
+    public static Dag<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, Object o) {
+        GraphBuilder gb = new GraphBuilder(nodeFactories);
+
+        DagVertex<ObjectInfo> n = gb.createNode(o);
+        if(!gb.objectsInProgress.isEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }
-        dag.setRoot(n);
-        return dag;
+        gb.dag.setRoot(n);
+        return gb.dag;
     }
 }

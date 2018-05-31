@@ -1,6 +1,6 @@
 package org.deletethis.hardcode.objects.impl;
 
-import org.deletethis.hardcode.graph.ObjectInfo;
+import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeDefinition;

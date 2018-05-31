@@ -1,4 +1,4 @@
-package org.deletethis.hardcode.graph;
+package org.deletethis.hardcode;
 
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;

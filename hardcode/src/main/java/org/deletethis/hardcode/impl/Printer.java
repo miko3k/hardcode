@@ -1,7 +1,10 @@
-package org.deletethis.hardcode.graph;
+package org.deletethis.hardcode.impl;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.NameAllocator;
+import org.deletethis.hardcode.ObjectInfo;
+import org.deletethis.hardcode.graph.Dag;
+import org.deletethis.hardcode.graph.DagVertex;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 
@@ -14,10 +17,10 @@ import java.util.Map;
 public class Printer implements CodegenContext {
     private final CodeBlock.Builder body;
     private final NameAllocator nameAllocator = new NameAllocator();
-    private final Map<Node, Expression> exprMap = new HashMap<>();
+    private final Map<DagVertex, Expression> exprMap = new HashMap<>();
     private Map<String, Integer> variableNumbers = new HashMap<>();
 
-    public Printer(CodeBlock.Builder body) {
+    private Printer(CodeBlock.Builder body) {
         this.body = body;
     }
 
@@ -46,7 +49,7 @@ public class Printer implements CodegenContext {
         return body;
     }
 
-    private Expression print(CodegenContext context, Node n) {
+    private Expression print(CodegenContext context, DagVertex<ObjectInfo> n) {
         Expression expression = exprMap.get(n);
         if(expression != null) {
             return expression;
@@ -54,10 +57,10 @@ public class Printer implements CodegenContext {
 
         List<Expression> args = new ArrayList<>();
 
-        for(Node a: n.getSuccessors()) {
+        for(DagVertex<ObjectInfo> a: n.getSuccessors()) {
             args.add(print(context, a));
         }
-        ObjectInfo objectInfo = n.getObjectInfo();
+        ObjectInfo objectInfo = n.getPayload();
         expression = objectInfo.getCode(context, args);
 
         if(n.getOutDegree() > 1 && !expression.isSimple()) {
@@ -69,7 +72,12 @@ public class Printer implements CodegenContext {
         return expression;
     }
 
-    public Expression print(Dag graph) {
+    private Expression print(Dag<ObjectInfo> graph) {
         return print(this, graph.getRoot());
+    }
+
+    public static Expression print(CodeBlock.Builder body, Dag<ObjectInfo> graph) {
+        Printer p = new Printer(body);
+        return p.print(graph);
     }
 }
