@@ -1,26 +1,39 @@
 package org.deletethis.hardcode.objects.impl;
 
 import org.deletethis.hardcode.graph.ObjectInfo;
-import org.deletethis.hardcode.objects.NodeDef;
+import org.deletethis.hardcode.objects.CodegenContext;
+import org.deletethis.hardcode.objects.Expression;
+import org.deletethis.hardcode.objects.NodeDefinition;
 
 import java.util.Collections;
 import java.util.List;
 
-public class NodeDefImpl implements NodeDef {
+public class NodeDefImpl implements NodeDefinition {
     private final ObjectInfo objectInfo;
     private final List<Object> parameters;
 
-    public NodeDefImpl(ObjectInfo objectInfo, List<Object> parameters) {
-        this.objectInfo = objectInfo;
+    public NodeDefImpl(Class<?> type, String asString, List<Object> parameters, ConstructionStrategy constructionStrategy) {
         this.parameters = parameters;
+        this.objectInfo = new ObjectInfo() {
+            @Override
+            public Class<?> getType() {
+                return type;
+            }
+
+            @Override
+            public Expression getCode(CodegenContext context, List<Expression> arguments) {
+                return constructionStrategy.getCode(type, context, arguments);
+            }
+
+            @Override
+            public String toString() {
+                return asString;
+            }
+        };
     }
 
-    public NodeDefImpl(Class<?> type, List<Object> parameters, ConstructionStrategy constructionStrategy) {
-        this(new ObjectInfoImpl(type, constructionStrategy), parameters);
-    }
-
-    public NodeDefImpl(Class<?> type, ConstructionStrategy constructionStrategy) {
-        this(new ObjectInfoImpl(type, constructionStrategy), Collections.emptyList());
+    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
+        this(type, asString, Collections.emptyList(), constructionStrategy);
     }
 
     @Override

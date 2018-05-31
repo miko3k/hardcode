@@ -50,9 +50,9 @@ public class GraphBuilder {
             }
 
             for(NodeFactory factory: nodeFactories) {
-                Optional<NodeDef> nodeOptional = factory.createNode(o);
+                Optional<NodeDefinition> nodeOptional = factory.createNode(o);
                 if(nodeOptional.isPresent()) {
-                    NodeDef nodeDef = nodeOptional.get();
+                    NodeDefinition nodeDef = nodeOptional.get();
 
                     List<Node> list = new ArrayList<>(nodeDef.getParameters().size());
                     for(Object param: nodeDef.getParameters()) {

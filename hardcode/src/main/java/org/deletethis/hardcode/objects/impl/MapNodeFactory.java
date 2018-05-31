@@ -19,38 +19,24 @@ public class MapNodeFactory implements NodeFactory {
         return true;
     }
 
-    private static class EmitCode implements ConstructionStrategy {
-        private final Class<?> clz;
-
-        EmitCode(Class<?> clz) {
-            this.clz = clz;
+    private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
+        String variable = context.allocateVariable(clz.getSimpleName());
+        if (CLASSES_WITH_CAPACITY.contains(clz)) {
+            // arguments contain both keys and values, we create map with double initial capacitity
+            // 1.33 should be enough at default load factor of of 0.75 but what the heck
+            context.getBody().addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.size());
+        } else {
+            context.getBody().addStatement("$T $L = new $T()", clz, variable, clz);
         }
-
-        @Override
-        public Expression getCode(CodegenContext context, List<Expression> arguments) {
-            String variable = context.allocateVariable(clz.getSimpleName());
-            if(CLASSES_WITH_CAPACITY.contains(clz)) {
-                // arguments contain both keys and values, we create map with double initial capacitity
-                // 1.33 should be enough at default load factor of of 0.75 but what the heck
-                context.getBody().addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.size());
-            } else {
-                context.getBody().addStatement("$T $L = new $T()", clz, variable, clz);
-            }
-            for(int i=0;i<arguments.size();i+=2) {
-                context.getBody().addStatement("$L.put($L, $L)", variable, arguments.get(i).getCode(), arguments.get(i+1).getCode());
-            }
-            return Expression.simple(variable);
+        for (int i = 0; i < arguments.size(); i += 2) {
+            context.getBody().addStatement("$L.put($L, $L)", variable, arguments.get(i).getCode(), arguments.get(i + 1).getCode());
         }
-
-        @Override
-        public String toString() {
-            return clz.getSimpleName();
-        }
+        return Expression.simple(variable);
     }
 
 
     @Override
-    public Optional<NodeDef> createNode(Object object) {
+    public Optional<NodeDefinition> createNode(Object object) {
         Class<?> aClass = object.getClass();
 
         if(!CLASSES_WITH_CAPACITY.contains(aClass) && !CLASSES_WITHOUT_CAPACITY.contains(aClass))
@@ -62,7 +48,7 @@ public class MapNodeFactory implements NodeFactory {
             members.add(o.getKey());
             members.add(o.getValue());
         }
-        return Optional.of(new NodeDefImpl(aClass, members, new EmitCode(aClass)));
+        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), members, this::getCode));
     }
 
     @Override

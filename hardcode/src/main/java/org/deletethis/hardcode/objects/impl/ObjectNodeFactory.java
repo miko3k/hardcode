@@ -16,37 +16,23 @@ public class ObjectNodeFactory implements NodeFactory {
 
     private IntrospectionStartegy strategy = new FieldInstrospectionStartegy();
 
-    public class CallConstructor implements ConstructionStrategy {
-
-        private final Class<?> clz;
-
-        public CallConstructor(Class<?> clz) {
-            this.clz = clz;
-        }
-
-        @Override
-        public Expression getCode(CodegenContext context, List<Expression> arguments) {
-            CodeBlock.Builder bld = CodeBlock.builder();
-            bld.add("new $T(", clz);
-            boolean first = true;
-            for (Expression b : arguments) {
-                if (first) {
-                    first = false;
-                } else {
-                    bld.add(", ");
-                }
-                bld.add(b.getCode());
+    private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
+        CodeBlock.Builder bld = CodeBlock.builder();
+        bld.add("new $T(", clz);
+        boolean first = true;
+        for (Expression b : arguments) {
+            if (first) {
+                first = false;
+            } else {
+                bld.add(", ");
             }
-            bld.add(")");
-            return Expression.complex(bld.build());
+            bld.add(b.getCode());
         }
-
-        @Override
-        public String toString() {
-            return clz.getSimpleName();
-        }
+        bld.add(")");
+        return Expression.complex(bld.build());
     }
-    
+
+
     @Override
     public boolean enableReferenceDetection() {
         return true;
@@ -93,7 +79,7 @@ public class ObjectNodeFactory implements NodeFactory {
 
 
     @Override
-    public Optional<NodeDef> createNode(Object someObject) {
+    public Optional<NodeDefinition> createNode(Object someObject) {
         Objects.requireNonNull(someObject);
 
         Class<?> clz = someObject.getClass();
@@ -122,7 +108,7 @@ public class ObjectNodeFactory implements NodeFactory {
             }
             arguments.add(value);
         }
-        return Optional.of(new NodeDefImpl(clz, arguments, new CallConstructor(clz)));
+        return Optional.of(new NodeDefImpl(clz, clz.getSimpleName(), arguments, this::getCode));
     }
 
     @Override

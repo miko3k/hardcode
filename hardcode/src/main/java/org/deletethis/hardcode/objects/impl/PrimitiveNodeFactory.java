@@ -1,7 +1,6 @@
 package org.deletethis.hardcode.objects.impl;
 
 import com.squareup.javapoet.CodeBlock;
-import java.util.List;
 
 import org.deletethis.hardcode.objects.*;
 
@@ -9,37 +8,20 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class PrimitiveNodeFactory implements NodeFactory {
-    private static class Literal<T> implements ConstructionStrategy {
-        private final T value;
-        private final Function<T, CodeBlock> fn;
-
-        public Literal(T value, Function<T, CodeBlock> fn) {
-            this.value = value;
-            this.fn = fn;
-        }
-
-        @Override
-        public Expression getCode(CodegenContext context, List<Expression> arguments) {
-            return Expression.simple(fn.apply(value));
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(value);
-        }
-    }
-
     @Override
     public boolean enableReferenceDetection() {
         return false;
     }
 
-    private <T> Optional<NodeDef> create(Class<?> clz, T value, Function<T, CodeBlock> fn) {
-        return Optional.of(new NodeDefImpl(clz, new Literal<>(value, fn)));
+    private <T> Optional<NodeDefinition> create(Class<?> clz, T value, Function<T, CodeBlock> fn) {
+        return Optional.of(new NodeDefImpl(
+                clz,
+                String.valueOf(value),
+                (clz1, context, arguments) -> Expression.simple(fn.apply(value))));
     }
     
     @Override
-    public Optional<NodeDef> createNode(Object object) {
+    public Optional<NodeDefinition> createNode(Object object) {
         if(object instanceof Integer) {
             return create(Integer.class, object, (val)->CodeBlock.of("$L", val));
         }

@@ -4,7 +4,7 @@ import org.deletethis.hardcode.graph.ObjectInfo;
 
 import java.util.List;
 
-public interface NodeDef {
+public interface NodeDefinition {
     ObjectInfo getObjectInfo();
     List<Object> getParameters();
 }

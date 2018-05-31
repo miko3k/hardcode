@@ -6,5 +6,5 @@ import org.deletethis.hardcode.objects.Expression;
 import java.util.List;
 
 public interface ConstructionStrategy {
-    Expression getCode(CodegenContext context, List<Expression> arguments);
+    Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments);
 }
