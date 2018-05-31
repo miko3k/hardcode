@@ -14,7 +14,12 @@ public class GraphBuilder {
         this.nodeFactories = nodeFactories;
     }
 
-    private static final ConstructionStrategy NULL = new ConstructionStrategy() {
+    private static final ObjectInfo NULL = new ObjectInfo() {
+        @Override
+        public Class<?> getType() {
+            return null;
+        }
+
         @Override
         public Expression getCode(CodegenContext context, List<Expression> arguments) {
             return Expression.simple("null");
@@ -30,7 +35,7 @@ public class GraphBuilder {
         //System.out.println("NODE: " + o);
         
         if(o == null) {
-            Node n = new Node(null, NULL);
+            Node n = new Node(NULL, Collections.emptyList());
             allNodes.add(n);
             return n;
         }
@@ -44,28 +49,23 @@ public class GraphBuilder {
                 return n;
             }
 
-            NodeFactoryContext ctx = new NodeFactoryContext() {
-                @Override
-                public NodeDefinition getNode(Object object) {
-                    return GraphBuilder.this.createNode(object);
-                }
-
-                @SuppressWarnings("unchecked")
-                public NodeDefinition createNode(Class<?> type, List<NodeDefinition> parameters, ConstructionStrategy constructor) {
-                    // super hacky cast, but should work, there's no other class implementing {@link NodeDefinition} iterface
-                    return new Node(type, (List<Node>)(List<?>)(parameters), constructor);
-                }
-            };
-
             for(NodeFactory factory: nodeFactories) {
-                Optional<NodeDefinition> nodeOptional = factory.createNode(ctx, o);
+                Optional<NodeDef> nodeOptional = factory.createNode(o);
                 if(nodeOptional.isPresent()) {
-                    Node node = (Node)nodeOptional.get();
+                    NodeDef nodeDef = nodeOptional.get();
+
+                    List<Node> list = new ArrayList<>(nodeDef.getParameters().size());
+                    for(Object param: nodeDef.getParameters()) {
+                        list.add(createNode(param));
+                    }
+
+                    Node node = new Node(nodeDef.getObjectInfo(), list);
+
                     if(factory.enableReferenceDetection()) {
                         objectMap.put(o, node);
                     }
-                    for(Node param: node.getParameters()) {
-                        param.addUser(node);
+                    for(Node param: node.getSuccessors()) {
+                        param.addPredecessor(node);
                     }
                     allNodes.add(node);
                     return node;

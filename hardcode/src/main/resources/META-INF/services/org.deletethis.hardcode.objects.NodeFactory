@@ -1,4 +1,4 @@
-org.deletethis.hardcode.objects.nodes.PrimitiveNodeFactory
-org.deletethis.hardcode.objects.nodes.CollectionNodeFactory
-org.deletethis.hardcode.objects.nodes.MapNodeFactory
-org.deletethis.hardcode.objects.nodes.ObjectNodeFactory
+org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory
+org.deletethis.hardcode.objects.impl.CollectionNodeFactory
+org.deletethis.hardcode.objects.impl.MapNodeFactory
+org.deletethis.hardcode.objects.impl.ObjectNodeFactory

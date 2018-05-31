@@ -4,6 +4,6 @@ import java.util.Optional;
 
 public interface NodeFactory {
     boolean enableReferenceDetection();
-    Optional<NodeDefinition> createNode(NodeFactoryContext context, Object object);
+    Optional<NodeDef> createNode(Object object);
     int getOrdering();
 }

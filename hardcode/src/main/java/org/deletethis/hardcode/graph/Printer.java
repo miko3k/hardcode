@@ -54,14 +54,15 @@ public class Printer implements CodegenContext {
 
         List<Expression> args = new ArrayList<>();
 
-        for(Node a: n.getParameters()) {
+        for(Node a: n.getSuccessors()) {
             args.add(print(context, a));
         }
-        expression = n.getConstructor().getCode(context, args);
+        ObjectInfo objectInfo = n.getObjectInfo();
+        expression = objectInfo.getCode(context, args);
 
         if(n.getRefCount() > 1 && !expression.isSimple()) {
-            String var = allocateVariable(n.getType().getSimpleName());
-            body.addStatement("$T $L = $L", n.getType(), var, expression.getCode());
+            String var = allocateVariable(objectInfo.getType().getSimpleName());
+            body.addStatement("$T $L = $L", objectInfo.getType(), var, expression.getCode());
             expression = Expression.simple(var);
             exprMap.put(n, expression);
         }

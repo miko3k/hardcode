@@ -1,11 +1,11 @@
 package org.deletethis.hardcode.test;
 
 import org.deletethis.hardcode.Hardcode;
+import org.deletethis.hardcode.graph.ArticulationPoints;
 import org.deletethis.hardcode.graph.Graph;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +60,7 @@ public class Main {
 
         try(PrintStream fw = new PrintStream(new FileOutputStream("d:/tmp/aa.gv"))) {
             Graph g = hc.buildGraph(n2);
-            g.printGraphviz(fw, false);
+            g.printGraphviz(fw, true, ArticulationPoints.find(g.getRoot(), false));
             System.out.println(hc.method("foo", g));
         }
 

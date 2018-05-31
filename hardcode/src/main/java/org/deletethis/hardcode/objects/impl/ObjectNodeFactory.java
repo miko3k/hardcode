@@ -1,21 +1,16 @@
-package org.deletethis.hardcode.objects.nodes;
+package org.deletethis.hardcode.objects.impl;
 
-import org.deletethis.hardcode.objects.nodes.introspection.ConstructorWrapper;
+import org.deletethis.hardcode.objects.*;
+import org.deletethis.hardcode.objects.impl.introspection.ConstructorWrapper;
 import com.squareup.javapoet.CodeBlock;
-import org.deletethis.hardcode.objects.nodes.introspection.ParameterWrapper;
-import org.deletethis.hardcode.objects.NodeDefinition;
+import org.deletethis.hardcode.objects.impl.introspection.ParameterWrapper;
 import org.deletethis.hardcode.util.TypeUtil;
-import org.deletethis.hardcode.objects.NodeFactory;
-import org.deletethis.hardcode.objects.NodeFactoryContext;
-import org.deletethis.hardcode.objects.nodes.introspection.FieldInstrospectionStartegy;
-import org.deletethis.hardcode.objects.nodes.introspection.IntrospectionStartegy;
+import org.deletethis.hardcode.objects.impl.introspection.FieldInstrospectionStartegy;
+import org.deletethis.hardcode.objects.impl.introspection.IntrospectionStartegy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import org.deletethis.hardcode.objects.CodegenContext;
-import org.deletethis.hardcode.objects.ConstructionStrategy;
-import org.deletethis.hardcode.objects.Expression;
 
 public class ObjectNodeFactory implements NodeFactory {
 
@@ -48,7 +43,7 @@ public class ObjectNodeFactory implements NodeFactory {
 
         @Override
         public String toString() {
-            return clz.getName();
+            return clz.getSimpleName();
         }
     }
     
@@ -98,7 +93,7 @@ public class ObjectNodeFactory implements NodeFactory {
 
 
     @Override
-    public Optional<NodeDefinition> createNode(NodeFactoryContext context, Object someObject) {
+    public Optional<NodeDef> createNode(Object someObject) {
         Objects.requireNonNull(someObject);
 
         Class<?> clz = someObject.getClass();
@@ -107,14 +102,14 @@ public class ObjectNodeFactory implements NodeFactory {
         
         Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
         ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
-        List<NodeDefinition> arguments = new ArrayList<>();
+        List<Object> arguments = new ArrayList<>();
 
         for(ParameterWrapper p: cons.getParameters()) {
             String name = p.getName();
             Class<?> type = p.getType();
 
             Object value = introspect.get(name).getValue(someObject);
-
+            // IS THIS REALLY NECESSARY??
             if(value == null) {
                 if (type.isPrimitive()) {
                     throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign null to " + type.getName());
@@ -125,11 +120,9 @@ public class ObjectNodeFactory implements NodeFactory {
                     throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign " + valueClass.getName() + " to " + type.getName());
                 }
             }
-            NodeDefinition n = context.getNode(value);
-            arguments.add(n);
+            arguments.add(value);
         }
-        NodeDefinition result = context.createNode(clz, arguments, new CallConstructor(clz));
-        return Optional.of(result);
+        return Optional.of(new NodeDefImpl(clz, arguments, new CallConstructor(clz)));
     }
 
     @Override

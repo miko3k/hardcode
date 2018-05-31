@@ -3,8 +3,7 @@ package org.deletethis.hardcode.graph;
 import com.squareup.javapoet.CodeBlock;
 
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Set;
 
 public class Graph {
@@ -28,7 +27,12 @@ public class Graph {
     }
 
     public void printGraphviz(PrintStream out, boolean arrows) {
+        printGraphviz(out, arrows, Collections.emptySet());
+    }
+
+    public void printGraphviz(PrintStream out, boolean arrows, Set<Node> highlight) {
         String connector = arrows ? " -> " : " -- ";
+
 
         if(arrows) {
             out.println("digraph objects {");
@@ -36,50 +40,28 @@ public class Graph {
             out.println("graph objects {");
         }
         for(Node n: allNodes) {
-            out.println("  " + System.identityHashCode(n) + " [label=" + CodeBlock.of("$S", n.getConstructor().toString()) + "];");
+            String c = "";
+            if(highlight.contains(n)) {
+                c = " color=blue";
+            }
+
+            out.println("  " + System.identityHashCode(n) + " [label=" + CodeBlock.of("$S", n.getObjectInfo().toString()) + c + "];");
         }
         for(Node n1: allNodes) {
-            for(Node n2: n1.getParameters()) {
+            for(Node n2: n1.getSuccessors()) {
                 out.println("  " + System.identityHashCode(n1) + connector + System.identityHashCode(n2) + ";");
+            }
+            if(arrows) {
+                for(Node n2: n1.getPredecessors()) {
+                    out.println("  " + System.identityHashCode(n1) + connector + System.identityHashCode(n2) + " [style=\"dotted\"];");
+                }
+
             }
         }
         out.println("}");
     }
 
-    public class ArticulationPoints {
-        HashMap<Node, Boolean> visited = new HashMap<>();
-        HashMap<Node, Integer> depth = new HashMap<>();
-        HashMap<Node, Integer> low = new HashMap<>();
-
-        public void getArticulationPoints(Node i, int d) {
-            visited.put(i, true);
-            depth.put(i, d);
-            low.put(i, d);
-            int childCount = 0;
-            boolean isArticulation = false;
 
 
-        }
-    }
 
-/*
-GetArticulationPoints(i, d)
-    visited[i] = true
-    depth[i] = d
-    low[i] = d
-    childCount = 0
-    isArticulation = false
-    for each ni in adj[i]
-        if not visited[ni]
-            parent[ni] = i
-            GetArticulationPoints(ni, d + 1)
-            childCount = childCount + 1
-            if low[ni] >= depth[i]
-                isArticulation = true
-            low[i] = Min(low[i], low[ni])
-        else if ni <> parent[i]
-            low[i] = Min(low[i], depth[ni])
-    if (parent[i] <> null and isArticulation) or (parent[i] == null and childCount > 1)
-        Output i as articulation point
-*/
 }

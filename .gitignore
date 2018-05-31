@@ -1,4 +1,5 @@
 .idea/*
 !.idea/runConfigurations
+!.idea/inspectionProfiles
 **/*.iml
 **/target/*

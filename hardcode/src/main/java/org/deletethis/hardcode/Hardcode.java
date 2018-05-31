@@ -6,13 +6,13 @@ import com.squareup.javapoet.MethodSpec;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeFactory;
 import org.deletethis.hardcode.graph.*;
-import org.deletethis.hardcode.objects.nodes.CollectionNodeFactory;
-import org.deletethis.hardcode.objects.nodes.ObjectNodeFactory;
-import org.deletethis.hardcode.objects.nodes.PrimitiveNodeFactory;
+import org.deletethis.hardcode.objects.impl.CollectionNodeFactory;
+import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
+import org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory;
 
 import javax.lang.model.element.Modifier;
 import java.util.*;
-import org.deletethis.hardcode.objects.nodes.MapNodeFactory;
+import org.deletethis.hardcode.objects.impl.MapNodeFactory;
 
 public class Hardcode {
     private final List<NodeFactory> nodeFactoryList;
@@ -92,7 +92,7 @@ public class Hardcode {
         Printer p = new Printer(bld);
         Expression expression = p.print(graph);
 
-        Class<?> type = graph.getRoot().getType();
+        Class<?> type = graph.getRoot().getObjectInfo().getType();
         if(type == null) {
             ms.returns(Object.class);
         } else {

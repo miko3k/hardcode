@@ -1,11 +1,6 @@
-package org.deletethis.hardcode.objects.nodes;
+package org.deletethis.hardcode.objects.impl;
 
-import org.deletethis.hardcode.objects.CodegenContext;
-import org.deletethis.hardcode.objects.ConstructionStrategy;
-import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.NodeDefinition;
-import org.deletethis.hardcode.objects.NodeFactory;
-import org.deletethis.hardcode.objects.NodeFactoryContext;
+import org.deletethis.hardcode.objects.*;
 
 import java.util.*;
 
@@ -49,25 +44,25 @@ public class MapNodeFactory implements NodeFactory {
 
         @Override
         public String toString() {
-            return clz.getName();
+            return clz.getSimpleName();
         }
     }
 
 
     @Override
-    public Optional<NodeDefinition> createNode(NodeFactoryContext context, Object object) {
+    public Optional<NodeDef> createNode(Object object) {
         Class<?> aClass = object.getClass();
 
         if(!CLASSES_WITH_CAPACITY.contains(aClass) && !CLASSES_WITHOUT_CAPACITY.contains(aClass))
             return Optional.empty();
 
         Map<?,?> coll = (Map<?,?>)object;
-        List<NodeDefinition> members = new ArrayList<>(coll.size());
+        List<Object> members = new ArrayList<>(coll.size());
         for(Map.Entry<?,?> o: coll.entrySet()) {
-            members.add(context.getNode(o.getKey()));
-            members.add(context.getNode(o.getValue()));
+            members.add(o.getKey());
+            members.add(o.getValue());
         }
-        return Optional.of(context.createNode(aClass, members, new EmitCode(aClass)));
+        return Optional.of(new NodeDefImpl(aClass, members, new EmitCode(aClass)));
     }
 
     @Override

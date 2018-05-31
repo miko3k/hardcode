@@ -1,4 +1,4 @@
-package org.deletethis.hardcode.objects.nodes.introspection;
+package org.deletethis.hardcode.objects.impl.introspection;
 
 import java.util.Map;
 

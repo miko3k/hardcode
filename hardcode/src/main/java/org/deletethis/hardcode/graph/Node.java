@@ -1,41 +1,29 @@
 package org.deletethis.hardcode.graph;
 
-import org.deletethis.hardcode.objects.ConstructionStrategy;
-import org.deletethis.hardcode.objects.NodeDefinition;
-
 import java.util.*;
 
-public class Node implements NodeDefinition {
-    private final ConstructionStrategy constructor;
-    private final Class<?> type;
-    private final List<Node> parameters;
+public class Node {
+    private final ObjectInfo objectInfo;
+    private final List<Node> successors;
     /** same not may appear here multipe times, if it appears several times as a paramter of other node */
-    private final List<Node> users = new ArrayList<>();
+    private final List<Node> predecessors = new ArrayList<>();
 
-    Node(Class<?> type, List<Node> parameters, ConstructionStrategy constructor) {
-        this.constructor = Objects.requireNonNull(constructor);
-        this.type = type;
-        this.parameters = Objects.requireNonNull(parameters);
+    Node(ObjectInfo objectInfo, List<Node> successors) {
+        this.objectInfo = objectInfo;
+        this.successors = successors;
     }
 
-    public Node(Class<?> type, ConstructionStrategy constructor) {
-        this(type, Collections.emptyList(), constructor);
+    public ObjectInfo getObjectInfo() {
+        return objectInfo;
     }
 
-    public ConstructionStrategy getConstructor() {
-        return constructor;
+    public List<Node> getSuccessors() {
+        return successors;
     }
 
-    public List<Node> getParameters() {
-        return parameters;
-    }
 
-    public Class<?> getType() {
-        return type;
-    }
-
-    public void addUser(Node node) {
-        users.add(node);
+    public void addPredecessor(Node node) {
+        predecessors.add(node);
     }
 
     @Override
@@ -43,13 +31,13 @@ public class Node implements NodeDefinition {
         StringBuilder bld = new StringBuilder();
         bld.append(System.identityHashCode(this));
         bld.append("[");
-        bld.append(users.size());
+        bld.append(predecessors.size());
         bld.append("]");
         bld.append(": ");
-        bld.append(constructor);
+        bld.append(objectInfo);
 
         boolean first = true;
-        for(Node n: parameters) {
+        for(Node n: successors) {
             if(first) {
                 bld.append("(");
                 first = false;
@@ -65,6 +53,10 @@ public class Node implements NodeDefinition {
     }
 
     public int getRefCount() {
-        return users.size();
+        return predecessors.size();
+    }
+
+    public List<Node> getPredecessors() {
+        return predecessors;
     }
 }

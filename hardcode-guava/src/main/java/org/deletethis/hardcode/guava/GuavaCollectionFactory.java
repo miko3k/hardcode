@@ -3,17 +3,14 @@ package org.deletethis.hardcode.guava;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.CodeBlock;
-import org.deletethis.hardcode.objects.CodegenContext;
-import org.deletethis.hardcode.objects.ConstructionStrategy;
-import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.NodeDefinition;
-import org.deletethis.hardcode.objects.NodeFactory;
-import org.deletethis.hardcode.objects.NodeFactoryContext;
+import org.deletethis.hardcode.objects.*;
+import org.deletethis.hardcode.objects.impl.ConstructionStrategy;
+import org.deletethis.hardcode.objects.impl.NodeDefImpl;
 
 import java.util.*;
 
 public class GuavaCollectionFactory implements NodeFactory {
-    final private static Set<Class<?>> CLASSES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+    private static final Set<Class<?>> CLASSES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             ImmutableList.class, ImmutableSet.class
 
     )));
@@ -69,24 +66,21 @@ public class GuavaCollectionFactory implements NodeFactory {
 
         @Override
         public String toString() {
-            return clz.getName();
+            return clz.getSimpleName();
         }
     }
 
 
     @Override
-    public Optional<NodeDefinition> createNode(NodeFactoryContext context, Object object) {
+    public Optional<NodeDef> createNode(Object object) {
         Class<?> aClass = findClass(object);
 
         if(aClass == null)
             return Optional.empty();
 
         Collection<?> coll = (Collection<?>)object;
-        List<NodeDefinition> members = new ArrayList<>(coll.size());
-        for(Object o: coll) {
-            members.add(context.getNode(o));
-        }
-        return Optional.of(context.createNode(aClass, members, new EmitCode(aClass)));
+        List<Object> members = new ArrayList<>(coll);
+        return Optional.of(new NodeDefImpl(aClass, members, new EmitCode(aClass)));
     }
 
     @Override
