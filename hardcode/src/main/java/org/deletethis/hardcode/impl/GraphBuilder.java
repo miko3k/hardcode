@@ -2,6 +2,7 @@ package org.deletethis.hardcode.impl;
 
 import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.hardcode.graph.Dag;
+import org.deletethis.hardcode.graph.DagImpl;
 import org.deletethis.hardcode.graph.DagVertex;
 import org.deletethis.hardcode.objects.*;
 
@@ -10,7 +11,7 @@ import java.util.*;
 public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
     private final Map<Object, DagVertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
-    private final Dag<ObjectInfo> dag = new Dag<>();
+    private final Dag<ObjectInfo> dag = new DagImpl<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
     private GraphBuilder(List<NodeFactory> nodeFactories) {
@@ -38,7 +39,7 @@ public class GraphBuilder {
         //System.out.println("NODE: " + o);
         
         if(o == null) {
-            return dag.createNode(NULL);
+            return dag.createVertex(NULL);
         }
 
         if(!objectsInProgress.add(o)) {
@@ -55,7 +56,7 @@ public class GraphBuilder {
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    DagVertex<ObjectInfo> node = dag.createNode(nodeDef.getObjectInfo());
+                    DagVertex<ObjectInfo> node = dag.createVertex(nodeDef.getObjectInfo());
 
                     for(Object param: nodeDef.getParameters()) {
                         DagVertex<ObjectInfo> n2 = createNode(param);

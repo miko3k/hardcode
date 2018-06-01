@@ -13,7 +13,7 @@ public class ArticulationPoints<T> {
     private final Set<DagVertex<T>> out = new HashSet<>();
     private final boolean includeRoot;
 
-    public ArticulationPoints(boolean includeRoot) {
+    private ArticulationPoints(boolean includeRoot) {
         this.includeRoot = includeRoot;
     }
 
