@@ -3,9 +3,10 @@ package org.deletethis.hardcode.graph;
 import java.util.Collection;
 
 public interface Dag<T> {
-    DagVertex<T> getRoot();
-    void setRoot(DagVertex<T> node);
-    DagVertex<T> createVertex(T objectInfo);
-    void createEdge(DagVertex<T> from, DagVertex<T> to);
-    Collection<DagVertex<T>> getAllVertices();
+    Vertex<T> getRoot();
+    void setRoot(Vertex<T> node);
+    Vertex<T> createVertex(T objectInfo);
+    void createEdge(Vertex<T> from, Vertex<T> to);
+    Collection<Vertex<T>> getAllVertices();
+    boolean isEmpty();
 }

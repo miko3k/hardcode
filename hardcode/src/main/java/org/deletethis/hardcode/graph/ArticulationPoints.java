@@ -5,19 +5,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class ArticulationPoints<T> {
-    private final Set<DagVertex<T>> visited = new HashSet<>();
-    private final HashMap<DagVertex<T>, Integer> depth = new HashMap<>();
-    private final HashMap<DagVertex<T>, Integer> low = new HashMap<>();
-    private final HashMap<DagVertex<T>, DagVertex<T>> parent = new HashMap<>();
-    private final Set<DagVertex<T>> out = new HashSet<>();
+class ArticulationPoints<T> {
+    private final Set<Vertex<T>> visited = new HashSet<>();
+    private final HashMap<Vertex<T>, Integer> depth = new HashMap<>();
+    private final HashMap<Vertex<T>, Integer> low = new HashMap<>();
+    private final HashMap<Vertex<T>, Vertex<T>> parent = new HashMap<>();
+    final Set<Vertex<T>> out = new HashSet<>();
     private final boolean includeRoot;
 
-    private ArticulationPoints(boolean includeRoot) {
+    ArticulationPoints(boolean includeRoot) {
         this.includeRoot = includeRoot;
     }
 
-    private void find(DagVertex<T> i, int d) {
+    void find(Vertex<T> i, int d) {
         /*
         GetArticulationPoints(i, d)
             visited[i] = true
@@ -46,8 +46,8 @@ public class ArticulationPoints<T> {
         int childCount = 0;
         boolean isArticulation = false;
 
-        Iterable<DagVertex<T>> iterable = Stream.concat(i.getSuccessors().stream(), i.getPredecessors().stream())::iterator;
-        for (DagVertex<T> ni : iterable) {
+        Iterable<Vertex<T>> iterable = Stream.concat(i.getSuccessors().stream(), i.getPredecessors().stream())::iterator;
+        for (Vertex<T> ni : iterable) {
             if (!visited.contains(ni)) {
                 parent.put(ni, i);
                 find(ni, d + 1);
@@ -73,9 +73,4 @@ public class ArticulationPoints<T> {
         }
     }
 
-    public static <T> Set<DagVertex<T>> find(DagVertex<T> n, boolean includeRoot) {
-        ArticulationPoints<T> articulationPoints = new ArticulationPoints<>(includeRoot);
-        articulationPoints.find(n, 0);
-        return articulationPoints.out;
-    }
 }

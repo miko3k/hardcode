@@ -2,6 +2,7 @@ package org.deletethis.hardcode.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TypeUtil {
     private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS;
@@ -24,6 +25,11 @@ public class TypeUtil {
     @SuppressWarnings("unchecked")
     public static <T> Class<T> wrapType(Class<T> c) {
         return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
+    }
+
+    public static String simpleToString(Object obj) {
+        Class<?> clz = Objects.requireNonNull(obj).getClass();
+        return clz.getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(obj));
     }
 
 }

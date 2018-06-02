@@ -79,10 +79,10 @@ public class ObjectNodeFactory implements NodeFactory {
 
 
     @Override
-    public Optional<NodeDefinition> createNode(Object someObject) {
-        Objects.requireNonNull(someObject);
+    public Optional<NodeDefinition> createNode(Object object) {
+        Objects.requireNonNull(object);
 
-        Class<?> clz = someObject.getClass();
+        Class<?> clz = object.getClass();
         if(clz.isSynthetic())
             return Optional.empty();
         
@@ -94,7 +94,7 @@ public class ObjectNodeFactory implements NodeFactory {
             String name = p.getName();
             Class<?> type = p.getType();
 
-            Object value = introspect.get(name).getValue(someObject);
+            Object value = introspect.get(name).getValue(object);
             // IS THIS REALLY NECESSARY??
             if(value == null) {
                 if (type.isPrimitive()) {
@@ -108,7 +108,7 @@ public class ObjectNodeFactory implements NodeFactory {
             }
             arguments.add(value);
         }
-        return Optional.of(new NodeDefImpl(clz, clz.getSimpleName(), arguments, this::getCode));
+        return Optional.of(new NodeDefImpl(clz, TypeUtil.simpleToString(object), arguments, this::getCode));
     }
 
     @Override

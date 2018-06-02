@@ -3,16 +3,16 @@ package org.deletethis.hardcode.graph;
 import java.util.*;
 
 public class DagImpl<T> implements Dag<T> {
-    private Vertex root = null;
-    private Set<DagVertex<T>> allNodes = new HashSet<>();
+    private VertexImpl root = null;
+    private Set<Vertex<T>> allNodes = new HashSet<>();
 
-    private class Vertex implements DagVertex<T> {
+    private class VertexImpl implements Vertex<T> {
         private final T payload;
-        private final List<Vertex> successors = new ArrayList<>();
+        private final List<VertexImpl> successors = new ArrayList<>();
         /** same node may appear here multipe times, if it appears several times as a successor of the other node */
-        private final List<Vertex> predecessors = new ArrayList<>();
+        private final List<VertexImpl> predecessors = new ArrayList<>();
 
-        private Vertex(T payload) {
+        private VertexImpl(T payload) {
             this.payload = payload;
         }
 
@@ -20,15 +20,15 @@ public class DagImpl<T> implements Dag<T> {
             return payload;
         }
 
-        public Collection<DagVertex<T>> getSuccessors() {
+        public Collection<Vertex<T>> getSuccessors() {
             return Collections.unmodifiableList(successors);
         }
 
-        void addPredecessor(Vertex node) {
+        void addPredecessor(VertexImpl node) {
             predecessors.add(node);
         }
 
-        void addSuccessor(Vertex node) {
+        void addSuccessor(VertexImpl node) {
             successors.add(node);
         }
 
@@ -43,7 +43,7 @@ public class DagImpl<T> implements Dag<T> {
             bld.append(payload);
 
             boolean first = true;
-            for(Vertex n: successors) {
+            for(VertexImpl n: successors) {
                 if(first) {
                     bld.append("(");
                     first = false;
@@ -58,7 +58,7 @@ public class DagImpl<T> implements Dag<T> {
             return bld.toString();
         }
 
-        public Collection<DagVertex<T>> getPredecessors() {
+        public Collection<Vertex<T>> getPredecessors() {
             return Collections.unmodifiableList(predecessors);
         }
 
@@ -75,41 +75,46 @@ public class DagImpl<T> implements Dag<T> {
         }
     }
 
-    public DagVertex<T> getRoot() {
+    public Vertex<T> getRoot() {
         return root;
     }
 
-    private Vertex mine(DagVertex<T> node) {
-        Vertex v = (Vertex) node;
+    private VertexImpl mine(Vertex<T> node) {
+        VertexImpl v = (VertexImpl) node;
         if(v.getGraph() != this)
             throw new IllegalArgumentException();
 
         return v;
     }
 
-    public void setRoot(DagVertex<T> node) {
+    public void setRoot(Vertex<T> node) {
         if(node.getInDegree() != 0) {
             throw new IllegalArgumentException();
         }
         root = mine(node);
     }
 
-    public DagVertex<T> createVertex(T objectInfo) {
-        DagVertex<T> n = new Vertex(objectInfo);
+    public Vertex<T> createVertex(T objectInfo) {
+        Vertex<T> n = new VertexImpl(objectInfo);
         allNodes.add(n);
         return n;
     }
 
-    public void createEdge(DagVertex<T> from, DagVertex<T> to) {
-        Vertex f = mine(from);
-        Vertex t = mine(to);
+    public void createEdge(Vertex<T> from, Vertex<T> to) {
+        VertexImpl f = mine(from);
+        VertexImpl t = mine(to);
 
         f.addSuccessor(t);
         t.addPredecessor(f);
     }
 
     @Override
-    public Collection<DagVertex<T>> getAllVertices() {
+    public Collection<Vertex<T>> getAllVertices() {
         return Collections.unmodifiableCollection(allNodes);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return allNodes.isEmpty();
     }
 }
