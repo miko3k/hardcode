@@ -1,7 +1,8 @@
-package org.deletethis.graph.algo;
+package org.deletethis.hardcode.impl;
 
 import org.deletethis.graph.Digraph;
 import org.deletethis.graph.Divertex;
+import org.deletethis.graph.algo.DagAlgorithms;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,17 +15,17 @@ public class BComponentTree<T> {
 
         public Comp(Divertex<T> root) {
             this.root = root;
-            this.size = 0;
+            this.size = 1; // just the root vertex
         }
 
         @Override
         public Divertex<T> getRoot() {
-            return null;
+            return root;
         }
 
         @Override
         public int getSize() {
-            return 0;
+            return size;
         }
 
         @Override
@@ -44,7 +45,7 @@ public class BComponentTree<T> {
 
     public void run() {
         Divertex<T> root = src.getRoots().iterator().next();
-        Set<Divertex<T>> dagVertices = DagAlgorithms.findArticulationPoints(root, false);
+        Set<Divertex<T>> dagVertices = DagAlgorithms.treeVertices(src);
 
         Map<Divertex<T>, Divertex<BComponent<T>>> map = new HashMap<>();
         for(Divertex<T> v: dagVertices) {
@@ -59,7 +60,10 @@ public class BComponentTree<T> {
                     return true;
                 }
                 if(dagVertices.contains(v)) {
-                    out.createEdge(startComponent, map.get(v));
+                    Divertex<BComponent<T>> targetComponent = map.get(v);
+                    if(!out.containsEdge(startComponent, targetComponent)) {
+                        out.createEdge(startComponent, targetComponent);
+                    }
                     return false;
                 }
 

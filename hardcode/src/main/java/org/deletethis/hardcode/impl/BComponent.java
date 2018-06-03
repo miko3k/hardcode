@@ -1,4 +1,4 @@
-package org.deletethis.graph.algo;
+package org.deletethis.hardcode.impl;
 
 import org.deletethis.graph.Divertex;
 

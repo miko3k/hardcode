@@ -96,6 +96,14 @@ public class MapDigraph<T> implements Digraph<T> {
         return n;
     }
 
+    @Override
+    public boolean containsEdge(Divertex<T> from, Divertex<T> to) {
+        VertexImpl f = mine(from);
+        VertexImpl t = mine(to);
+
+        return f.successors.contains(t);
+    }
+
     public void createEdge(Divertex<T> from, Divertex<T> to) {
         VertexImpl f = mine(from);
         VertexImpl t = mine(to);

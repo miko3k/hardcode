@@ -46,12 +46,6 @@ public class DagAlgorithms {
         dfs(visited, vertex, fn);
     }
 
-    public static <T> Digraph<BComponent<T>> getBComponents(Digraph<BComponent<T>> out, Digraph<T> src) {
-        BComponentTree<T> alg = new BComponentTree<>(out, src);
-        alg.run();
-        return out;
-    }
-
     public static <T> List<Divertex<T>> topoSort(Digraph<T> graph) {
         return KahnTopoSort.run(graph);
     }

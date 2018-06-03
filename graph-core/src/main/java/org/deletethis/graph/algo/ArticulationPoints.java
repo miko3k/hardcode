@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * BROKEN!!!
+ */
 class ArticulationPoints<T> {
     private final Set<Divertex<T>> visited = new HashSet<>();
     private final HashMap<Divertex<T>, Integer> depth = new HashMap<>();

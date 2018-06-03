@@ -6,8 +6,9 @@ import org.deletethis.graph.graphviz.Graphviz;
 import org.deletethis.graph.MapDigraph;
 import org.deletethis.hardcode.Hardcode;
 import org.deletethis.hardcode.ObjectInfo;
-import org.deletethis.graph.algo.BComponent;
+import org.deletethis.hardcode.impl.BComponent;
 import org.deletethis.graph.algo.DagAlgorithms;
+import org.deletethis.hardcode.impl.Splitter;
 
 import java.io.*;
 import java.util.*;
@@ -76,7 +77,9 @@ public class Main {
         System.out.println(hc.method("foo", g));
 
 
-        Digraph<BComponent<ObjectInfo>> bComponents = DagAlgorithms.getBComponents(new MapDigraph<>(), g);
-        new Graphviz<>(bComponents).print("target/aaa.gv");
+        //compile error if we try to do so...
+        //noinspection Convert2MethodRef
+        Splitter.getBComponents(() -> new MapDigraph<>(), g);
+
     }
 }
