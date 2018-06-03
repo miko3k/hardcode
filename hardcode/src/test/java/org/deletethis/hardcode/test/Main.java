@@ -1,21 +1,20 @@
 package org.deletethis.hardcode.test;
 
-import org.deletethis.graph.Dag;
+import org.deletethis.graph.Digraph;
+import org.deletethis.graph.Divertex;
 import org.deletethis.graph.graphviz.Graphviz;
-import org.deletethis.graph.MapDag;
+import org.deletethis.graph.MapDigraph;
 import org.deletethis.hardcode.Hardcode;
 import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.graph.algo.BComponent;
 import org.deletethis.graph.algo.DagAlgorithms;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
     private static void doIt(Hardcode hardcoder, Object o) {
-        Dag<ObjectInfo> graph = hardcoder.buildGraph(o);
+        Digraph<ObjectInfo> graph = hardcoder.buildGraph(o);
         DagAlgorithms.printNodes(graph, System.out);
         System.out.println(hardcoder.method("foo", graph));
     }
@@ -64,11 +63,20 @@ public class Main {
         n6.add(n7, n8);
         n7.add(n8);
 
-        Dag<ObjectInfo> g = hc.buildGraph(n2);
-        new Graphviz<>(g).highlight(DagAlgorithms.findArticulationPoints(g.getRoot(), false)).print("target/aa.gv");
+        Digraph<ObjectInfo> g = hc.buildGraph(n2);
+        Map<Divertex<ObjectInfo>, Integer> orderMap = g.createMap();
+
+        int n = 1;
+        for(Divertex<ObjectInfo> v: DagAlgorithms.topoSort(g)) {
+            orderMap.put(v, n);
+            ++n;
+        }
+
+        new Graphviz<>(g).highlight(DagAlgorithms.treeVertices(g)).marks(orderMap).print("target/aa.gv");
         System.out.println(hc.method("foo", g));
 
-        Dag<BComponent<ObjectInfo>> bComponents = DagAlgorithms.getBComponents(new MapDag<>(), g);
+
+        Digraph<BComponent<ObjectInfo>> bComponents = DagAlgorithms.getBComponents(new MapDigraph<>(), g);
         new Graphviz<>(bComponents).print("target/aaa.gv");
     }
 }

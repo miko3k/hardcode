@@ -2,8 +2,8 @@ package org.deletethis.hardcode.impl;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.NameAllocator;
-import org.deletethis.graph.Dag;
-import org.deletethis.graph.DiVertex;
+import org.deletethis.graph.Digraph;
+import org.deletethis.graph.Divertex;
 import org.deletethis.hardcode.ObjectInfo;
 
 import org.deletethis.hardcode.objects.CodegenContext;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class Printer implements CodegenContext {
     private final CodeBlock.Builder body;
     private final NameAllocator nameAllocator = new NameAllocator();
-    private final Map<DiVertex, Expression> exprMap = new HashMap<>();
+    private final Map<Divertex, Expression> exprMap = new HashMap<>();
     private Map<String, Integer> variableNumbers = new HashMap<>();
 
     private Printer(CodeBlock.Builder body) {
@@ -50,7 +50,7 @@ public class Printer implements CodegenContext {
         return body;
     }
 
-    private Expression print(CodegenContext context, DiVertex<ObjectInfo> n) {
+    private Expression print(CodegenContext context, Divertex<ObjectInfo> n) {
         Expression expression = exprMap.get(n);
         if(expression != null) {
             return expression;
@@ -58,7 +58,7 @@ public class Printer implements CodegenContext {
 
         List<Expression> args = new ArrayList<>();
 
-        for(DiVertex<ObjectInfo> a: n.getSuccessors()) {
+        for(Divertex<ObjectInfo> a: n.getSuccessors()) {
             args.add(print(context, a));
         }
         ObjectInfo objectInfo = n.getPayload();
@@ -73,11 +73,12 @@ public class Printer implements CodegenContext {
         return expression;
     }
 
-    private Expression print(Dag<ObjectInfo> graph) {
+    private Expression print(Digraph<ObjectInfo> graph) {
+
         return print(this, graph.getRoot());
     }
 
-    public static Expression print(CodeBlock.Builder body, Dag<ObjectInfo> graph) {
+    public static Expression print(CodeBlock.Builder body, Digraph<ObjectInfo> graph) {
         Printer p = new Printer(body);
         return p.print(graph);
     }

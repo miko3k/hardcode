@@ -1,8 +1,8 @@
 package org.deletethis.hardcode.impl;
 
-import org.deletethis.graph.Dag;
-import org.deletethis.graph.MapDag;
-import org.deletethis.graph.DiVertex;
+import org.deletethis.graph.Digraph;
+import org.deletethis.graph.MapDigraph;
+import org.deletethis.graph.Divertex;
 import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
@@ -10,8 +10,8 @@ import java.util.*;
 
 public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
-    private final Map<Object, DiVertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
-    private final Dag<ObjectInfo> dag = new MapDag<>();
+    private final Map<Object, Divertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
+    private final Digraph<ObjectInfo> digraph = new MapDigraph<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
     private GraphBuilder(List<NodeFactory> nodeFactories) {
@@ -35,18 +35,18 @@ public class GraphBuilder {
         }
     };
 
-    private DiVertex<ObjectInfo> createNode(Object o) {
+    private Divertex<ObjectInfo> createNode(Object o) {
         //System.out.println("NODE: " + o);
         
         if(o == null) {
-            return dag.createVertex(NULL);
+            return digraph.createVertex(NULL);
         }
 
         if(!objectsInProgress.add(o)) {
             throw new IllegalStateException("cycle detected");
         }
         try {
-            DiVertex<ObjectInfo> n = objectMap.get(o);
+            Divertex<ObjectInfo> n = objectMap.get(o);
             if (n != null) {
                 return n;
             }
@@ -56,11 +56,11 @@ public class GraphBuilder {
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    DiVertex<ObjectInfo> node = dag.createVertex(nodeDef.getObjectInfo());
+                    Divertex<ObjectInfo> node = digraph.createVertex(nodeDef.getObjectInfo());
 
                     for(Object param: nodeDef.getParameters()) {
-                        DiVertex<ObjectInfo> n2 = createNode(param);
-                        dag.createEdge(node, n2);
+                        Divertex<ObjectInfo> n2 = createNode(param);
+                        digraph.createEdge(node, n2);
                     }
 
                     if(factory.enableReferenceDetection()) {
@@ -75,14 +75,13 @@ public class GraphBuilder {
         }
     }
 
-    public static Dag<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, Object o) {
+    public static Digraph<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, Object o) {
         GraphBuilder gb = new GraphBuilder(nodeFactories);
 
-        DiVertex<ObjectInfo> n = gb.createNode(o);
+        gb.createNode(o);
         if(!gb.objectsInProgress.isEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }
-        gb.dag.setRoot(n);
-        return gb.dag;
+        return gb.digraph;
     }
 }

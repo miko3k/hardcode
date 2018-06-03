@@ -1,7 +1,7 @@
 package org.deletethis.graph.algo;
 
-import org.deletethis.graph.Dag;
-import org.deletethis.graph.DiVertex;
+import org.deletethis.graph.Digraph;
+import org.deletethis.graph.Divertex;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,15 +10,15 @@ import java.util.Set;
 public class BComponentTree<T> {
     private static class Comp<T> implements BComponent<T> {
         private int size;
-        private DiVertex<T> root;
+        private Divertex<T> root;
 
-        public Comp(DiVertex<T> root) {
+        public Comp(Divertex<T> root) {
             this.root = root;
             this.size = 0;
         }
 
         @Override
-        public DiVertex<T> getRoot() {
+        public Divertex<T> getRoot() {
             return null;
         }
 
@@ -33,25 +33,26 @@ public class BComponentTree<T> {
         }
     }
 
-    private final Dag<BComponent<T>> out;
-    private final Dag<T> src;
+    private final Digraph<BComponent<T>> out;
+    private final Digraph<T> src;
 
 
-    public BComponentTree(Dag<BComponent<T>> out, Dag<T> src) {
+    public BComponentTree(Digraph<BComponent<T>> out, Digraph<T> src) {
         this.out = out;
         this.src = src;
     }
 
     public void run() {
-        Set<DiVertex<T>> dagVertices = DagAlgorithms.findArticulationPoints(src.getRoot(), false);
+        Divertex<T> root = src.getRoots().iterator().next();
+        Set<Divertex<T>> dagVertices = DagAlgorithms.findArticulationPoints(root, false);
 
-        Map<DiVertex<T>, DiVertex<BComponent<T>>> map = new HashMap<>();
-        for(DiVertex<T> v: dagVertices) {
+        Map<Divertex<T>, Divertex<BComponent<T>>> map = new HashMap<>();
+        for(Divertex<T> v: dagVertices) {
             map.put(v, out.createVertex(new Comp<>(v)));
         }
 
-        for(DiVertex<T> start: dagVertices) {
-            DiVertex<BComponent<T>> startComponent = map.get(start);
+        for(Divertex<T> start: dagVertices) {
+            Divertex<BComponent<T>> startComponent = map.get(start);
 
             DagAlgorithms.dfs(start, v -> {
                 if(v == start) {

@@ -1,8 +1,8 @@
 package org.deletethis.graph.algo;
 
-import org.deletethis.graph.DiVertex;
+import org.deletethis.graph.Divertex;
 
 public interface BComponent<T> {
-    DiVertex<T> getRoot();
+    Divertex<T> getRoot();
     int getSize();
 }

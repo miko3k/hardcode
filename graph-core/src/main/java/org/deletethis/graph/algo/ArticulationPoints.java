@@ -1,6 +1,6 @@
 package org.deletethis.graph.algo;
 
-import org.deletethis.graph.DiVertex;
+import org.deletethis.graph.Divertex;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,18 +8,18 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 class ArticulationPoints<T> {
-    private final Set<DiVertex<T>> visited = new HashSet<>();
-    private final HashMap<DiVertex<T>, Integer> depth = new HashMap<>();
-    private final HashMap<DiVertex<T>, Integer> low = new HashMap<>();
-    private final HashMap<DiVertex<T>, DiVertex<T>> parent = new HashMap<>();
-    final Set<DiVertex<T>> out = new HashSet<>();
+    private final Set<Divertex<T>> visited = new HashSet<>();
+    private final HashMap<Divertex<T>, Integer> depth = new HashMap<>();
+    private final HashMap<Divertex<T>, Integer> low = new HashMap<>();
+    private final HashMap<Divertex<T>, Divertex<T>> parent = new HashMap<>();
+    final Set<Divertex<T>> out = new HashSet<>();
     private final boolean includeRoot;
 
     ArticulationPoints(boolean includeRoot) {
         this.includeRoot = includeRoot;
     }
 
-    void find(DiVertex<T> i, int d) {
+    void find(Divertex<T> i, int d) {
         /*
         GetArticulationPoints(i, d)
             visited[i] = true
@@ -48,8 +48,8 @@ class ArticulationPoints<T> {
         int childCount = 0;
         boolean isArticulation = false;
 
-        Iterable<DiVertex<T>> iterable = Stream.concat(i.getSuccessors().stream(), i.getPredecessors().stream())::iterator;
-        for (DiVertex<T> ni : iterable) {
+        Iterable<Divertex<T>> iterable = Stream.concat(i.getSuccessors().stream(), i.getPredecessors().stream())::iterator;
+        for (Divertex<T> ni : iterable) {
             if (!visited.contains(ni)) {
                 parent.put(ni, i);
                 find(ni, d + 1);

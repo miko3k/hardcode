@@ -5,7 +5,7 @@
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/hardcode" />
     <method>
       <option name="Make" enabled="false" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="hardcode install" run_configuration_type="MavenRunConfiguration" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="parent install" run_configuration_type="MavenRunConfiguration" />
     </method>
   </configuration>
 </component>

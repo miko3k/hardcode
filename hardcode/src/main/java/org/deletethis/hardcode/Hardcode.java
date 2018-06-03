@@ -3,7 +3,7 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import org.deletethis.graph.Dag;
+import org.deletethis.graph.Digraph;
 import org.deletethis.hardcode.impl.GraphBuilder;
 import org.deletethis.hardcode.impl.Printer;
 import org.deletethis.hardcode.objects.Expression;
@@ -71,16 +71,16 @@ public class Hardcode {
         return new Hardcode(def(), nodeFactories);
     }
 
-    public Dag<ObjectInfo> buildGraph(Object root) {
+    public Digraph<ObjectInfo> buildGraph(Object root) {
         return GraphBuilder.buildGraph(nodeFactoryList, root);
     }
 
     public CodeBlock value(CodeBlock.Builder body, Object o) {
-        Dag<ObjectInfo> graph = buildGraph(o);
+        Digraph<ObjectInfo> graph = buildGraph(o);
         return Printer.print(body, graph).getCode();
     }
 
-    public MethodSpec method(String name, Dag<ObjectInfo> graph) {
+    public MethodSpec method(String name, Digraph<ObjectInfo> graph) {
         AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
         builder.addMember("value", "$S", "unchecked");
 
