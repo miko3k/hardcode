@@ -2,9 +2,10 @@ package org.deletethis.hardcode.impl;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.NameAllocator;
+import org.deletethis.graph.Dag;
+import org.deletethis.graph.DiVertex;
 import org.deletethis.hardcode.ObjectInfo;
-import org.deletethis.hardcode.graph.Dag;
-import org.deletethis.hardcode.graph.Vertex;
+
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 
@@ -17,7 +18,7 @@ import java.util.Map;
 public class Printer implements CodegenContext {
     private final CodeBlock.Builder body;
     private final NameAllocator nameAllocator = new NameAllocator();
-    private final Map<Vertex, Expression> exprMap = new HashMap<>();
+    private final Map<DiVertex, Expression> exprMap = new HashMap<>();
     private Map<String, Integer> variableNumbers = new HashMap<>();
 
     private Printer(CodeBlock.Builder body) {
@@ -49,7 +50,7 @@ public class Printer implements CodegenContext {
         return body;
     }
 
-    private Expression print(CodegenContext context, Vertex<ObjectInfo> n) {
+    private Expression print(CodegenContext context, DiVertex<ObjectInfo> n) {
         Expression expression = exprMap.get(n);
         if(expression != null) {
             return expression;
@@ -57,7 +58,7 @@ public class Printer implements CodegenContext {
 
         List<Expression> args = new ArrayList<>();
 
-        for(Vertex<ObjectInfo> a: n.getSuccessors()) {
+        for(DiVertex<ObjectInfo> a: n.getSuccessors()) {
             args.add(print(context, a));
         }
         ObjectInfo objectInfo = n.getPayload();

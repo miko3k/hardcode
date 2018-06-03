@@ -1,17 +1,17 @@
 package org.deletethis.hardcode.impl;
 
+import org.deletethis.graph.Dag;
+import org.deletethis.graph.MapDag;
+import org.deletethis.graph.DiVertex;
 import org.deletethis.hardcode.ObjectInfo;
-import org.deletethis.hardcode.graph.Dag;
-import org.deletethis.hardcode.graph.DagImpl;
-import org.deletethis.hardcode.graph.Vertex;
 import org.deletethis.hardcode.objects.*;
 
 import java.util.*;
 
 public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
-    private final Map<Object, Vertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
-    private final Dag<ObjectInfo> dag = new DagImpl<>();
+    private final Map<Object, DiVertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
+    private final Dag<ObjectInfo> dag = new MapDag<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
     private GraphBuilder(List<NodeFactory> nodeFactories) {
@@ -35,7 +35,7 @@ public class GraphBuilder {
         }
     };
 
-    private Vertex<ObjectInfo> createNode(Object o) {
+    private DiVertex<ObjectInfo> createNode(Object o) {
         //System.out.println("NODE: " + o);
         
         if(o == null) {
@@ -46,7 +46,7 @@ public class GraphBuilder {
             throw new IllegalStateException("cycle detected");
         }
         try {
-            Vertex<ObjectInfo> n = objectMap.get(o);
+            DiVertex<ObjectInfo> n = objectMap.get(o);
             if (n != null) {
                 return n;
             }
@@ -56,10 +56,10 @@ public class GraphBuilder {
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    Vertex<ObjectInfo> node = dag.createVertex(nodeDef.getObjectInfo());
+                    DiVertex<ObjectInfo> node = dag.createVertex(nodeDef.getObjectInfo());
 
                     for(Object param: nodeDef.getParameters()) {
-                        Vertex<ObjectInfo> n2 = createNode(param);
+                        DiVertex<ObjectInfo> n2 = createNode(param);
                         dag.createEdge(node, n2);
                     }
 
@@ -78,7 +78,7 @@ public class GraphBuilder {
     public static Dag<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, Object o) {
         GraphBuilder gb = new GraphBuilder(nodeFactories);
 
-        Vertex<ObjectInfo> n = gb.createNode(o);
+        DiVertex<ObjectInfo> n = gb.createNode(o);
         if(!gb.objectsInProgress.isEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }

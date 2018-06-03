@@ -1,4 +1,7 @@
-package org.deletethis.hardcode.graph;
+package org.deletethis.graph.algo;
+
+import org.deletethis.graph.Dag;
+import org.deletethis.graph.DiVertex;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,15 +10,15 @@ import java.util.Set;
 public class BComponentTree<T> {
     private static class Comp<T> implements BComponent<T> {
         private int size;
-        private Vertex<T> root;
+        private DiVertex<T> root;
 
-        public Comp(Vertex<T> root) {
+        public Comp(DiVertex<T> root) {
             this.root = root;
             this.size = 0;
         }
 
         @Override
-        public Vertex<T> getRoot() {
+        public DiVertex<T> getRoot() {
             return null;
         }
 
@@ -40,15 +43,15 @@ public class BComponentTree<T> {
     }
 
     public void run() {
-        Set<Vertex<T>> dagVertices = DagAlgorithms.findArticulationPoints(src.getRoot(), false);
+        Set<DiVertex<T>> dagVertices = DagAlgorithms.findArticulationPoints(src.getRoot(), false);
 
-        Map<Vertex<T>, Vertex<BComponent<T>>> map = new HashMap<>();
-        for(Vertex<T> v: dagVertices) {
+        Map<DiVertex<T>, DiVertex<BComponent<T>>> map = new HashMap<>();
+        for(DiVertex<T> v: dagVertices) {
             map.put(v, out.createVertex(new Comp<>(v)));
         }
 
-        for(Vertex<T> start: dagVertices) {
-            Vertex<BComponent<T>> startComponent = map.get(start);
+        for(DiVertex<T> start: dagVertices) {
+            DiVertex<BComponent<T>> startComponent = map.get(start);
 
             DagAlgorithms.dfs(start, v -> {
                 if(v == start) {

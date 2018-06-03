@@ -1,8 +1,12 @@
 package org.deletethis.hardcode.test;
 
+import org.deletethis.graph.Dag;
+import org.deletethis.graph.graphviz.Graphviz;
+import org.deletethis.graph.MapDag;
 import org.deletethis.hardcode.Hardcode;
 import org.deletethis.hardcode.ObjectInfo;
-import org.deletethis.hardcode.graph.*;
+import org.deletethis.graph.algo.BComponent;
+import org.deletethis.graph.algo.DagAlgorithms;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -64,7 +68,7 @@ public class Main {
         new Graphviz<>(g).highlight(DagAlgorithms.findArticulationPoints(g.getRoot(), false)).print("target/aa.gv");
         System.out.println(hc.method("foo", g));
 
-        Dag<BComponent<ObjectInfo>> bComponents = DagAlgorithms.getBComponents(new DagImpl<>(), g);
+        Dag<BComponent<ObjectInfo>> bComponents = DagAlgorithms.getBComponents(new MapDag<>(), g);
         new Graphviz<>(bComponents).print("target/aaa.gv");
     }
 }

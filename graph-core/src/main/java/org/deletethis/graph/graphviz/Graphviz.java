@@ -1,6 +1,7 @@
-package org.deletethis.hardcode.graph;
+package org.deletethis.graph.graphviz;
 
-import com.squareup.javapoet.CodeBlock;
+import org.deletethis.graph.Dag;
+import org.deletethis.graph.DiVertex;
 
 import java.io.*;
 import java.util.Collection;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 public class Graphviz<T> {
     private final Dag<T> dag;
-    private Set<Vertex<T>> highlight = Collections.emptySet();
+    private Set<DiVertex<T>> highlight = Collections.emptySet();
     private boolean predecessors = false;
     private boolean arrows = true;
 
@@ -18,7 +19,7 @@ public class Graphviz<T> {
         this.dag = dag;
     }
 
-    public Graphviz<T> highlight(Collection<Vertex<T>> highlight) {
+    public Graphviz<T> highlight(Collection<DiVertex<T>> highlight) {
         if(highlight == null) {
             this.highlight = Collections.emptySet();
         } else {
@@ -37,6 +38,24 @@ public class Graphviz<T> {
         return this;
     }
 
+    private String escape(String str) {
+        // <http://www.graphviz.org/doc/info/lang.html>
+        //    "In quoted strings in DOT, the only escaped character is double-quote (")"
+
+        StringBuilder out = new StringBuilder(str.length()+2);
+        out.append("\"");
+        for(int i = 0; i < str.length(); ++i) {
+            char c = str.charAt(i);
+            if(c == '"') {
+                out.append("\\\"");
+            } else {
+                out.append(c);
+            }
+        }
+        out.append("\"");
+        return out.toString();
+
+    }
 
     public void print(PrintStream out) {
         String conn = arrows ? " -> " : " -- ";
@@ -47,20 +66,20 @@ public class Graphviz<T> {
             out.println("graph objects {");
         }
 
-        for (Vertex n : dag.getAllVertices()) {
+        for (DiVertex n : dag.getAllVertices()) {
             String c = "";
             if (highlight.contains(n)) {
                 c = " color=blue";
             }
 
-            out.println("  " + System.identityHashCode(n) + " [label=" + CodeBlock.of("$S", n.getPayload()) + c + "];");
+            out.println("  " + System.identityHashCode(n) + " [label=" + escape(n.getPayload().toString()) + c + "];");
         }
-        for (Vertex<T> n1 : dag.getAllVertices()) {
-            for (Vertex<T> n2 : n1.getSuccessors()) {
+        for (DiVertex<T> n1 : dag.getAllVertices()) {
+            for (DiVertex<T> n2 : n1.getSuccessors()) {
                 out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + ";");
             }
             if(predecessors && arrows) {
-                for (Vertex<T> n2 : n1.getPredecessors()) {
+                for (DiVertex<T> n2 : n1.getPredecessors()) {
                     out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + " [style=\"dotted\"];");
                 }
             }

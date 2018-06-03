@@ -1,12 +1,17 @@
-package org.deletethis.hardcode.graph;
+package org.deletethis.graph;
 
 import java.util.*;
+import java.util.function.Supplier;
 
-public class DagImpl<T> implements Dag<T> {
+public class MapDag<T> implements Dag<T> {
     private VertexImpl root = null;
-    private Set<Vertex<T>> allNodes = new HashSet<>();
+    private Set<DiVertex<T>> allNodes = new HashSet<>();
 
-    private class VertexImpl implements Vertex<T> {
+    public static <X> Supplier<MapDag<X>> supplier() {
+        return MapDag::new;
+    }
+
+    private class VertexImpl implements DiVertex<T> {
         private final T payload;
         private final List<VertexImpl> successors = new ArrayList<>();
         /** same node may appear here multipe times, if it appears several times as a successor of the other node */
@@ -20,7 +25,7 @@ public class DagImpl<T> implements Dag<T> {
             return payload;
         }
 
-        public Collection<Vertex<T>> getSuccessors() {
+        public Collection<DiVertex<T>> getSuccessors() {
             return Collections.unmodifiableList(successors);
         }
 
@@ -58,7 +63,7 @@ public class DagImpl<T> implements Dag<T> {
             return bld.toString();
         }
 
-        public Collection<Vertex<T>> getPredecessors() {
+        public Collection<DiVertex<T>> getPredecessors() {
             return Collections.unmodifiableList(predecessors);
         }
 
@@ -70,16 +75,16 @@ public class DagImpl<T> implements Dag<T> {
             return successors.size();
         }
 
-        public DagImpl getGraph() {
-            return DagImpl.this;
+        public MapDag getGraph() {
+            return MapDag.this;
         }
     }
 
-    public Vertex<T> getRoot() {
+    public DiVertex<T> getRoot() {
         return root;
     }
 
-    private VertexImpl mine(Vertex<T> node) {
+    private VertexImpl mine(DiVertex<T> node) {
         VertexImpl v = (VertexImpl) node;
         if(v.getGraph() != this)
             throw new IllegalArgumentException();
@@ -87,20 +92,20 @@ public class DagImpl<T> implements Dag<T> {
         return v;
     }
 
-    public void setRoot(Vertex<T> node) {
+    public void setRoot(DiVertex<T> node) {
         if(node.getInDegree() != 0) {
             throw new IllegalArgumentException();
         }
         root = mine(node);
     }
 
-    public Vertex<T> createVertex(T objectInfo) {
-        Vertex<T> n = new VertexImpl(objectInfo);
+    public DiVertex<T> createVertex(T objectInfo) {
+        DiVertex<T> n = new VertexImpl(objectInfo);
         allNodes.add(n);
         return n;
     }
 
-    public void createEdge(Vertex<T> from, Vertex<T> to) {
+    public void createEdge(DiVertex<T> from, DiVertex<T> to) {
         VertexImpl f = mine(from);
         VertexImpl t = mine(to);
 
@@ -109,12 +114,27 @@ public class DagImpl<T> implements Dag<T> {
     }
 
     @Override
-    public Collection<Vertex<T>> getAllVertices() {
+    public Collection<DiVertex<T>> getAllVertices() {
         return Collections.unmodifiableCollection(allNodes);
+    }
+
+    @Override
+    public <V> Map<DiVertex<T>, V> createMap() {
+        return new HashMap<>();
+    }
+
+    @Override
+    public Set<DiVertex<T>> createSet() {
+        return new HashSet<>();
     }
 
     @Override
     public boolean isEmpty() {
         return allNodes.isEmpty();
+    }
+
+    @Override
+    public boolean isOriented() {
+        return true;
     }
 }
