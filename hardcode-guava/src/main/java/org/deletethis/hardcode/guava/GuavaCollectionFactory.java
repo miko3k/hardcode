@@ -3,6 +3,7 @@ package org.deletethis.hardcode.guava;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.CodeBlock;
+import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeDefinition;
@@ -47,12 +48,12 @@ public class GuavaCollectionFactory implements NodeFactory {
             cb.add(")");
             return Expression.complex(cb.build());
         } else {
-            String variable = context.allocateVariable(clz.getSimpleName());
+            String variable = context.allocateVariable(clz);
 
-            context.getBody().addStatement("$T.Builder $L = $T.builderWithExpectedSize($L)", clz, variable, clz, arguments.size());
+            context.addStatement("$T.Builder $L = $T.builderWithExpectedSize($L)", clz, variable, clz, arguments.size());
 
             for (Expression arg : arguments) {
-                context.getBody().addStatement("$L.add($L)", variable, arg.getCode());
+                context.addStatement("$L.add($L)", variable, arg.getCode());
             }
             return Expression.complex("$L.build()", variable);
         }
@@ -60,7 +61,7 @@ public class GuavaCollectionFactory implements NodeFactory {
 
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         Class<?> aClass = findClass(object);
 
         if (aClass == null)
@@ -68,7 +69,7 @@ public class GuavaCollectionFactory implements NodeFactory {
 
         Collection<?> coll = (Collection<?>) object;
         List<Object> members = new ArrayList<>(coll);
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), members, this::getCode));
+        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), this::getCode, members));
     }
 
     @Override

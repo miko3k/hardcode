@@ -1,6 +1,8 @@
 package org.deletethis.hardcode.objects.impl;
 
+import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
+import org.deletethis.hardcode.util.TypeUtil;
 
 import java.util.*;
 
@@ -21,20 +23,20 @@ public class CollectionNodeFactory implements NodeFactory {
     }
 
     private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
-        String variable = context.allocateVariable(clz.getSimpleName());
+        String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
-            context.getBody().addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.size());
+            context.addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.size());
         } else {
-            context.getBody().addStatement("$T $L = new $T()", clz, variable, clz);
+            context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
         for (Expression arg : arguments) {
-            context.getBody().addStatement("$L.add($L)", variable, arg.getCode());
+            context.addStatement("$L.add($L)", variable, arg.getCode());
         }
         return Expression.simple(variable);
     }
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         Class<?> aClass = object.getClass();
 
         if(!CLASSES_WITH_CAPACITY.contains(aClass) && !CLASSES_WITHOUT_CAPACITY.contains(aClass))
@@ -42,7 +44,7 @@ public class CollectionNodeFactory implements NodeFactory {
 
         Collection<?> coll = (Collection<?>)object;
         List<Object> members = new ArrayList<>(coll);
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), members, this::getCode));
+        return Optional.of(new NodeDefImpl(aClass, TypeUtil.simpleToString(object), this::getCode, members));
     }
 
     @Override

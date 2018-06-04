@@ -12,7 +12,7 @@ public class NodeDefImpl implements NodeDefinition {
     private final ObjectInfo objectInfo;
     private final List<Object> parameters;
 
-    public NodeDefImpl(Class<?> type, String asString, List<Object> parameters, ConstructionStrategy constructionStrategy) {
+    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<Object> parameters, boolean root) {
         this.parameters = parameters;
         this.objectInfo = new ObjectInfo() {
             @Override
@@ -26,14 +26,23 @@ public class NodeDefImpl implements NodeDefinition {
             }
 
             @Override
+            public boolean isRoot() {
+                return root;
+            }
+
+            @Override
             public String toString() {
                 return asString;
             }
         };
     }
 
+    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<Object> parameters) {
+        this(type, asString, constructionStrategy, parameters, false);
+    }
+
     public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
-        this(type, asString, Collections.emptyList(), constructionStrategy);
+        this(type, asString, constructionStrategy, Collections.emptyList());
     }
 
     @Override

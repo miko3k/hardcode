@@ -1,5 +1,6 @@
 package org.deletethis.hardcode.objects.impl;
 
+import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 
 import java.util.*;
@@ -20,23 +21,23 @@ public class MapNodeFactory implements NodeFactory {
     }
 
     private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
-        String variable = context.allocateVariable(clz.getSimpleName());
+        String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
             // arguments contain both keys and values, we create map with double initial capacitity
             // 1.33 should be enough at default load factor of of 0.75 but what the heck
-            context.getBody().addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.size());
+            context.addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.size());
         } else {
-            context.getBody().addStatement("$T $L = new $T()", clz, variable, clz);
+            context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
         for (int i = 0; i < arguments.size(); i += 2) {
-            context.getBody().addStatement("$L.put($L, $L)", variable, arguments.get(i).getCode(), arguments.get(i + 1).getCode());
+            context.addStatement("$L.put($L, $L)", variable, arguments.get(i).getCode(), arguments.get(i + 1).getCode());
         }
         return Expression.simple(variable);
     }
 
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         Class<?> aClass = object.getClass();
 
         if(!CLASSES_WITH_CAPACITY.contains(aClass) && !CLASSES_WITHOUT_CAPACITY.contains(aClass))
@@ -48,7 +49,7 @@ public class MapNodeFactory implements NodeFactory {
             members.add(o.getKey());
             members.add(o.getValue());
         }
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), members, this::getCode));
+        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), this::getCode, members));
     }
 
     @Override

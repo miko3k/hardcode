@@ -5,7 +5,7 @@ import org.deletethis.hardcode.Hardcode;
 
 public class Main {
     private static void doIt(Hardcode hardcoder, Object o) {
-        System.out.println(hardcoder.method("foo", o));
+        System.out.println(hardcoder.createClass("Foo", "load", o));
     }
 
     public static void main(String[] args) {

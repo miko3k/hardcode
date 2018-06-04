@@ -1,21 +1,25 @@
 package org.deletethis.hardcode.impl;
 
-import org.deletethis.graph.Digraph;
-import org.deletethis.graph.MapDigraph;
-import org.deletethis.graph.Divertex;
+import org.deletethis.hardcode.HardcodeConfiguration;
+import org.deletethis.hardcode.graph.Digraph;
+import org.deletethis.hardcode.graph.MapDigraph;
+import org.deletethis.hardcode.graph.Divertex;
 import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
+import javax.security.auth.login.Configuration;
 import java.util.*;
 
 public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
+    private final HardcodeConfiguration configuration;
     private final Map<Object, Divertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
     private final Digraph<ObjectInfo> digraph = new MapDigraph<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    private GraphBuilder(List<NodeFactory> nodeFactories) {
+    private GraphBuilder(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration) {
         this.nodeFactories = nodeFactories;
+        this.configuration = configuration;
     }
 
     private static final ObjectInfo NULL = new ObjectInfo() {
@@ -27,6 +31,11 @@ public class GraphBuilder {
         @Override
         public Expression getCode(CodegenContext context, List<Expression> arguments) {
             return Expression.simple("null");
+        }
+
+        @Override
+        public boolean isRoot() {
+            return false;
         }
 
         @Override
@@ -52,7 +61,7 @@ public class GraphBuilder {
             }
 
             for(NodeFactory factory: nodeFactories) {
-                Optional<NodeDefinition> nodeOptional = factory.createNode(o);
+                Optional<NodeDefinition> nodeOptional = factory.createNode(o, configuration);
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
@@ -75,8 +84,8 @@ public class GraphBuilder {
         }
     }
 
-    public static Digraph<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, Object o) {
-        GraphBuilder gb = new GraphBuilder(nodeFactories);
+    public static Digraph<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration, Object o) {
+        GraphBuilder gb = new GraphBuilder(nodeFactories, configuration);
 
         gb.createNode(o);
         if(!gb.objectsInProgress.isEmpty()) {

@@ -8,6 +8,7 @@ import java.util.List;
 public interface ObjectInfo {
     Class<?> getType();
     Expression getCode(CodegenContext context, List<Expression> arguments);
+    boolean isRoot();
     @Override
     String toString();
 }

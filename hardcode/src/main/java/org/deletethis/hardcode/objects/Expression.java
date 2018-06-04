@@ -11,6 +11,14 @@ public class Expression {
         this.simple = simple;
     }
 
+    public String toString() {
+        if(simple) {
+            return "simple(" + block + ")";
+        } else {
+            return "complex(" + block + ")";
+        }
+    }
+
     public CodeBlock getCode() {
         return block;
     }

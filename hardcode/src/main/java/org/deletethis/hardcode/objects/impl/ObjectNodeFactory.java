@@ -1,5 +1,7 @@
 package org.deletethis.hardcode.objects.impl;
 
+import org.deletethis.hardcode.HardcodeConfiguration;
+import org.deletethis.hardcode.HardcodeRoot;
 import org.deletethis.hardcode.objects.*;
 import org.deletethis.hardcode.objects.impl.introspection.ConstructorWrapper;
 import com.squareup.javapoet.CodeBlock;
@@ -38,8 +40,6 @@ public class ObjectNodeFactory implements NodeFactory {
         return true;
     }
 
-
-    
     private ConstructorWrapper findMatchingConstructor(Class<?> clz, Set<String> parameterNames) {
         ConstructorWrapper result = null;
 
@@ -77,15 +77,50 @@ public class ObjectNodeFactory implements NodeFactory {
         }
     }
 
+    private boolean isRoot(Set<Class<?>> rootClasses, Set<Class<?>> alreadyChecked, Class<?> clz) {
+        if(alreadyChecked.contains(clz)) {
+            throw new IllegalArgumentException();
+        }
+        alreadyChecked.add(clz);
+        if(clz.isAnnotationPresent(HardcodeRoot.class)) {
+            return true;
+        }
+        if(rootClasses != null && rootClasses.contains(clz)) {
+            return true;
+        }
+        Class<?> sup = clz.getSuperclass();
+        if(sup != null && !alreadyChecked.contains(sup)) {
+            if(isRoot(rootClasses, alreadyChecked, sup)) {
+                return true;
+            }
+        }
+        Class<?>[] ifaces = clz.getInterfaces();
+        for(Class<?> iface: ifaces) {
+            if(!alreadyChecked.contains(iface)) {
+                if (isRoot(rootClasses, alreadyChecked, iface)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         Objects.requireNonNull(object);
 
         Class<?> clz = object.getClass();
         if(clz.isSynthetic())
             return Optional.empty();
-        
+
+        Set<Class<?>> rootClasses = null;
+        if(configuration instanceof IntrospectionConfiguration) {
+            rootClasses = ((IntrospectionConfiguration)configuration).getHardcodeRoots();
+        }
+
+
+        boolean root = isRoot(rootClasses, new HashSet<>(), clz);
+
         Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
         ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
         List<Object> arguments = new ArrayList<>();
@@ -108,7 +143,7 @@ public class ObjectNodeFactory implements NodeFactory {
             }
             arguments.add(value);
         }
-        return Optional.of(new NodeDefImpl(clz, TypeUtil.simpleToString(object), arguments, this::getCode));
+        return Optional.of(new NodeDefImpl(clz, TypeUtil.simpleToString(object), this::getCode, arguments, root));
     }
 
     @Override

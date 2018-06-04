@@ -2,6 +2,7 @@ package org.deletethis.hardcode.objects.impl;
 
 import com.squareup.javapoet.CodeBlock;
 
+import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 
 import java.util.Optional;
@@ -21,7 +22,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
     }
     
     @Override
-    public Optional<NodeDefinition> createNode(Object object) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         if(object instanceof Integer) {
             return create(Integer.class, object, (val)->CodeBlock.of("$L", val));
         }

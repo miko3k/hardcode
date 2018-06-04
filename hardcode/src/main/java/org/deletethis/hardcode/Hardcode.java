@@ -3,7 +3,8 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import org.deletethis.graph.Digraph;
+import com.squareup.javapoet.TypeSpec;
+import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.impl.GraphBuilder;
 import org.deletethis.hardcode.impl.Printer;
 import org.deletethis.hardcode.objects.Expression;
@@ -18,18 +19,25 @@ import org.deletethis.hardcode.objects.impl.MapNodeFactory;
 
 public class Hardcode {
     private final List<NodeFactory> nodeFactoryList;
+    private final HardcodeConfiguration configuration;
 
-    private Hardcode(List<NodeFactory> nodeFactoryList) {
+    private Hardcode(HardcodeConfiguration configuration, List<NodeFactory> nodeFactoryList) {
         this.nodeFactoryList = new ArrayList<>(nodeFactoryList);
         this.nodeFactoryList.sort(Comparator.comparing(NodeFactory::getOrdering));
+        this.configuration = configuration;
     }
 
-    private Hardcode(List<NodeFactory> a, List<NodeFactory> b) {
+    private Hardcode(HardcodeConfiguration configuration, List<NodeFactory> a, List<NodeFactory> b) {
         this.nodeFactoryList = new ArrayList<>(a);
         this.nodeFactoryList.addAll(b);
         this.nodeFactoryList.sort(Comparator.comparing(NodeFactory::getOrdering));
-
+        this.configuration = configuration;
     }
+
+    private static HardcodeConfiguration c() {
+        return new DefaultConfiguration();
+    }
+
 
     private static ArrayList<NodeFactory> builtin() {
         ArrayList<NodeFactory> nodeFactoryList = new ArrayList<>();
@@ -52,58 +60,59 @@ public class Hardcode {
     }
 
     public static Hardcode builtinConfig() {
-        return new Hardcode(builtin());
+        return new Hardcode(c(), builtin());
+    }
+
+    public static Hardcode builtinConfig(HardcodeConfiguration c) {
+        return new Hardcode(c, builtin());
     }
 
     public static Hardcode builtinConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcode(builtin(), nodeFactories);
+        return new Hardcode(c(), builtin(), nodeFactories);
+    }
+
+    public static Hardcode builtinConfig(HardcodeConfiguration c, List<NodeFactory> nodeFactories) {
+        return new Hardcode(c, builtin(), nodeFactories);
     }
 
     public static Hardcode customConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcode(nodeFactories);
+        return new Hardcode(c(), nodeFactories);
+    }
+
+    public static Hardcode customConfig(HardcodeConfiguration c, List<NodeFactory> nodeFactories) {
+        return new Hardcode(c, nodeFactories);
     }
 
     public static Hardcode defaultConfig() {
-        return new Hardcode(def());
+        return new Hardcode(c(), def());
+    }
+
+    public static Hardcode defaultConfig(HardcodeConfiguration c) {
+        return new Hardcode(c, def());
     }
 
     public static Hardcode defaultConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcode(def(), nodeFactories);
+        return new Hardcode(c(), def(), nodeFactories);
+    }
+
+    public static Hardcode defaultConfig(HardcodeConfiguration c, List<NodeFactory> nodeFactories) {
+        return new Hardcode(c, def(), nodeFactories);
     }
 
     public Digraph<ObjectInfo> buildGraph(Object root) {
-        return GraphBuilder.buildGraph(nodeFactoryList, root);
+        return GraphBuilder.buildGraph(nodeFactoryList, configuration, root);
     }
 
-    public CodeBlock value(CodeBlock.Builder body, Object o) {
-        Digraph<ObjectInfo> graph = buildGraph(o);
-        return Printer.print(body, graph).getCode();
+    public TypeSpec createClass(String className, String methodName, Object o) {
+        return createClass(className, methodName, buildGraph(o));
     }
 
-    public MethodSpec method(String name, Digraph<ObjectInfo> graph) {
-        AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
-        builder.addMember("value", "$S", "unchecked");
+    public TypeSpec createClass(String className, String methodName, Digraph<ObjectInfo> graph) {
+        TypeSpec.Builder result = TypeSpec.classBuilder(className)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-        MethodSpec.Builder ms = MethodSpec.methodBuilder(name);
-        ms.addModifiers(Modifier.PUBLIC);
-        ms.addAnnotation(builder.build());
-        CodeBlock.Builder bld = CodeBlock.builder();
+        Printer.print(result, methodName, graph);
 
-        Expression expression = Printer.print(bld, graph);
-
-        Class<?> type = graph.getRoot().getPayload().getType();
-        if(type == null) {
-            ms.returns(Object.class);
-        } else {
-            ms.returns(type);
-        }
-
-        bld.addStatement("return $L", expression.getCode());
-        ms.addCode(bld.build());
-        return ms.build();
-    }
-
-    public MethodSpec method(String name, Object o) {
-        return method(name, buildGraph(o));
+        return result.build();
     }
 }
