@@ -2,6 +2,8 @@ package org.deletethis.hardcode.objects;
 
 import com.squareup.javapoet.CodeBlock;
 
+import java.util.Objects;
+
 public class Expression {
     private final CodeBlock block;
     private final boolean simple;
@@ -17,6 +19,21 @@ public class Expression {
         } else {
             return "complex(" + block + ")";
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Expression)) return false;
+        Expression that = (Expression) o;
+        return simple == that.simple &&
+                Objects.equals(block, that.block);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(block, simple);
     }
 
     public CodeBlock getCode() {

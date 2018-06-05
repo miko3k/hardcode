@@ -40,7 +40,7 @@ public class GraphBuilder {
 
         @Override
         public String toString() {
-            return "null";
+            return "[null]";
         }
     };
 

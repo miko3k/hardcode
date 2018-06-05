@@ -1,19 +1,22 @@
 package org.deletethis.hardcode.test;
 
+import com.squareup.javapoet.JavaFile;
 import org.deletethis.hardcode.DefaultConfiguration;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.Hardcode;
 import org.deletethis.hardcode.ObjectInfo;
+import org.deletethis.hardcode.graph.Divertex;
 import org.deletethis.hardcode.graph.Graphviz;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
 
 public class Main {
     private static void doIt(String name, Hardcode hardcoder, Object o) {
         Digraph<ObjectInfo> graph = hardcoder.buildGraph(o);
-        new Graphviz<>(graph).print("target/" + name + ".gv");
-        System.out.println(hardcoder.createClass("Foo", "foo", graph));
+        new Graphviz<>(graph).highlight(v -> v.getPayload().isRoot()).print("target/" + name + ".gv");
+        System.out.println(JavaFile.builder("foo.bar", hardcoder.createClass("Foo", "everything", graph)).build());
     }
 
 
@@ -23,8 +26,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
+//        System.setOut(System.err);
         Hardcode hc = Hardcode.builtinConfig();
-
+/*
         doIt("hello", hc, "hello world\n");
         doIt("data", hc, new Data("hello", 1, 50L));
 
@@ -54,6 +58,15 @@ public class Main {
         map.put("cd1b", cd1);
         map.put("cd2", cd2);
         doIt("big-map", hc2, map);
+*/
+        ChildData d0 = new ChildData("something");
+        ChildData d1 = new ChildData("middle", d0);
+        ChildData d2 = new ChildData("parent", d1);
+        ArrayList<ChildData> list = new ArrayList<>();
+        list.add(d0);
+        list.add(d1);
+        list.add(d2);
+        doIt("roots", hc, list);
 
 
 

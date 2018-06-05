@@ -28,7 +28,7 @@ public class Graphviz<T> {
         return this;
     }
 
-    public Graphviz<T> hightlight(Function<Divertex<T>, Boolean> hightlightFunction) {
+    public Graphviz<T> highlight(Function<Divertex<T>, Boolean> hightlightFunction) {
         this.highlightFunction = hightlightFunction;
         return this;
     }

@@ -1,13 +1,9 @@
 package org.deletethis.hardcode;
 
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.impl.GraphBuilder;
 import org.deletethis.hardcode.impl.Printer;
-import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeFactory;
 import org.deletethis.hardcode.objects.impl.CollectionNodeFactory;
 import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
@@ -111,7 +107,7 @@ public class Hardcode {
         TypeSpec.Builder result = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-        Printer.print(result, methodName, graph);
+        new Printer(graph).run(result, methodName);
 
         return result.build();
     }
