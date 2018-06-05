@@ -28,7 +28,7 @@ public class GuavaCollectionFactory implements NodeFactory {
 
     @Override
     public boolean enableReferenceDetection() {
-        return true;
+        return false;
     }
 
     private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {

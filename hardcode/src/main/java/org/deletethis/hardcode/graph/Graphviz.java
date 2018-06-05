@@ -1,11 +1,14 @@
 package org.deletethis.hardcode.graph;
 
+
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
 
 public class Graphviz<T> {
     private final Digraph<T> digraph;
     private Set<Divertex<T>> highlight = Collections.emptySet();
+    private Function<Divertex<T>, Boolean> highlightFunction = (x) -> false;
     private boolean predecessors = false;
     private boolean arrows = true;
     private boolean attributes = true;
@@ -22,6 +25,11 @@ public class Graphviz<T> {
         } else {
             this.highlight = new HashSet<>(highlight);
         }
+        return this;
+    }
+
+    public Graphviz<T> hightlight(Function<Divertex<T>, Boolean> hightlightFunction) {
+        this.highlightFunction = hightlightFunction;
         return this;
     }
 
@@ -79,7 +87,7 @@ public class Graphviz<T> {
             out.println("graph objects {");
         }
 
-        for (Divertex n : digraph.getAllVertices()) {
+        for (Divertex<T> n : digraph.getAllVertices()) {
             out.print("  " + System.identityHashCode(n));
             if(attributes) {
                 String str = n.getPayload().toString();
@@ -90,7 +98,7 @@ public class Graphviz<T> {
                     }
                 }
                 out.print(" [label=" + escape(str));
-                if (highlight.contains(n)) {
+                if (highlight.contains(n) || highlightFunction.apply(n)) {
                     out.print(' ');
                     out.print(highlightStyle);
                 }
