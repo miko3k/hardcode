@@ -4,13 +4,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.HardcodeConfiguration;
-import org.deletethis.hardcode.objects.CodegenContext;
-import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.NodeDefinition;
-import org.deletethis.hardcode.objects.NodeFactory;
+import org.deletethis.hardcode.objects.*;
 import org.deletethis.hardcode.objects.impl.NodeDefImpl;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GuavaCollectionFactory implements NodeFactory {
     private static final Set<Class<?>> CLASSES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
@@ -61,14 +60,14 @@ public class GuavaCollectionFactory implements NodeFactory {
 
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration, List<Annotation> annotations) {
         Class<?> aClass = findClass(object);
 
         if (aClass == null)
             return Optional.empty();
 
         Collection<?> coll = (Collection<?>) object;
-        List<Object> members = new ArrayList<>(coll);
+        List<NodeParameter> members = coll.stream().map(NodeParameter::new).collect(Collectors.toList());
         return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), this::getCode, members));
     }
 

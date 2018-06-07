@@ -9,6 +9,7 @@
 
     <modules>
         <module>hardcode</module>
+        <module>hardcode-annotations</module>
         <module>hardcode-guava</module>
         <module>idea-graveyard</module>
     </modules>
@@ -74,6 +75,12 @@
             <dependency>
                 <groupId>org.deletethis.hardcode</groupId>
                 <artifactId>hardcode</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.deletethis.hardcode</groupId>
+                <artifactId>hardcode-annotations</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 

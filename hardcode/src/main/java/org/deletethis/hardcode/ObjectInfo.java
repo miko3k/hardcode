@@ -3,6 +3,7 @@ package org.deletethis.hardcode;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 public interface ObjectInfo {

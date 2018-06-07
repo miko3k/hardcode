@@ -3,6 +3,7 @@ package org.deletethis.hardcode.objects.impl;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class MapNodeFactory implements NodeFactory {
@@ -37,17 +38,17 @@ public class MapNodeFactory implements NodeFactory {
 
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration, List<Annotation> annotations) {
         Class<?> aClass = object.getClass();
 
         if(!CLASSES_WITH_CAPACITY.contains(aClass) && !CLASSES_WITHOUT_CAPACITY.contains(aClass))
             return Optional.empty();
 
         Map<?,?> coll = (Map<?,?>)object;
-        List<Object> members = new ArrayList<>(coll.size());
+        List<NodeParameter> members = new ArrayList<>(coll.size()*2);
         for(Map.Entry<?,?> o: coll.entrySet()) {
-            members.add(o.getKey());
-            members.add(o.getValue());
+            members.add(new NodeParameter(o.getKey()));
+            members.add(new NodeParameter(o.getValue()));
         }
         return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), this::getCode, members));
     }

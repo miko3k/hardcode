@@ -5,6 +5,8 @@ import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -22,7 +24,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
     }
     
     @Override
-    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration, List<Annotation> annotations) {
         if(object instanceof Integer) {
             return create(Integer.class, object, (val)->CodeBlock.of("$L", val));
         }

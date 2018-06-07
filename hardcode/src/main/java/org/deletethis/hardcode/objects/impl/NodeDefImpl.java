@@ -4,15 +4,17 @@ import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeDefinition;
+import org.deletethis.hardcode.objects.NodeParameter;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 
 public class NodeDefImpl implements NodeDefinition {
     private final ObjectInfo objectInfo;
-    private final List<Object> parameters;
+    private final List<NodeParameter> parameters;
 
-    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<Object> parameters, boolean root) {
+    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters, boolean root) {
         this.parameters = parameters;
         this.objectInfo = new ObjectInfo() {
             @Override
@@ -37,7 +39,7 @@ public class NodeDefImpl implements NodeDefinition {
         };
     }
 
-    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<Object> parameters) {
+    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {
         this(type, asString, constructionStrategy, parameters, false);
     }
 
@@ -51,7 +53,7 @@ public class NodeDefImpl implements NodeDefinition {
     }
 
     @Override
-    public List<Object> getParameters() {
+    public List<NodeParameter> getParameters() {
         return parameters;
     }
 }

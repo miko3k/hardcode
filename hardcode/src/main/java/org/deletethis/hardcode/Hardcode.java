@@ -107,7 +107,7 @@ public class Hardcode {
         TypeSpec.Builder result = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-        new Printer(graph).run(result, methodName);
+        new Printer(result, graph).run(methodName);
 
         return result.build();
     }

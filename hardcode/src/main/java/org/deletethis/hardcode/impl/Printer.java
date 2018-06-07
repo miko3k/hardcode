@@ -13,35 +13,47 @@ import java.util.*;
 
 public class Printer {
     private final Digraph<ObjectInfo> graph;
-    private final Map<Divertex<ObjectInfo>, ExprInfo> globalExprMap = new HashMap<>();
+    private final Map<Divertex<ObjectInfo>, ExprInfo> exprMap = new HashMap<>();
+    private final NumberNameAllocator methodNameAllocator = new NumberNameAllocator();
+    private final TypeSpec.Builder clz;
 
+    private Expression printToContext(Context context, Divertex<ObjectInfo> n) {
+        ObjectInfo objectInfo = n.getPayload();
+        List<Expression> args = new ArrayList<>();
+
+        for (Divertex<ObjectInfo> a : n.getSuccessors()) {
+            ExprInfo argument = print(context, a);
+
+            if (context.getRoot() != argument.getRoot()) {
+                throw new HardcodeException("cross-root reference");
+            }
+
+            args.add(argument.getExpression());
+        }
+        return objectInfo.getCode(context, args);
+    }
 
     private ExprInfo print(Context context, Divertex<ObjectInfo> n) {
         Objects.requireNonNull(context);
         Objects.requireNonNull(n);
 
         ObjectInfo objectInfo = n.getPayload();
-        ExprInfo exprInfo = context.getExprInfo(n);
+        ExprInfo exprInfo = exprMap.get(n);
         if(exprInfo != null) {
             return exprInfo;
         }
 
         Expression expression;
-        if(objectInfo.isRoot() && context.getCurrentRoot() != n) {
-            throw new IllegalStateException();
+        if(n.getPayload().isRoot()) {
+            Context child = createSubContext(n);
+            Expression e = printToContext(child, n);
+            MethodSpec finish = child.finish(e);
+            clz.addMethod(finish);
+
+            expression = Expression.complex("$L()", child.getMethodName());
+
         } else {
-            List<Expression> args = new ArrayList<>();
-
-            for (Divertex<ObjectInfo> a : n.getSuccessors()) {
-                ExprInfo argument = print(context, a);
-
-                if (context != argument.getContext()) {
-                    throw new HardcodeException("cross-root reference");
-                }
-
-                args.add(argument.getExpression());
-            }
-            expression = objectInfo.getCode(context, args);
+            expression = printToContext(context, n);
         }
 
         if (!expression.isSimple() && n.getInDegree() > 1) {
@@ -50,12 +62,18 @@ public class Printer {
             expression = Expression.simple(var);
         }
 
-        return context.putExprInfo(n, expression);
+        // root is printend in special way, and it should never end up in the map for itself
+//        if(context.getRoot() == n)
+//            throw new IllegalArgumentException();
+
+        ExprInfo result = new ExprInfo(context.getRoot(), expression);
+        exprMap.put(n, result);
+        return result;
     }
 
 
-    private Context createMainContext(String name, List<Root> roots) {
-        Context context = new Context(null, globalExprMap, name);
+    private Context createMainContext(String nameHint) {
+        Context context = new Context(graph.getRoot(), methodNameAllocator.newName(nameHint));
         Class<?> returnType = graph.getRoot().getPayload().getType();
         MethodSpec.Builder mb = context.getMethodBuilder();
         if(returnType == null) {
@@ -64,67 +82,31 @@ public class Printer {
             mb.returns(returnType);
         }
         mb.addModifiers(Modifier.PUBLIC);
-
-        for(Root r: roots) {
-            Class<?> varType = r.vertex.getPayload().getType();
-
-            String varName = context.getVariableAllocator().newName(varType, r.vertex);
-            mb.addCode("$[$T $L = $L(", varType, varName, r.methodName);
-
-            boolean first = true;
-            for(Divertex<ObjectInfo> p: r.dependencies) {
-                if(first) {
-                    first = false;
-                } else {
-                    mb.addCode(",");
-                }
-                mb.addCode("$L", context.getVariableAllocator().get(p));
-            }
-
-            mb.addCode(");\n$]");
-
-            context.addLocalExpression(r.vertex, Expression.simple(varName));
-        }
-        mb.addCode("\n");
         return context;
     }
 
-    private Context createSubContext(Root root) {
-        Class<?> returnType = root.vertex.getPayload().getType();
+    private Context createSubContext(Divertex<ObjectInfo> root) {
+        Class<?> returnType = root.getPayload().getType();
 
-        Context context = new Context(root.vertex, globalExprMap, root.methodName);
+        String nameHint = "create" + returnType.getSimpleName();
+
+        Context context = new Context(root, methodNameAllocator.newName(nameHint));
         context.getMethodBuilder().returns(returnType);
         context.getMethodBuilder().addModifiers(Modifier.PRIVATE);
 
-        for(Divertex<ObjectInfo> dep: root.dependencies) {
-            Class<?> type = dep.getPayload().getType();
-            String variableName = context.allocateVariable(type);
-            context.getMethodBuilder().addParameter(type, variableName);
-            context.addLocalExpression(dep, Expression.simple(variableName));
-        }
-
         return context;
     }
 
 
-    public void run(TypeSpec.Builder clz, String nameHint) {
-        NumberNameAllocator methodNameAllocator = new NumberNameAllocator();
-        String methodName = methodNameAllocator.newName(nameHint);
+    public void run(String nameHint) {
 
-        List<Root> roots = Roots.getRoots(methodNameAllocator, graph);
-
-        Context mainContext = createMainContext(methodName, roots);
-        ExprInfo print = print(mainContext, graph.getRoot());
-
-        for(Root r: roots) {
-            Context context = createSubContext(r);
-            print = print(context, r.vertex);
-            clz.addMethod(context.finish(print));
-        }
-        clz.addMethod(mainContext.finish(print));
+        Context mainContext = createMainContext(nameHint);
+        ExprInfo mainMethod = print(mainContext, graph.getRoot());
+        clz.addMethod(mainContext.finish(mainMethod.getExpression()));
     }
 
-    public Printer(Digraph<ObjectInfo> graph) {
+    public Printer(TypeSpec.Builder clz, Digraph<ObjectInfo> graph) {
         this.graph = graph;
+        this.clz = clz;
     }
 }

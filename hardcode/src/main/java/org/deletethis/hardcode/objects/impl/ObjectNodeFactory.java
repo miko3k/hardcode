@@ -10,6 +10,7 @@ import org.deletethis.hardcode.util.TypeUtil;
 import org.deletethis.hardcode.objects.impl.introspection.FieldInstrospectionStartegy;
 import org.deletethis.hardcode.objects.impl.introspection.IntrospectionStartegy;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -106,7 +107,7 @@ public class ObjectNodeFactory implements NodeFactory {
     }
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration, List<Annotation> annotations) {
         Objects.requireNonNull(object);
 
         Class<?> clz = object.getClass();
@@ -123,13 +124,15 @@ public class ObjectNodeFactory implements NodeFactory {
 
         Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
         ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
-        List<Object> arguments = new ArrayList<>();
+        List<NodeParameter> arguments = new ArrayList<>();
 
         for(ParameterWrapper p: cons.getParameters()) {
             String name = p.getName();
             Class<?> type = p.getType();
 
-            Object value = introspect.get(name).getValue(object);
+            IntrospectionStartegy.Member member = introspect.get(name);
+
+            Object value = member.getValue(object);
             // IS THIS REALLY NECESSARY??
             if(value == null) {
                 if (type.isPrimitive()) {
@@ -141,7 +144,7 @@ public class ObjectNodeFactory implements NodeFactory {
                     throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign " + valueClass.getName() + " to " + type.getName());
                 }
             }
-            arguments.add(value);
+            arguments.add(new NodeParameter(value, member.getAnnotations()));
         }
         return Optional.of(new NodeDefImpl(clz, TypeUtil.simpleToString(object), this::getCode, arguments, root));
     }

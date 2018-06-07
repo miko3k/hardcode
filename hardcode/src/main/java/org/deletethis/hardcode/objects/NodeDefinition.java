@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface NodeDefinition {
     ObjectInfo getObjectInfo();
-    List<Object> getParameters();
+    List<NodeParameter> getParameters();
 }

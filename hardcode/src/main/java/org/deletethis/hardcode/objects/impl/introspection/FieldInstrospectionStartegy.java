@@ -2,6 +2,7 @@ package org.deletethis.hardcode.objects.impl.introspection;
 
 import org.deletethis.hardcode.HardcodeException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -21,6 +22,11 @@ public class FieldInstrospectionStartegy implements IntrospectionStartegy {
             } catch (IllegalAccessException e) {
                 throw new HardcodeException(e);
             }
+        }
+
+        @Override
+        public List<Annotation> getAnnotations() {
+            return Arrays.asList(field.getAnnotations());
         }
     }
 

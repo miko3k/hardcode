@@ -7,7 +7,7 @@ import org.deletethis.hardcode.graph.Divertex;
 import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
-import javax.security.auth.login.Configuration;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class GraphBuilder {
@@ -44,9 +44,9 @@ public class GraphBuilder {
         }
     };
 
-    private Divertex<ObjectInfo> createNode(Object o) {
+    private Divertex<ObjectInfo> createNode(Object o, List<Annotation> annotations) {
         //System.out.println("NODE: " + o);
-        
+
         if(o == null) {
             return digraph.createVertex(NULL);
         }
@@ -54,21 +54,26 @@ public class GraphBuilder {
         if(!objectsInProgress.add(o)) {
             throw new IllegalStateException("cycle detected");
         }
+
         try {
             Divertex<ObjectInfo> n = objectMap.get(o);
             if (n != null) {
                 return n;
             }
 
+            BuiltinAnnotations ba = new BuiltinAnnotations();
+            // this is never gonna be null, even if argument is
+            List<Annotation> passedAnnotations = ba.process(annotations);
+
             for(NodeFactory factory: nodeFactories) {
-                Optional<NodeDefinition> nodeOptional = factory.createNode(o, configuration);
+                Optional<NodeDefinition> nodeOptional = factory.createNode(o, configuration, passedAnnotations);
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    Divertex<ObjectInfo> node = digraph.createVertex(nodeDef.getObjectInfo());
+                    Divertex<ObjectInfo> node = digraph.createVertex(ba.wrap(nodeDef.getObjectInfo()));
 
-                    for(Object param: nodeDef.getParameters()) {
-                        Divertex<ObjectInfo> n2 = createNode(param);
+                    for(NodeParameter param: nodeDef.getParameters()) {
+                        Divertex<ObjectInfo> n2 = createNode(param.getValue(), param.getAnnotations());
                         digraph.createEdge(node, n2);
                     }
 
@@ -87,7 +92,7 @@ public class GraphBuilder {
     public static Digraph<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration, Object o) {
         GraphBuilder gb = new GraphBuilder(nodeFactories, configuration);
 
-        gb.createNode(o);
+        gb.createNode(o, null);
         if(!gb.objectsInProgress.isEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }
