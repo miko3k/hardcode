@@ -19,17 +19,17 @@ public class ObjectNodeFactory implements NodeFactory {
 
     private IntrospectionStartegy strategy = new FieldInstrospectionStartegy();
 
-    private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
+    private Expression getCode(Class<?> clz, List<String> argNames, List<Expression> arguments) {
         CodeBlock.Builder bld = CodeBlock.builder();
         bld.add("new $T(", clz);
-        boolean first = true;
+        int n = 0;
         for (Expression b : arguments) {
-            if (first) {
-                first = false;
-            } else {
+            if(n > 0) {
                 bld.add(", ");
             }
+            bld.add("/*$L*/ ", argNames.get(n));
             bld.add(b.getCode());
+            ++n;
         }
         bld.add(")");
         return Expression.complex(bld.build());
@@ -125,6 +125,7 @@ public class ObjectNodeFactory implements NodeFactory {
         Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
         ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
         List<NodeParameter> arguments = new ArrayList<>();
+        List<String> argNames = new ArrayList<>();
 
         for(ParameterWrapper p: cons.getParameters()) {
             String name = p.getName();
@@ -133,6 +134,7 @@ public class ObjectNodeFactory implements NodeFactory {
             IntrospectionStartegy.Member member = introspect.get(name);
 
             Object value = member.getValue(object);
+            argNames.add(name);
             // IS THIS REALLY NECESSARY??
             if(value == null) {
                 if (type.isPrimitive()) {
@@ -146,7 +148,13 @@ public class ObjectNodeFactory implements NodeFactory {
             }
             arguments.add(new NodeParameter(value, member.getAnnotations()));
         }
-        return Optional.of(new NodeDefImpl(clz, TypeUtil.simpleToString(object), this::getCode, arguments, root));
+        return Optional.of(
+                new NodeDefImpl(
+                        clz,
+                        TypeUtil.simpleToString(object),
+                        ((clz1, context, arguments1) -> getCode(clz1, argNames, arguments1)),
+                        arguments,
+                        root));
     }
 
     @Override
