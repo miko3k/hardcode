@@ -47,8 +47,7 @@ public class Printer {
         if(n.getPayload().isRoot()) {
             Context child = createSubContext(n);
             Expression e = printToContext(child, n);
-            MethodSpec finish = child.finish(e);
-            clz.addMethod(finish);
+            child.finish(e);
 
             expression = Expression.complex("$L()", child.getMethodName());
 
@@ -73,7 +72,7 @@ public class Printer {
 
 
     private Context createMainContext(String nameHint) {
-        Context context = new Context(graph.getRoot(), methodNameAllocator.newName(nameHint));
+        Context context = new Context(methodNameAllocator, clz, graph.getRoot(), nameHint);
         Class<?> returnType = graph.getRoot().getPayload().getType();
         MethodSpec.Builder mb = context.getMethodBuilder();
         if(returnType == null) {
@@ -90,7 +89,7 @@ public class Printer {
 
         String nameHint = "create" + returnType.getSimpleName();
 
-        Context context = new Context(root, methodNameAllocator.newName(nameHint));
+        Context context = new Context(methodNameAllocator, clz, root, nameHint);
         context.getMethodBuilder().returns(returnType);
         context.getMethodBuilder().addModifiers(Modifier.PRIVATE);
 
@@ -102,7 +101,7 @@ public class Printer {
 
         Context mainContext = createMainContext(nameHint);
         ExprInfo mainMethod = print(mainContext, graph.getRoot());
-        clz.addMethod(mainContext.finish(mainMethod.getExpression()));
+        mainContext.finish(mainMethod.getExpression());
     }
 
     public Printer(TypeSpec.Builder clz, Digraph<ObjectInfo> graph) {

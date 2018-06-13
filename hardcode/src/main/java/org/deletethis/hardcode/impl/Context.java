@@ -2,11 +2,13 @@ package org.deletethis.hardcode.impl;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.ObjectInfo;
 import org.deletethis.hardcode.graph.Divertex;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 
+import javax.lang.model.element.Modifier;
 import java.util.Objects;
 
 class Context implements CodegenContext {
@@ -14,6 +16,8 @@ class Context implements CodegenContext {
     private final NumberNameAllocator variableAllocator = new NumberNameAllocator();
     private final MethodSpec.Builder methodBuilder;
     private final String methodName;
+    private final TypeSpec.Builder clz;
+    private final NumberNameAllocator methodNameAllocator;
 
     private static AnnotationSpec unchecked() {
         AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
@@ -21,11 +25,13 @@ class Context implements CodegenContext {
         return builder.build();
     }
 
-    Context(Divertex<ObjectInfo> currentRoot, String name) {
+    Context(NumberNameAllocator methodNameAllocator, TypeSpec.Builder clz, Divertex<ObjectInfo> currentRoot, String nameHint) {
+        this.methodNameAllocator = methodNameAllocator;
+        this.clz = clz;
         this.currentRoot = currentRoot;
-        this.methodBuilder = MethodSpec.methodBuilder(name);
+        this.methodName = methodNameAllocator.newName(nameHint);
+        this.methodBuilder = MethodSpec.methodBuilder(methodName);
         this.methodBuilder.addAnnotation(unchecked());
-        this.methodName = name;
     }
 
     public MethodSpec.Builder getMethodBuilder() {
@@ -37,10 +43,24 @@ class Context implements CodegenContext {
         methodBuilder.addStatement(format, args);
     }
 
+    @Override
+    public void finish() {
+        clz.addMethod(methodBuilder.build());
+    }
 
-    public MethodSpec finish(Expression expression) {
+
+    public void finish(Expression expression) {
         methodBuilder.addStatement("return $L", expression.getCode());
-        return methodBuilder.build();
+        finish();
+    }
+
+    @Override
+    public CodegenContext createVoidMethod(String nameHint, Class<?> paramType, String paramName) {
+        Context context = new Context(methodNameAllocator, clz, currentRoot, methodNameAllocator.newName(nameHint));
+        context.getMethodBuilder().returns(Void.TYPE);
+        context.getMethodBuilder().addModifiers(Modifier.PRIVATE);
+        context.getMethodBuilder().addParameter(paramType, paramName);
+        return context;
     }
 
     public NumberNameAllocator getVariableAllocator() {

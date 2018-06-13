@@ -1,1 +1,2 @@
 org.deletethis.hardcode.guava.GuavaCollectionFactory
+org.deletethis.hardcode.guava.GuavaImmutableMapFactory
