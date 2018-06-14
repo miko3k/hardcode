@@ -4,7 +4,7 @@ import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.MapDigraph;
 import org.deletethis.hardcode.graph.Divertex;
-import org.deletethis.hardcode.ObjectInfo;
+import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
 import java.lang.annotation.Annotation;
@@ -29,7 +29,7 @@ public class GraphBuilder {
         }
 
         @Override
-        public Expression getCode(CodegenContext context, List<Expression> arguments) {
+        public Expression getCode(CodegenContext context, ObjectContext obj) {
             return Expression.simple("null");
         }
 

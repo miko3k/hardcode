@@ -1,12 +1,7 @@
 package org.deletethis.hardcode.objects.impl;
 
-import org.deletethis.hardcode.ObjectInfo;
-import org.deletethis.hardcode.objects.CodegenContext;
-import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.NodeDefinition;
-import org.deletethis.hardcode.objects.NodeParameter;
+import org.deletethis.hardcode.objects.*;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,8 +18,8 @@ public class NodeDefImpl implements NodeDefinition {
             }
 
             @Override
-            public Expression getCode(CodegenContext context, List<Expression> arguments) {
-                return constructionStrategy.getCode(type, context, arguments);
+            public Expression getCode(CodegenContext context, ObjectContext obj) {
+                return constructionStrategy.getCode(context, obj);
             }
 
             @Override

@@ -5,6 +5,7 @@ import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.impl.GraphBuilder;
 import org.deletethis.hardcode.impl.Printer;
 import org.deletethis.hardcode.objects.NodeFactory;
+import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.impl.CollectionNodeFactory;
 import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
 import org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory;

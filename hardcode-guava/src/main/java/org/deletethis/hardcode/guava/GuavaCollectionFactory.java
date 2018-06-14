@@ -30,13 +30,13 @@ public class GuavaCollectionFactory implements NodeFactory {
         return false;
     }
 
-    private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
+    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext obj) {
         // there are also longer variants, but's use builder for larger ones
-        if (arguments.size() < 10) {
+        if (obj.getArguments().size() < 10) {
             CodeBlock.Builder cb = CodeBlock.builder();
             cb.add("$T.of(", clz);
             boolean first = true;
-            for (Expression e : arguments) {
+            for (Expression e : obj) {
                 if (first) {
                     first = false;
                 } else {
@@ -49,9 +49,9 @@ public class GuavaCollectionFactory implements NodeFactory {
         } else {
             String variable = context.allocateVariable(clz);
 
-            context.addStatement("$T.Builder $L = $T.builderWithExpectedSize($L)", clz, variable, clz, arguments.size());
+            context.addStatement("$T.Builder $L = $T.builderWithExpectedSize($L)", clz, variable, clz, obj.getArguments().size());
 
-            for (Expression arg : arguments) {
+            for (Expression arg : obj) {
                 context.addStatement("$L.add($L)", variable, arg.getCode());
             }
             return Expression.complex("$L.build()", variable);
@@ -67,8 +67,13 @@ public class GuavaCollectionFactory implements NodeFactory {
             return Optional.empty();
 
         Collection<?> coll = (Collection<?>) object;
-        List<NodeParameter> members = coll.stream().map(NodeParameter::new).collect(Collectors.toList());
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), this::getCode, members));
+        int idx = 0;
+        List<NodeParameter> members = new ArrayList<>(coll.size());
+        for(Object o: coll) {
+            members.add(new NodeParameter(new IndexParamteter(idx), o));
+            ++idx;
+        }
+        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj), members));
     }
 
     @Override

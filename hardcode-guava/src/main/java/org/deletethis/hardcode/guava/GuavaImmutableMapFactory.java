@@ -69,7 +69,11 @@ public class GuavaImmutableMapFactory implements NodeFactory {
     private static final String PARAM = "out";
 
 
-    private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments, Integer split, Class<?> builder) {
+    private Expression getCode(TypeInfo typeInfo, CodegenContext context, ObjectContext obj, Integer split) {
+        List<Expression> arguments = obj.getArguments();
+        Class<?> clz = typeInfo.getType();
+        Class<?> builder = typeInfo.getBuilder();
+
         // there are also longer variants, but's use builder for larger ones
         if (arguments.size() <= 10) {
             CodeBlock.Builder cb = CodeBlock.builder();
@@ -115,14 +119,16 @@ public class GuavaImmutableMapFactory implements NodeFactory {
     private Optional<NodeDefinition> createIt(TypeInfo typeInfo, Iterable<? extends Map.Entry<?,?>> entryIterable, Integer split) {
 
         List<NodeParameter> members = new ArrayList<>();
+        int idx = 0;
         for (Map.Entry<?, ?> e : entryIterable) {
-            members.add(new NodeParameter(e.getKey()));
-            members.add(new NodeParameter(e.getValue()));
+            members.add(new NodeParameter(new MapParameter(true, idx), e.getKey()));
+            members.add(new NodeParameter(new MapParameter(false, idx), e.getValue()));
         }
+        ++idx;
         return Optional.of(new NodeDefImpl(
                 typeInfo.getType(),
                 typeInfo.getType().getSimpleName(),
-                (clz, context, arguments) -> getCode(clz, context, arguments, split, typeInfo.getBuilder()),
+                (context, obj) -> getCode(typeInfo, context, obj, split),
                 members)
         );
     }

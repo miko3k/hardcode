@@ -20,7 +20,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
         return Optional.of(new NodeDefImpl(
                 clz,
                 String.valueOf(value),
-                (clz1, context, arguments) -> Expression.simple(fn.apply(value))));
+                (context, obj) -> Expression.simple(fn.apply(value))));
     }
     
     @Override

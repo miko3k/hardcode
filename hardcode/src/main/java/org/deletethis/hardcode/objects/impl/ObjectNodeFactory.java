@@ -19,11 +19,11 @@ public class ObjectNodeFactory implements NodeFactory {
 
     private IntrospectionStartegy strategy = new FieldInstrospectionStartegy();
 
-    private Expression getCode(Class<?> clz, List<String> argNames, List<Expression> arguments) {
+    private Expression getCode(Class<?> clz, List<String> argNames, ObjectContext obj) {
         CodeBlock.Builder bld = CodeBlock.builder();
         bld.add("new $T(", clz);
         int n = 0;
-        for (Expression b : arguments) {
+        for (Expression b : obj) {
             if(n > 0) {
                 bld.add(", ");
             }
@@ -146,13 +146,13 @@ public class ObjectNodeFactory implements NodeFactory {
                     throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign " + valueClass.getName() + " to " + type.getName());
                 }
             }
-            arguments.add(new NodeParameter(value, member.getAnnotations()));
+            arguments.add(new NodeParameter(new NamedParameter(name), value, member.getAnnotations()));
         }
         return Optional.of(
                 new NodeDefImpl(
                         clz,
                         TypeUtil.simpleToString(object),
-                        ((clz1, context, arguments1) -> getCode(clz1, argNames, arguments1)),
+                        ((context, obj) -> getCode(clz, argNames, obj)),
                         arguments,
                         root));
     }

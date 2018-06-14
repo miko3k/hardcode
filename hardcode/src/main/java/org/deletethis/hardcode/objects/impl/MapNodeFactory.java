@@ -21,7 +21,8 @@ public class MapNodeFactory implements NodeFactory {
         return true;
     }
 
-    private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
+    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext obj) {
+        List<Expression> arguments = obj.getArguments();
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
             // arguments contain both keys and values, we create map with double initial capacitity
@@ -46,11 +47,14 @@ public class MapNodeFactory implements NodeFactory {
 
         Map<?,?> coll = (Map<?,?>)object;
         List<NodeParameter> members = new ArrayList<>(coll.size()*2);
+
+        int idx = 0;
         for(Map.Entry<?,?> o: coll.entrySet()) {
-            members.add(new NodeParameter(o.getKey()));
-            members.add(new NodeParameter(o.getValue()));
+            members.add(new NodeParameter(new MapParameter(true, idx), o.getKey()));
+            members.add(new NodeParameter(new MapParameter(false, idx), o.getValue()));
+            ++idx;
         }
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), this::getCode, members));
+        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj), members));
     }
 
     @Override

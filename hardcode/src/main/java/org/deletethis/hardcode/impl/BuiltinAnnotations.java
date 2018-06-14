@@ -1,7 +1,8 @@
 package org.deletethis.hardcode.impl;
 
 import org.deletethis.hardcode.HardcodeRoot;
-import org.deletethis.hardcode.ObjectInfo;
+import org.deletethis.hardcode.objects.ObjectContext;
+import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 
@@ -47,8 +48,8 @@ public class BuiltinAnnotations {
             }
 
             @Override
-            public Expression getCode(CodegenContext context, List<Expression> arguments) {
-                return input.getCode(context, arguments);
+            public Expression getCode(CodegenContext context, ObjectContext obj) {
+                return input.getCode(context, obj);
             }
 
             @Override

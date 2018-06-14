@@ -3,7 +3,7 @@ package org.deletethis.hardcode.test;
 import com.squareup.javapoet.JavaFile;
 import org.deletethis.hardcode.DefaultConfiguration;
 import org.deletethis.hardcode.Hardcode;
-import org.deletethis.hardcode.ObjectInfo;
+import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.Graphviz;
 

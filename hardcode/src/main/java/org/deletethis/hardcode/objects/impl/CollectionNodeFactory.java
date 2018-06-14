@@ -24,10 +24,10 @@ public class CollectionNodeFactory implements NodeFactory {
         return true;
     }
 
-    private Expression getCode(Class<?> clz, CodegenContext context, List<Expression> arguments) {
+    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext arguments) {
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
-            context.addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.size());
+            context.addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.getArguments().size());
         } else {
             context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
@@ -45,8 +45,14 @@ public class CollectionNodeFactory implements NodeFactory {
             return Optional.empty();
 
         Collection<?> coll = (Collection<?>)object;
-        List<NodeParameter> members = coll.stream().map(NodeParameter::new).collect(Collectors.toList());
-        return Optional.of(new NodeDefImpl(aClass, TypeUtil.simpleToString(object), this::getCode, members));
+        List<NodeParameter> members = new ArrayList<>(coll.size());
+        int idx = 0;
+        for(Object obj: coll) {
+            members.add(new NodeParameter(new IndexParamteter(idx), obj));
+            ++idx;
+        }
+
+        return Optional.of(new NodeDefImpl(aClass, TypeUtil.simpleToString(object), (context, obj) -> getCode(aClass, context, obj), members));
     }
 
     @Override

@@ -3,7 +3,8 @@ package org.deletethis.hardcode.impl;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.HardcodeException;
-import org.deletethis.hardcode.ObjectInfo;
+import org.deletethis.hardcode.objects.ObjectContext;
+import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.Divertex;
 import org.deletethis.hardcode.objects.Expression;
@@ -30,7 +31,7 @@ public class Printer {
 
             args.add(argument.getExpression());
         }
-        return objectInfo.getCode(context, args);
+        return objectInfo.getCode(context, new ObjectContext(args));
     }
 
     private ExprInfo print(Context context, Divertex<ObjectInfo> n) {
