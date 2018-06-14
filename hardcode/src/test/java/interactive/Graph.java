@@ -1,5 +1,4 @@
-// A Java program to find articulation points in an undirected graph
-import java.io.*;
+package interactive;// A Java program to find articulation points in an undirected graph
 import java.util.*;
 import java.util.LinkedList;
 

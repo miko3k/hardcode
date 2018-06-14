@@ -16,20 +16,20 @@ public class GuavaImmutableMapFactory implements NodeFactory {
         private final Class<?> type;
         private final Class<?> builder;
 
-        public TypeInfo(Class<?> type, Class<?> builder) {
+        TypeInfo(Class<?> type, Class<?> builder) {
             this.type = type;
             this.builder = builder;
         }
 
-        public Class<?> getType() {
+        Class<?> getType() {
             return type;
         }
 
-        public Class<?> getBuilder() {
+        Class<?> getBuilder() {
             return builder;
         }
 
-        public boolean matches(Object o) {
+        boolean matches(Object o) {
             return type.isInstance(o);
         }
     }
@@ -76,19 +76,8 @@ public class GuavaImmutableMapFactory implements NodeFactory {
 
         // there are also longer variants, but's use builder for larger ones
         if (arguments.size() <= 10) {
-            CodeBlock.Builder cb = CodeBlock.builder();
-            cb.add("$T.of(", clz);
-            boolean first = true;
-            for (Expression e : arguments) {
-                if (first) {
-                    first = false;
-                } else {
-                    cb.add(",");
-                }
-                cb.add(e.getCode());
-            }
-            cb.add(")");
-            return Expression.complex(cb.build());
+            CodeBlock cb = GuavaUtil.printOf(clz, obj);
+            return Expression.complex(cb);
         } else {
             String variable = context.allocateVariable(clz);
 

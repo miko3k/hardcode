@@ -7,6 +7,7 @@ import java.util.Set;
 
 public class DefaultConfiguration implements HardcodeConfiguration, IntrospectionConfiguration {
     private final Set<Class<?>> hardcodeRoots = new HashSet<>();
+    private boolean generateSupplier = true;
 
     @Override
     public Set<Class<?>> getHardcodeRoots() {
@@ -15,5 +16,14 @@ public class DefaultConfiguration implements HardcodeConfiguration, Introspectio
 
     public void addHardcodeRoot(Class<?> clz) {
         hardcodeRoots.add(clz);
+    }
+
+    public void setGenerateSupplier(boolean generateSupplier) {
+        this.generateSupplier = generateSupplier;
+    }
+
+    @Override
+    public boolean generateSupplier() {
+        return generateSupplier;
     }
 }

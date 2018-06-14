@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="run hardcode" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="org.deletethis.hardcode.test.Main" />
+    <option name="MAIN_CLASS_NAME" value="interactive.Main" />
     <module name="hardcode" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/hardcode" />
     <method>

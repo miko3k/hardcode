@@ -1,4 +1,4 @@
-package org.deletethis.hardcode.test;
+package interactive;
 
 import com.squareup.javapoet.JavaFile;
 import org.deletethis.hardcode.DefaultConfiguration;
@@ -16,7 +16,7 @@ public class Main {
     private static void doIt(String name, Hardcode hardcoder, Object o) {
         Digraph<ObjectInfo> graph = hardcoder.buildGraph(o);
         new Graphviz<>(graph).highlight(v -> v.getPayload().isRoot()).print("target/" + name + ".gv");
-        System.out.println(JavaFile.builder("foo.bar", hardcoder.createClass("Foo", "everything", graph)).build());
+        System.out.println(JavaFile.builder("foo.bar", hardcoder.createClass("Foo", graph)).build());
     }
 
 

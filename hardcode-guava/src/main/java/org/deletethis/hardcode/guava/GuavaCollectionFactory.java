@@ -33,19 +33,8 @@ public class GuavaCollectionFactory implements NodeFactory {
     private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext obj) {
         // there are also longer variants, but's use builder for larger ones
         if (obj.getArguments().size() < 10) {
-            CodeBlock.Builder cb = CodeBlock.builder();
-            cb.add("$T.of(", clz);
-            boolean first = true;
-            for (Expression e : obj) {
-                if (first) {
-                    first = false;
-                } else {
-                    cb.add(",");
-                }
-                cb.add(e.getCode());
-            }
-            cb.add(")");
-            return Expression.complex(cb.build());
+            CodeBlock cb = GuavaUtil.printOf(clz, obj);
+            return Expression.complex(cb);
         } else {
             String variable = context.allocateVariable(clz);
 

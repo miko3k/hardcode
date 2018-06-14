@@ -100,16 +100,13 @@ public class Hardcode {
         return GraphBuilder.buildGraph(nodeFactoryList, configuration, root);
     }
 
-    public TypeSpec createClass(String className, String methodName, Object o) {
-        return createClass(className, methodName, buildGraph(o));
+    public TypeSpec createClass(String className, Object o) {
+        return createClass(className, buildGraph(o));
     }
 
-    public TypeSpec createClass(String className, String methodName, Digraph<ObjectInfo> graph) {
-        TypeSpec.Builder result = TypeSpec.classBuilder(className)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+    public TypeSpec createClass(String className, Digraph<ObjectInfo> graph) {
 
-        new Printer(result, graph).run(methodName);
+        return new Printer(className, graph).run(configuration.generateSupplier());
 
-        return result.build();
     }
 }

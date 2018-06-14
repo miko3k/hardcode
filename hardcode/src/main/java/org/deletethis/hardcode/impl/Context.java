@@ -25,11 +25,11 @@ class Context implements CodegenContext {
         return builder.build();
     }
 
-    Context(NumberNameAllocator methodNameAllocator, TypeSpec.Builder clz, Divertex<ObjectInfo> currentRoot, String nameHint) {
+    Context(NumberNameAllocator methodNameAllocator, TypeSpec.Builder clz, Divertex<ObjectInfo> currentRoot, String name) {
         this.methodNameAllocator = methodNameAllocator;
         this.clz = clz;
         this.currentRoot = currentRoot;
-        this.methodName = methodNameAllocator.newName(nameHint);
+        this.methodName = name;
         this.methodBuilder = MethodSpec.methodBuilder(methodName);
         this.methodBuilder.addAnnotation(unchecked());
     }
@@ -57,6 +57,8 @@ class Context implements CodegenContext {
     @Override
     public CodegenContext createVoidMethod(String nameHint, Class<?> paramType, String paramName) {
         Context context = new Context(methodNameAllocator, clz, currentRoot, methodNameAllocator.newName(nameHint));
+        if(!context.variableAllocator.newName(paramName).equals(paramName))
+            throw new IllegalStateException("wtf?");
         context.getMethodBuilder().returns(Void.TYPE);
         context.getMethodBuilder().addModifiers(Modifier.PRIVATE);
         context.getMethodBuilder().addParameter(paramType, paramName);
