@@ -1,9 +1,8 @@
-package org.deletethis.hardcode.guava.test;
+package org.deletethis.hardcode.guava;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.gson.Gson;
 import org.deletethis.hardcode.Hardcode;
 import org.deletethis.hardcode.testing.HardcodeTesting;
 import org.junit.Assert;
@@ -55,6 +54,6 @@ public class GuavaTest {
         ImmutableMultimap<Integer, Integer> bb2 = b2.build();
         doIt(hc, bb2);
 
-        doIt(hc, new SplitMap(bb2));
+        doIt(hc, new SplitWrapper2(bb2));
     }
 }

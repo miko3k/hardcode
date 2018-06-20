@@ -1,6 +1,4 @@
-package org.deletethis.hardcode.guava.test;
-
-import org.junit.Test;
+package org.deletethis.hardcode.guava;
 
 import java.io.Serializable;
 
