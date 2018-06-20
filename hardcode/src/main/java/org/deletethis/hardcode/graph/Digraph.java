@@ -18,4 +18,10 @@ public interface Digraph<T> extends Graph<Divertex<T>, T> {
         }
         return result;
     }
+
+    Collection<Divertex<T>> getSuccessors(Divertex<T> vertex);
+    Collection<Divertex<T>> getPredecessors(Divertex<T> vertex);
+    int getInDegree(Divertex<T> vertex);
+    int getOutDegree(Divertex<T> vertex);
+
 }

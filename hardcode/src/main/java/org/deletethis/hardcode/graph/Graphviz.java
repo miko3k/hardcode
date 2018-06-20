@@ -107,11 +107,11 @@ public class Graphviz<T> {
             out.println(";");
         }
         for (Divertex<T> n1 : digraph.getAllVertices()) {
-            for (Divertex<T> n2 : n1.getSuccessors()) {
+            for (Divertex<T> n2 : digraph.getSuccessors(n1)) {
                 out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + ";");
             }
             if(predecessors && arrows && attributes) {
-                for (Divertex<T> n2 : n1.getPredecessors()) {
+                for (Divertex<T> n2 : digraph.getPredecessors(n1)) {
                     out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + " [style=\"dotted\"];");
                 }
             }

@@ -26,7 +26,7 @@ public class Printer {
         ObjectInfo objectInfo = n.getPayload();
         List<Expression> args = new ArrayList<>();
 
-        for (Divertex<ObjectInfo> a : n.getSuccessors()) {
+        for (Divertex<ObjectInfo> a : graph.getSuccessors(n)) {
             ExprInfo argument = print(context, a);
 
             if (context.getRoot() != argument.getRoot()) {
@@ -60,7 +60,7 @@ public class Printer {
             expression = printToContext(context, n);
         }
 
-        if (!expression.isSimple() && n.getInDegree() > 1) {
+        if (!expression.isSimple() && graph.getInDegree(n) > 1) {
             String var = context.allocateVariable(objectInfo.getType());
             context.addStatement("$T $L = $L", objectInfo.getType(), var, expression.getCode());
             expression = Expression.simple(var);

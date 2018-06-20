@@ -37,22 +37,6 @@ public class MapDigraph<T> implements Digraph<T> {
         }
 
         @Override
-        public Divertex<T> getSuccessor() {
-            if(successors.size() != 1) {
-                throw new IllegalStateException("successor count = " + successors.size());
-            }
-            return successors.get(0);
-        }
-
-        @Override
-        public Divertex<T> getPredecessor() {
-            if(predecessors.size() != 1) {
-                throw new IllegalStateException("predecessor count = " + predecessors.size());
-            }
-            return predecessors.get(0);
-        }
-
-        @Override
         public String toString() {
             return payload.toString();
         }
@@ -142,4 +126,18 @@ public class MapDigraph<T> implements Digraph<T> {
     public boolean isOriented() {
         return true;
     }
+
+    public Collection<Divertex<T>> getSuccessors(Divertex<T> vertex) {
+        return mine(vertex).getSuccessors();
+    }
+    public Collection<Divertex<T>> getPredecessors(Divertex<T> vertex) {
+        return mine(vertex).getPredecessors();
+    }
+    public int getInDegree(Divertex<T> vertex) {
+        return mine(vertex).getInDegree();
+    }
+    public int getOutDegree(Divertex<T> vertex) {
+        return mine(vertex).getOutDegree();
+    }
+
 }
