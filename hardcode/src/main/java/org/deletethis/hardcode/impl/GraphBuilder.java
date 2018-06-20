@@ -22,7 +22,7 @@ public class GraphBuilder {
         this.configuration = configuration;
     }
 
-    private static final ObjectInfo NULL = new ObjectInfo() {
+    private static class NullObject implements ObjectInfo {
         @Override
         public Class<?> getType() {
             return null;
@@ -42,13 +42,13 @@ public class GraphBuilder {
         public String toString() {
             return "[null]";
         }
-    };
+    }
 
     private Divertex<ObjectInfo> createNode(Object o, List<Annotation> annotations) {
         //System.out.println("NODE: " + o);
 
         if(o == null) {
-            return digraph.createVertex(NULL);
+            return digraph.createVertex(new NullObject());
         }
 
         if(!objectsInProgress.add(o)) {
