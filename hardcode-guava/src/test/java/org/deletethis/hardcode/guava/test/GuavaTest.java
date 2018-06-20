@@ -11,10 +11,7 @@ import org.junit.Test;
 
 public class GuavaTest {
 
-    private final Gson gson = new Gson();
-
     private void doIt(Hardcode hardcoder, Object in) {
-        System.out.println(gson.toJson(in));
 
         Object out = HardcodeTesting.supply(hardcoder.createClass("Foo", in));
         Assert.assertEquals(in, out);
