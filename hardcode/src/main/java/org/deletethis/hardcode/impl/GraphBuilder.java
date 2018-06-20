@@ -3,7 +3,6 @@ package org.deletethis.hardcode.impl;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.MapDigraph;
-import org.deletethis.hardcode.graph.Divertex;
 import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
@@ -13,7 +12,7 @@ import java.util.*;
 public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
     private final HardcodeConfiguration configuration;
-    private final Map<Object, Divertex<ObjectInfo>> objectMap = new IdentityHashMap<>();
+    private final Map<Object, ObjectInfo> objectMap = new IdentityHashMap<>();
     private final Digraph<ObjectInfo> digraph = new MapDigraph<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
@@ -44,11 +43,13 @@ public class GraphBuilder {
         }
     }
 
-    private Divertex<ObjectInfo> createNode(Object o, List<Annotation> annotations) {
+    private ObjectInfo createNode(Object o, List<Annotation> annotations) {
         //System.out.println("NODE: " + o);
 
         if(o == null) {
-            return digraph.createVertex(new NullObject());
+            NullObject nullObject = new NullObject();
+            digraph.addVertex(nullObject);
+            return nullObject;
         }
 
         if(!objectsInProgress.add(o)) {
@@ -56,7 +57,7 @@ public class GraphBuilder {
         }
 
         try {
-            Divertex<ObjectInfo> n = objectMap.get(o);
+            ObjectInfo n = objectMap.get(o);
             if (n != null) {
                 return n;
             }
@@ -70,10 +71,11 @@ public class GraphBuilder {
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    Divertex<ObjectInfo> node = digraph.createVertex(ba.wrap(nodeDef.getObjectInfo()));
+                    ObjectInfo node = ba.wrap(nodeDef.getObjectInfo());
+                    digraph.addVertex(node);
 
                     for(NodeParameter param: nodeDef.getParameters()) {
-                        Divertex<ObjectInfo> n2 = createNode(param.getValue(), param.getAnnotations());
+                        ObjectInfo n2 = createNode(param.getValue(), param.getAnnotations());
                         digraph.createEdge(node, n2);
                     }
 

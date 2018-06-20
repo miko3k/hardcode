@@ -2,14 +2,12 @@ package org.deletethis.hardcode.impl;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.HardcodeException;
+import org.deletethis.hardcode.graph.Digraph;
+import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.ObjectContext;
 import org.deletethis.hardcode.objects.ObjectInfo;
-import org.deletethis.hardcode.graph.Digraph;
-import org.deletethis.hardcode.graph.Divertex;
-import org.deletethis.hardcode.objects.Expression;
 
 import javax.lang.model.element.Modifier;
 import java.util.*;
@@ -17,16 +15,15 @@ import java.util.function.Supplier;
 
 public class Printer {
     private final Digraph<ObjectInfo> graph;
-    private final Map<Divertex<ObjectInfo>, ExprInfo> exprMap = new HashMap<>();
+    private final Map<ObjectInfo, ExprInfo> exprMap = new HashMap<>();
     private final NumberNameAllocator methodNameAllocator = new NumberNameAllocator();
     private final TypeSpec.Builder clz;
     private static final String METHOD_NAME = "get";
 
-    private Expression printToContext(Context context, Divertex<ObjectInfo> n) {
-        ObjectInfo objectInfo = n.getPayload();
+    private Expression printToContext(Context context, ObjectInfo n) {
         List<Expression> args = new ArrayList<>();
 
-        for (Divertex<ObjectInfo> a : graph.getSuccessors(n)) {
+        for (ObjectInfo a : graph.getSuccessors(n)) {
             ExprInfo argument = print(context, a);
 
             if (context.getRoot() != argument.getRoot()) {
@@ -35,21 +32,20 @@ public class Printer {
 
             args.add(argument.getExpression());
         }
-        return objectInfo.getCode(context, new ObjectContext(args));
+        return n.getCode(context, new ObjectContext(args));
     }
 
-    private ExprInfo print(Context context, Divertex<ObjectInfo> n) {
+    private ExprInfo print(Context context, ObjectInfo n) {
         Objects.requireNonNull(context);
         Objects.requireNonNull(n);
 
-        ObjectInfo objectInfo = n.getPayload();
         ExprInfo exprInfo = exprMap.get(n);
         if(exprInfo != null) {
             return exprInfo;
         }
 
         Expression expression;
-        if(n.getPayload().isRoot()) {
+        if(n.isRoot()) {
             Context child = createSubContext(n);
             Expression e = printToContext(child, n);
             child.finish(e);
@@ -61,8 +57,8 @@ public class Printer {
         }
 
         if (!expression.isSimple() && graph.getInDegree(n) > 1) {
-            String var = context.allocateVariable(objectInfo.getType());
-            context.addStatement("$T $L = $L", objectInfo.getType(), var, expression.getCode());
+            String var = context.allocateVariable(n.getType());
+            context.addStatement("$T $L = $L", n.getType(), var, expression.getCode());
             expression = Expression.simple(var);
         }
 
@@ -92,8 +88,8 @@ public class Printer {
         return context;
     }
 
-    private Context createSubContext(Divertex<ObjectInfo> root) {
-        Class<?> returnType = root.getPayload().getType();
+    private Context createSubContext(ObjectInfo root) {
+        Class<?> returnType = root.getType();
 
         String nameHint = "create" + returnType.getSimpleName();
 
@@ -106,7 +102,7 @@ public class Printer {
 
 
     public TypeSpec run(boolean supplier) {
-        Class<?> returnType = graph.getRoot().getPayload().getType();
+        Class<?> returnType = graph.getRoot().getType();
         if(returnType == null) {
             returnType = Object.class;
         }

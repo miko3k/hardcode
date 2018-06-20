@@ -2,17 +2,17 @@ package org.deletethis.hardcode.graph;
 
 import java.util.*;
 
-public class TopoSort<T> implements Iterator<Divertex<T>> {
+public class TopoSort<T> implements Iterator<T> {
     private final Digraph<T> digraph;
-    private final Map<Divertex<T>, Set<Divertex<T>>> removedEdges;
-    private final ArrayDeque<Divertex<T>> s;
+    private final Map<T, Set<T>> removedEdges;
+    private final ArrayDeque<T> s;
     // mark vertices which we discovered as successors - just to detect cycles
-    private final Set<Divertex<T>> discovered;
+    private final Set<T> discovered;
     // count vertices which we returned, must be equal to discovered.size()
     private int returned = 0;
 
-    private void removeEdge(Divertex<T> from, Divertex<T> to) {
-        Set<Divertex<T>> set = removedEdges.get(from);
+    private void removeEdge(T from, T to) {
+        Set<T> set = removedEdges.get(from);
         if (set == null) {
             set = digraph.createSet();
             removedEdges.put(from, set);
@@ -21,8 +21,8 @@ public class TopoSort<T> implements Iterator<Divertex<T>> {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean isEdgeRemoved(Divertex<T> from, Divertex<T> to) {
-        Set<Divertex<T>> set = removedEdges.get(from);
+    private boolean isEdgeRemoved(T from, T to) {
+        Set<T> set = removedEdges.get(from);
         if (set != null) {
             return set.contains(to);
         } else {
@@ -30,8 +30,8 @@ public class TopoSort<T> implements Iterator<Divertex<T>> {
         }
     }
 
-    private boolean hasAnyPredecessor(Divertex<T> m) {
-        for (Divertex<T> t : digraph.getPredecessors(m)) {
+    private boolean hasAnyPredecessor(T m) {
+        for (T t : digraph.getPredecessors(m)) {
             if (!isEdgeRemoved(t, m)) {
                 return true;
             }
@@ -40,7 +40,7 @@ public class TopoSort<T> implements Iterator<Divertex<T>> {
     }
 
 
-    TopoSort(Digraph<T> input, Collection<Divertex<T>> roots) {
+    TopoSort(Digraph<T> input, Collection<T> roots) {
         this.digraph = input;
         this.s = new ArrayDeque<>(32);
         this.s.addAll(roots);
@@ -60,7 +60,7 @@ public class TopoSort<T> implements Iterator<Divertex<T>> {
     }
 
     @Override
-    public Divertex<T> next() {
+    public T next() {
         /*
          * <https://en.wikipedia.org/wiki/Topological_sorting>
          *
@@ -79,12 +79,12 @@ public class TopoSort<T> implements Iterator<Divertex<T>> {
          * else
          *     return L (a topologically sorted order)
          */
-        Divertex<T> result = s.pollFirst();
+        T result = s.pollFirst();
         if(result == null) {
             throw new NoSuchElementException("Already reached the last vertex");
         }
 
-        for(Divertex<T> m : digraph.getSuccessors(result)) {
+        for(T m : digraph.getSuccessors(result)) {
             discovered.add(m);
             removeEdge(result, m);
             if(!hasAnyPredecessor(m)) {
@@ -100,7 +100,7 @@ public class TopoSort<T> implements Iterator<Divertex<T>> {
         return result;
     }
 
-    public static <T> Iterable<Divertex<T>> topologicalSort(Digraph<T> graph) {
+    public static <T> Iterable<T> topologicalSort(Digraph<T> graph) {
         return () -> new TopoSort<>(graph, graph.getRoots());
     }
 }

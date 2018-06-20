@@ -7,19 +7,19 @@ import java.util.function.Function;
 
 public class Graphviz<T> {
     private final Digraph<T> digraph;
-    private Set<Divertex<T>> highlight = Collections.emptySet();
-    private Function<Divertex<T>, Boolean> highlightFunction = (x) -> false;
+    private Set<T> highlight = Collections.emptySet();
+    private Function<T, Boolean> highlightFunction = (x) -> false;
     private boolean predecessors = false;
     private boolean arrows = true;
     private boolean attributes = true;
     private String highlightStyle = "color=blue";
-    private Map<Divertex<T>, ?> marks = null;
+    private Map<T, ?> marks = null;
 
     public Graphviz(Digraph<T> digraph) {
         this.digraph = digraph;
     }
 
-    public Graphviz<T> highlight(Collection<Divertex<T>> highlight) {
+    public Graphviz<T> highlight(Collection<T> highlight) {
         if(highlight == null) {
             this.highlight = Collections.emptySet();
         } else {
@@ -28,7 +28,7 @@ public class Graphviz<T> {
         return this;
     }
 
-    public Graphviz<T> highlight(Function<Divertex<T>, Boolean> hightlightFunction) {
+    public Graphviz<T> highlight(Function<T, Boolean> hightlightFunction) {
         this.highlightFunction = hightlightFunction;
         return this;
     }
@@ -54,7 +54,7 @@ public class Graphviz<T> {
     }
 
 
-    public Graphviz<T> marks(Map<Divertex<T>, ?> marks) {
+    public Graphviz<T> marks(Map<T, ?> marks) {
         this.marks = marks;
         return this;
     }
@@ -87,10 +87,10 @@ public class Graphviz<T> {
             out.println("graph objects {");
         }
 
-        for (Divertex<T> n : digraph.getAllVertices()) {
+        for (T n : digraph.getAllVertices()) {
             out.print("  " + System.identityHashCode(n));
             if(attributes) {
-                String str = n.getPayload().toString();
+                String str = n.toString();
                 if(marks != null) {
                     Object o = marks.get(n);
                     if(o != null) {
@@ -106,12 +106,12 @@ public class Graphviz<T> {
             }
             out.println(";");
         }
-        for (Divertex<T> n1 : digraph.getAllVertices()) {
-            for (Divertex<T> n2 : digraph.getSuccessors(n1)) {
+        for (T n1 : digraph.getAllVertices()) {
+            for (T n2 : digraph.getSuccessors(n1)) {
                 out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + ";");
             }
             if(predecessors && arrows && attributes) {
-                for (Divertex<T> n2 : digraph.getPredecessors(n1)) {
+                for (T n2 : digraph.getPredecessors(n1)) {
                     out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + " [style=\"dotted\"];");
                 }
             }

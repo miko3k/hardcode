@@ -3,16 +3,15 @@ package org.deletethis.hardcode.impl;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import org.deletethis.hardcode.objects.ObjectInfo;
-import org.deletethis.hardcode.graph.Divertex;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
+import org.deletethis.hardcode.objects.ObjectInfo;
 
 import javax.lang.model.element.Modifier;
 import java.util.Objects;
 
 class Context implements CodegenContext {
-    private final Divertex<ObjectInfo> currentRoot;
+    private final ObjectInfo currentRoot;
     private final NumberNameAllocator variableAllocator = new NumberNameAllocator();
     private final MethodSpec.Builder methodBuilder;
     private final String methodName;
@@ -25,7 +24,7 @@ class Context implements CodegenContext {
         return builder.build();
     }
 
-    Context(NumberNameAllocator methodNameAllocator, TypeSpec.Builder clz, Divertex<ObjectInfo> currentRoot, String name) {
+    Context(NumberNameAllocator methodNameAllocator, TypeSpec.Builder clz, ObjectInfo currentRoot, String name) {
         this.methodNameAllocator = methodNameAllocator;
         this.clz = clz;
         this.currentRoot = currentRoot;
@@ -75,7 +74,7 @@ class Context implements CodegenContext {
         return variableAllocator.newName(hint);
     }
 
-    public Divertex<ObjectInfo> getRoot() {
+    public ObjectInfo getRoot() {
         return currentRoot;
     }
 
