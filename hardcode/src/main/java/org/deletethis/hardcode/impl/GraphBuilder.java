@@ -13,7 +13,7 @@ public class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
     private final HardcodeConfiguration configuration;
     private final Map<Object, ObjectInfo> objectMap = new IdentityHashMap<>();
-    private final Digraph<ObjectInfo> digraph = new MapDigraph<>();
+    private final Digraph<ObjectInfo, ParameterName> digraph = new MapDigraph<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
     private GraphBuilder(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration) {
@@ -76,7 +76,7 @@ public class GraphBuilder {
 
                     for(NodeParameter param: nodeDef.getParameters()) {
                         ObjectInfo n2 = createNode(param.getValue(), param.getAnnotations());
-                        digraph.createEdge(node, n2);
+                        digraph.createEdge(node, n2, param.getParameterName());
                     }
 
                     if(factory.enableReferenceDetection()) {
@@ -91,7 +91,7 @@ public class GraphBuilder {
         }
     }
 
-    public static Digraph<ObjectInfo> buildGraph(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration, Object o) {
+    public static Digraph<ObjectInfo, ParameterName> buildGraph(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration, Object o) {
         GraphBuilder gb = new GraphBuilder(nodeFactories, configuration);
 
         gb.createNode(o, null);

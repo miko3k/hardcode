@@ -8,13 +8,14 @@ import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.ObjectContext;
 import org.deletethis.hardcode.objects.ObjectInfo;
+import org.deletethis.hardcode.objects.ParameterName;
 
 import javax.lang.model.element.Modifier;
 import java.util.*;
 import java.util.function.Supplier;
 
 public class Printer {
-    private final Digraph<ObjectInfo> graph;
+    private final Digraph<ObjectInfo, ParameterName> graph;
     private final Map<ObjectInfo, ExprInfo> exprMap = new HashMap<>();
     private final NumberNameAllocator methodNameAllocator = new NumberNameAllocator();
     private final TypeSpec.Builder clz;
@@ -116,7 +117,7 @@ public class Printer {
         return clz.build();
     }
 
-    public Printer(String className, Digraph<ObjectInfo> graph) {
+    public Printer(String className, Digraph<ObjectInfo, ParameterName> graph) {
         TypeSpec.Builder result = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC);
 

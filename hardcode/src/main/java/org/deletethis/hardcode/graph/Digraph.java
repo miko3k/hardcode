@@ -3,7 +3,7 @@ package org.deletethis.hardcode.graph;
 import java.util.Collection;
 import java.util.Iterator;
 
-public interface Digraph<T> extends Graph<T> {
+public interface Digraph<T, E> extends Graph<T, E> {
     Collection<T> getRoots();
     default T getRoot() {
         Collection<T> roots = getRoots();
@@ -20,6 +20,7 @@ public interface Digraph<T> extends Graph<T> {
     }
 
     Collection<T> getSuccessors(T vertex);
+    Collection<ConnectedVertex<T,E>> getSuccessorConnections(T vertex);
     Collection<T> getPredecessors(T vertex);
     int getInDegree(T vertex);
     int getOutDegree(T vertex);

@@ -6,6 +6,7 @@ import org.deletethis.hardcode.impl.GraphBuilder;
 import org.deletethis.hardcode.impl.Printer;
 import org.deletethis.hardcode.objects.NodeFactory;
 import org.deletethis.hardcode.objects.ObjectInfo;
+import org.deletethis.hardcode.objects.ParameterName;
 import org.deletethis.hardcode.objects.impl.CollectionNodeFactory;
 import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
 import org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory;
@@ -99,7 +100,7 @@ public class Hardcode {
         return new Hardcode(c, def(), nodeFactories);
     }
 
-    public Digraph<ObjectInfo> buildGraph(Object root) {
+    public Digraph<ObjectInfo, ParameterName> buildGraph(Object root) {
         return GraphBuilder.buildGraph(nodeFactoryList, configuration, root);
     }
 
@@ -107,7 +108,7 @@ public class Hardcode {
         return createClassFromGraph(className, buildGraph(o));
     }
 
-    public TypeSpec createClassFromGraph(String className, Digraph<ObjectInfo> graph) {
+    public TypeSpec createClassFromGraph(String className, Digraph<ObjectInfo, ParameterName> graph) {
 
         return new Printer(className, graph).run(configuration.generateSupplier());
 

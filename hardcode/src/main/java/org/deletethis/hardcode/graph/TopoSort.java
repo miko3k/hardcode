@@ -2,8 +2,8 @@ package org.deletethis.hardcode.graph;
 
 import java.util.*;
 
-public class TopoSort<T> implements Iterator<T> {
-    private final Digraph<T> digraph;
+public class TopoSort<T,E> implements Iterator<T> {
+    private final Digraph<T,E> digraph;
     private final Map<T, Set<T>> removedEdges;
     private final ArrayDeque<T> s;
     // mark vertices which we discovered as successors - just to detect cycles
@@ -40,7 +40,7 @@ public class TopoSort<T> implements Iterator<T> {
     }
 
 
-    TopoSort(Digraph<T> input, Collection<T> roots) {
+    TopoSort(Digraph<T,E> input, Collection<T> roots) {
         this.digraph = input;
         this.s = new ArrayDeque<>(32);
         this.s.addAll(roots);
@@ -100,7 +100,7 @@ public class TopoSort<T> implements Iterator<T> {
         return result;
     }
 
-    public static <T> Iterable<T> topologicalSort(Digraph<T> graph) {
+    public static <T,E> Iterable<T> topologicalSort(Digraph<T,E> graph) {
         return () -> new TopoSort<>(graph, graph.getRoots());
     }
 }

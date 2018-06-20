@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public interface Graph<T> {
-    void createEdge(T from, T to);
+public interface Graph<T,E> {
+    void createEdge(T from, T to, E edge);
     boolean containsEdge(T from, T to);
     Collection<T> getAllVertices();
     <V> Map<T, V> createMap();

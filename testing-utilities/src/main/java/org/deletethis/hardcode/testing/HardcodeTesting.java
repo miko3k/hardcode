@@ -3,6 +3,7 @@ package org.deletethis.hardcode.testing;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.function.Supplier;
@@ -29,5 +30,9 @@ public class HardcodeTesting {
         } catch (IOException e) {
             throw new AssertionError(e);
         }
+    }
+
+    public static File outputFile(String name) {
+        return TempFileFactory.getInstance().createFile(name);
     }
 }

@@ -5,8 +5,8 @@ import java.io.*;
 import java.util.*;
 import java.util.function.Function;
 
-public class Graphviz<T> {
-    private final Digraph<T> digraph;
+public class Graphviz<T,E> {
+    private final Digraph<T,E> digraph;
     private Set<T> highlight = Collections.emptySet();
     private Function<T, Boolean> highlightFunction = (x) -> false;
     private boolean predecessors = false;
@@ -15,11 +15,11 @@ public class Graphviz<T> {
     private String highlightStyle = "color=blue";
     private Map<T, ?> marks = null;
 
-    public Graphviz(Digraph<T> digraph) {
+    public Graphviz(Digraph<T,E> digraph) {
         this.digraph = digraph;
     }
 
-    public Graphviz<T> highlight(Collection<T> highlight) {
+    public Graphviz<T,E> highlight(Collection<T> highlight) {
         if(highlight == null) {
             this.highlight = Collections.emptySet();
         } else {
@@ -28,33 +28,33 @@ public class Graphviz<T> {
         return this;
     }
 
-    public Graphviz<T> highlight(Function<T, Boolean> hightlightFunction) {
+    public Graphviz<T,E> highlight(Function<T, Boolean> hightlightFunction) {
         this.highlightFunction = hightlightFunction;
         return this;
     }
 
-    public Graphviz<T> predecessors() {
+    public Graphviz<T,E> predecessors() {
         this.predecessors = true;
         return this;
     }
 
-    public Graphviz<T> noArrows() {
+    public Graphviz<T,E> noArrows() {
         this.arrows = false;
         return this;
     }
 
-    public Graphviz<T> noAttributes() {
+    public Graphviz<T,E> noAttributes() {
         this.attributes = false;
         return this;
     }
 
-    public Graphviz<T> highlightStyle(String highlightStyle) {
+    public Graphviz<T,E> highlightStyle(String highlightStyle) {
         this.highlightStyle = highlightStyle;
         return this;
     }
 
 
-    public Graphviz<T> marks(Map<T, ?> marks) {
+    public Graphviz<T,E> marks(Map<T, ?> marks) {
         this.marks = marks;
         return this;
     }
@@ -107,8 +107,8 @@ public class Graphviz<T> {
             out.println(";");
         }
         for (T n1 : digraph.getAllVertices()) {
-            for (T n2 : digraph.getSuccessors(n1)) {
-                out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + ";");
+            for (ConnectedVertex<T, E> n2 : digraph.getSuccessorConnections(n1)) {
+                out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2.getVertex()) + " [label=" + escape(n2.getEdge().toString()) + "];");
             }
             if(predecessors && arrows && attributes) {
                 for (T n2 : digraph.getPredecessors(n1)) {

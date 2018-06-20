@@ -2,9 +2,15 @@ package org.deletethis.hardcode;
 
 import com.google.gson.Gson;
 import com.squareup.javapoet.TypeSpec;
+import org.deletethis.hardcode.graph.Digraph;
+import org.deletethis.hardcode.graph.Graphviz;
+import org.deletethis.hardcode.objects.ObjectInfo;
+import org.deletethis.hardcode.objects.ParameterName;
 import org.deletethis.hardcode.testing.HardcodeTesting;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +18,9 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class SimpleTest {
+    @Rule
+    public TestName name = new TestName();
+
     public enum Enm {
         BAR,
         BAZ
@@ -24,7 +33,10 @@ public class SimpleTest {
     }
 
     private <T> T run(Hardcode hc, T o) {
-        TypeSpec theClass = hc.createClass("TheClass", o);
+        Digraph<ObjectInfo, ParameterName> g = hc.buildGraph(o);
+        new Graphviz<>(g).print(HardcodeTesting.outputFile(name.getMethodName() + ".gv"));
+
+        TypeSpec theClass = hc.createClassFromGraph("TheClass", g);
         Supplier<T> objectSupplier = HardcodeTesting.SUPPLIER_COMPILER.get(theClass);
         return objectSupplier.get();
     }

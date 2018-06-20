@@ -19,7 +19,6 @@ import java.util.function.Supplier;
  *
  */
 public class CachingSupplierCompiler implements SupplierCompiler {
-    private static String SUBDIRECTORY = "hc-test-cache";
 
     private String sha(String md5) {
         try {
@@ -32,30 +31,16 @@ public class CachingSupplierCompiler implements SupplierCompiler {
     }
 
     private final SupplierCompiler other;
-    private final File tmpDir;
 
     CachingSupplierCompiler(SupplierCompiler other) {
         this.other = other;
-        String str = System.getProperty("java.io.tmpdir");
-        if(str == null || str.isEmpty()) {
-            throw new IllegalStateException("no temp dir?");
-        }
-        File f = new File(str);
-        if(!f.isDirectory() || !f.exists()) {
-            throw new IllegalStateException("no temp dir?");
-        }
-        f = new File(f, SUBDIRECTORY);
-        //noinspection ResultOfMethodCallIgnored
-        f.mkdirs();
-
-        this.tmpDir = f;
     }
 
     @Override
     public <T> Supplier<T> get(TypeSpec typeSpec) {
         try {
             String name = sha(typeSpec.toString());
-            File f = new File(tmpDir, name);
+            File f = TempFileFactory.getInstance().createFile(name);
 
             if(f.exists()) {
                 try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))) {

@@ -3,7 +3,7 @@ package org.deletethis.hardcode.graph;
 import java.util.*;
 import java.util.function.Function;
 
-public class AdapterCollection<FROM,TO> extends AbstractCollection<TO> {
+class AdapterCollection<FROM,TO> extends AbstractCollection<TO> {
     private final Collection<FROM> base;
     private final Function<FROM, TO> function;
 
