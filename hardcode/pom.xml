@@ -23,5 +23,10 @@
             <groupId>org.deletethis.hardcode</groupId>
             <artifactId>hardcode-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.deletethis.hardcode</groupId>
+            <artifactId>testing-utilities</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

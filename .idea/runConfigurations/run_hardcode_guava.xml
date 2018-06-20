@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="run hardcode-guava" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="org.deletethis.hardcode.guava.test.Main" />
+    <option name="MAIN_CLASS_NAME" value="org.deletethis.hardcode.guava.test.GuavaTest" />
     <module name="hardcode-guava" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/hardcode" />
     <method>

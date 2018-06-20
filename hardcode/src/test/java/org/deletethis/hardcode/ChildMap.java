@@ -1,4 +1,4 @@
-package interactive;
+package org.deletethis.hardcode;
 
 import org.deletethis.hardcode.HardcodeRoot;
 import org.junit.Test;

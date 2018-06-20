@@ -1,4 +1,4 @@
-package org.deletethis.hardcode.guava.test;
+package org.deletethis.hardcode;
 
 import org.junit.Test;
 

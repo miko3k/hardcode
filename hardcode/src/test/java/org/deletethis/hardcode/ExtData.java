@@ -1,4 +1,4 @@
-package interactive;
+package org.deletethis.hardcode;
 
 /**
  *

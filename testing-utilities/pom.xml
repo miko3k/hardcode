@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>idea-graveyard</artifactId>
+    <artifactId>testing-utilities</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
@@ -18,14 +18,10 @@
             <groupId>com.squareup</groupId>
             <artifactId>javapoet</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.deletethis.hardcode</groupId>
-            <artifactId>hardcode-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.deletethis.hardcode</groupId>
-            <artifactId>hardcode</artifactId>
-        </dependency>
 
+        <dependency>
+            <groupId>com.google.testing.compile</groupId>
+            <artifactId>compile-testing</artifactId>
+        </dependency>
     </dependencies>
 </project>

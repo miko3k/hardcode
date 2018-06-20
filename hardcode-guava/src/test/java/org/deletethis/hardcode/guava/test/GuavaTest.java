@@ -3,19 +3,31 @@ package org.deletethis.hardcode.guava.test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.gson.Gson;
 import org.deletethis.hardcode.Hardcode;
+import org.deletethis.hardcode.testing.HardcodeTesting;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class Main {
-    private static void doIt(Hardcode hardcoder, Object o) {
-        System.out.println(hardcoder.createClass("Foo", o));
+public class GuavaTest {
+
+    private final Gson gson = new Gson();
+
+    private void doIt(Hardcode hardcoder, Object in) {
+        System.out.println(gson.toJson(in));
+
+        Object out = HardcodeTesting.supply(hardcoder.createClass("Foo", in));
+        Assert.assertEquals(in, out);
     }
 
-    public static void main(String[] args) {
+    @Test
+    public void main() {
+
         Hardcode hc = Hardcode.defaultConfig();
 
         Data data = new Data(null, 1, 50L);
         doIt(hc, ImmutableList.of(data, data));
-        doIt(hc, ImmutableMap.of(data, data));
+        doIt(hc, ImmutableMap.of("key", data));
         doIt(hc, ImmutableMap.of(1,2,3,4,5,6,7,8,9,10));
 
         ImmutableMap.Builder<Integer, Integer> b = ImmutableMap.builder();
@@ -47,9 +59,5 @@ public class Main {
         doIt(hc, bb2);
 
         doIt(hc, new SplitMap(bb2));
-
-
-
-
     }
 }

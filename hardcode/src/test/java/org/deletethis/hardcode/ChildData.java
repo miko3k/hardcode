@@ -1,9 +1,9 @@
-package interactive;
+package org.deletethis.hardcode;
 
-import org.deletethis.hardcode.HardcodeRoot;
+import java.io.Serializable;
 
 @HardcodeRoot
-public class ChildData {
+public class ChildData implements Serializable {
     private String value;
     private ChildData more;
 

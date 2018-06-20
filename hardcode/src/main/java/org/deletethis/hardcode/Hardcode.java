@@ -10,7 +10,6 @@ import org.deletethis.hardcode.objects.impl.CollectionNodeFactory;
 import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
 import org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory;
 
-import javax.lang.model.element.Modifier;
 import java.util.*;
 import org.deletethis.hardcode.objects.impl.MapNodeFactory;
 
@@ -101,10 +100,10 @@ public class Hardcode {
     }
 
     public TypeSpec createClass(String className, Object o) {
-        return createClass(className, buildGraph(o));
+        return createClassFromGraph(className, buildGraph(o));
     }
 
-    public TypeSpec createClass(String className, Digraph<ObjectInfo> graph) {
+    public TypeSpec createClassFromGraph(String className, Digraph<ObjectInfo> graph) {
 
         return new Printer(className, graph).run(configuration.generateSupplier());
 
