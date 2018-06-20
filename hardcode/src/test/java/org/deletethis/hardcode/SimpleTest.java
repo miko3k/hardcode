@@ -71,7 +71,7 @@ public class SimpleTest {
     }
 
     @Test
-    public void inhertitance() {
+    public void inheritance() {
         ExtData data1 = new ExtData(true, "foo", 1, Long.MIN_VALUE);
         ExtData data2 = run(data1);
 

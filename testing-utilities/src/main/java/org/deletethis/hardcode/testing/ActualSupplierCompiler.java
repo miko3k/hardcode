@@ -6,6 +6,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
+/**
+ * Compiles {@link Supplier}-like classes using {@link CompilerRunner}. It's not actually important, if class
+ * implements {@link Supplier}, this class will invoke any {@code get()} without arguments that is available.
+ */
 public class ActualSupplierCompiler implements SupplierCompiler {
     public <T> Supplier<T> get(TypeSpec typeSpec) {
         try {

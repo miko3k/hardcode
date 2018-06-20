@@ -7,7 +7,20 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+/**
+ *A {@link SupplierCompiler}, that caches results on the filesystem or delegates further.
+ *
+ * <p>File name is a hash of entire source code, and contains serialized representation of the object, that would
+ * be obtained via supplier.
+ *
+ * <p>On some machines, compilation may take 1-2 seconds. In this case, using cache yields significant
+ * performance boost. On the other hand, some machines may benefit very little. Therefore it might be useful
+ * to make using the cache somewhat configurable.
+ *
+ */
 public class CachingSupplierCompiler implements SupplierCompiler {
+    private static String SUBDIRECTORY = "hc-test-cache";
+
     private String sha(String md5) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA1");
@@ -31,7 +44,7 @@ public class CachingSupplierCompiler implements SupplierCompiler {
         if(!f.isDirectory() || !f.exists()) {
             throw new IllegalStateException("no temp dir?");
         }
-        f = new File(f, "hc-test");
+        f = new File(f, SUBDIRECTORY);
         //noinspection ResultOfMethodCallIgnored
         f.mkdirs();
 
@@ -43,27 +56,31 @@ public class CachingSupplierCompiler implements SupplierCompiler {
         try {
             String name = sha(typeSpec.toString());
             File f = new File(tmpDir, name);
-            if (f.exists()) {
-                try(ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))) {
+
+            if(f.exists()) {
+                try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))) {
                     Object object = in.readObject();
                     @SuppressWarnings("unchecked")
                     T result = (T) object;
                     return () -> result;
+                } catch (ObjectStreamException ex) {
+                    // something wrong with deserialization, let's just print stacktrace and continue
+                    ex.printStackTrace();
                 }
-            } else {
-                Supplier<T> supp = other.get(typeSpec);
-                T result = supp.get();
-
-                // use a byte array first, we do not want to leave junk in the file in case something fails
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                new ObjectOutputStream(bytes).writeObject(result);
-
-                // serialization was successful, let's write it out
-                try(FileOutputStream fos = new FileOutputStream(f)) {
-                    fos.write(bytes.toByteArray());
-                }
-                return () -> result;
             }
+
+            Supplier<T> supp = other.get(typeSpec);
+            T result = supp.get();
+
+            // use a byte array first, we do not want to leave junk in the file in case something fails
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            new ObjectOutputStream(bytes).writeObject(result);
+
+            // serialization was successful, let's write it out
+            try (FileOutputStream fos = new FileOutputStream(f)) {
+                fos.write(bytes.toByteArray());
+            }
+            return () -> result;
         } catch(IOException|ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }

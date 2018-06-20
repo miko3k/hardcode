@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 /**
  * Instantiates a {@link Supplier} defined in {@link TypeSpec}. Provided {@link TypeSpec} may either define an
- * actual {@link Supplier} or just something that has <tt>get</tt> method.
+ * actual {@link Supplier} or just something that has {@code get} method.
  */
 public interface SupplierCompiler {
     <T> Supplier<T> get(TypeSpec typeSpec);

@@ -13,6 +13,10 @@ import org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory;
 import java.util.*;
 import org.deletethis.hardcode.objects.impl.MapNodeFactory;
 
+/**
+ * A class to hardcode structures into a code. For input {@link Object}, it is able to generate source code do
+ * build such an object as a {@link TypeSpec}.
+ */
 public class Hardcode {
     private final List<NodeFactory> nodeFactoryList;
     private final HardcodeConfiguration configuration;
