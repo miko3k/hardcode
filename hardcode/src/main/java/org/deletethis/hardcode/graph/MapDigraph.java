@@ -89,7 +89,7 @@ public class MapDigraph<T> implements Digraph<T> {
         if(prev != null) {
             throw new IllegalArgumentException("duplicate vertex: " + vertex);
         }
-        
+
         roots.add(impl);
     }
 
