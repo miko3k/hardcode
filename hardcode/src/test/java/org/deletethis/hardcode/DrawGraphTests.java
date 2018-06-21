@@ -1,6 +1,5 @@
 package org.deletethis.hardcode;
 
-import com.google.gson.Gson;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.Graphviz;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class SimpleTest {
+public class DrawGraphTests {
     @Rule
     public TestName name = new TestName();
 
@@ -26,7 +25,6 @@ public class SimpleTest {
         BAZ
     }
 
-    private final Gson gson = new Gson();
 
     private <T> T run(T o) {
         return run(Hardcode.builtinConfig(), o);
@@ -87,7 +85,7 @@ public class SimpleTest {
         ExtData data1 = new ExtData(true, "foo", 1, Long.MIN_VALUE);
         ExtData data2 = run(data1);
 
-        Assert.assertEquals(gson.toJson(data1), gson.toJson(data2));
+        Assert.assertEquals(data1, data2);
     }
 
     @Test
@@ -110,6 +108,6 @@ public class SimpleTest {
         map.put("cd2", cd2);
 
         Map<String, Object> run = run(hc2, map);
-        Assert.assertEquals(gson.toJson(map), gson.toJson(run));
+        Assert.assertEquals(map, run);
     }
 }

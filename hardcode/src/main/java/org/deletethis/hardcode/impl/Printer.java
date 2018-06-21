@@ -3,6 +3,7 @@ package org.deletethis.hardcode.impl;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import org.deletethis.hardcode.CrossRootReferenceException;
 import org.deletethis.hardcode.HardcodeException;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.objects.Expression;
@@ -28,7 +29,7 @@ public class Printer {
             ExprInfo argument = print(context, a);
 
             if (context.getRoot() != argument.getRoot()) {
-                throw new HardcodeException("cross-root reference");
+                throw new CrossRootReferenceException("cross-root reference");
             }
 
             args.add(argument.getExpression());

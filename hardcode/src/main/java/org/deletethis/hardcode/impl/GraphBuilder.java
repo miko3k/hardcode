@@ -1,5 +1,6 @@
 package org.deletethis.hardcode.impl;
 
+import org.deletethis.hardcode.CycleException;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.MapDigraph;
@@ -53,7 +54,7 @@ public class GraphBuilder {
         }
 
         if(!objectsInProgress.add(o)) {
-            throw new IllegalStateException("cycle detected");
+            throw new CycleException("cycle detected");
         }
 
         try {

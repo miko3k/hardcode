@@ -3,6 +3,7 @@ package org.deletethis.hardcode;
 import org.junit.Test;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Data implements Serializable {
     private final String foo;
@@ -25,5 +26,21 @@ public class Data implements Serializable {
 
     public Long getLng() {
         return lng;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Data)) return false;
+        Data data = (Data) o;
+        return bar == data.bar &&
+                Objects.equals(foo, data.foo) &&
+                Objects.equals(lng, data.lng);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(foo, bar, lng);
     }
 }

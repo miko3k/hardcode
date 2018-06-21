@@ -15,8 +15,4 @@ public class HardcodeException extends RuntimeException {
     public HardcodeException(Throwable cause) {
         super(cause);
     }
-
-    public HardcodeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
