@@ -1,30 +1,30 @@
-# hardcode  
+# hardcode
 *A friendly warning: This is alpha quality software. Things may break, or be already broken!*
 
 A java library to hardcode data into classfiles.
 
-Sometimes you just need to load your data fast. For instance, Android application startup time is critical. This library can help out, by generating source code, which after execution will generate desired data.
+Sometimes you just need to load your data fast. For instance, in Android application, startup time is critical. This library can help out, by generating source code, that will create data for you.
 
 ## Hello world
 Following source code
 ```java
-package org.deletethis.hardcode.examples;  
-  
-import com.squareup.javapoet.JavaFile;  
-import com.squareup.javapoet.TypeSpec;  
-import org.deletethis.hardcode.Hardcode;  
-  
-public class HelloWorld {  
-    public static void main(String[] args) {  
-    // create hardcode object  
-    Hardcode hardcode = Hardcode.defaultConfig();  
-  
-    // create class  
-    TypeSpec helloType = hardcode.createClass("HelloWorldSupplier", "Hello world!\n");  
-  
-    // write class somewhere  
-    System.out.println(JavaFile.builder("com.example.helloworld", helloType).build());  
-  }  
+package org.deletethis.hardcode.examples;
+
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeSpec;
+import org.deletethis.hardcode.Hardcode;
+
+public class HelloWorld {
+    public static void main(String[] args) {
+    // create hardcode object
+    Hardcode hardcode = Hardcode.defaultConfig();
+
+    // create class
+    TypeSpec helloType = hardcode.createClass("HelloWorldSupplier", "Hello world!\n");
+
+    // write class somewhere
+    System.out.println(JavaFile.builder("com.example.helloworld", helloType).build());
+  }
 }
 ```
 Produces following output - a `Provider`, which provides a single `String` greeting the world!
@@ -57,6 +57,6 @@ public class HelloWorldSupplier implements Supplier<String> {
 ## Todo
 - better error checking
 - support for more collections
-- rewrite `@HardcodeSplit` 
+- rewrite `@HardcodeSplit`
 - upload to maven repo
 - add stuff to this readme
