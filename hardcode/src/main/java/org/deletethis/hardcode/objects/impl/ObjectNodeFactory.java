@@ -45,7 +45,7 @@ public class ObjectNodeFactory implements NodeFactory {
         ConstructorWrapper result = null;
 
         for(Constructor<?> c: clz.getDeclaredConstructors()) {
-            if(!Modifier.isPublic(c.getModifiers()))
+            if(Modifier.isPrivate(c.getModifiers()))
                 continue;
 
             ConstructorWrapper constructorWrapper = new ConstructorWrapper(c);
