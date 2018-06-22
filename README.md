@@ -1,20 +1,20 @@
 # hardcode
-*A friendly warning: This is an alpha quality software. Things may break, or 
+*A friendly warning: This is an alpha quality software. Things may break, or
 be already broken!*
 
 A java library to hardcode data into the classfiles.
 
-Sometimes, one need to load data *fast*. For instance, startup time is 
-critical for Android applications. This library can help out. 
-It prints out the source code, that create the data.
+Sometimes, one need to load data *fast*. For instance, startup time is
+critical for Android applications. This library can help out.
+It prints out the source code that creates the data.
 
-It's about an order of magnitude faster than java serialization, 
-about 2-3 times as fast as [FST](https://github.com/RuedigerMoeller/fast-serialization) 
+It's about an order of magnitude faster than java serialization,
+about 2-3 times as fast as [FST](https://github.com/RuedigerMoeller/fast-serialization)
 (TODO: an actual benchmark). Obviously, this is suitable
 only for the static data.
 
 Source code is handled by [JavaPoet](https://github.com/square/javapoet),
-output takes form of a `com.squareup.javapoet.TypeSpec` instance, that can be 
+output takes form of a `com.squareup.javapoet.TypeSpec` that can be
 simply printed out or processed further.
 
 ## Hello world
@@ -39,7 +39,7 @@ public class HelloWorld {
   }
 }
 ```
-Produces the following output - a `Provider`, which provides a single `String`, 
+Produces the following output - a `Provider`, which provides a single `String`,
 that unsurprisingly greets the world!
 ```java
 package com.example.helloworld;
