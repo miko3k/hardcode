@@ -6,10 +6,10 @@ import org.deletethis.hardcode.Hardcode;
 
 public class HelloWorld {
     public static void main(String[] args) {
-        // create hardcode object
+        // create the hardcode object
         Hardcode hardcode = Hardcode.defaultConfig();
 
-        // create class
+        // create a class
         TypeSpec helloType = hardcode.createClass("HelloWorldSupplier", "Hello world!\n");
 
         // write class somewhere
