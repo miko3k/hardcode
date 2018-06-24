@@ -7,9 +7,7 @@ import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 import org.deletethis.hardcode.objects.impl.NodeDefImpl;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GuavaCollectionFactory implements NodeFactory {
     private static final Set<Class<?>> CLASSES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
@@ -49,7 +47,7 @@ public class GuavaCollectionFactory implements NodeFactory {
 
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration, List<Annotation> annotations) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         Class<?> aClass = findClass(object);
 
         if (aClass == null)

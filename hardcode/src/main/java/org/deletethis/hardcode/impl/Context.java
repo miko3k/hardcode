@@ -5,7 +5,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.ObjectInfo;
 
 import javax.lang.model.element.Modifier;
 import java.util.Objects;

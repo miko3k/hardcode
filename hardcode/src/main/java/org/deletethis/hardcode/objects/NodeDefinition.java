@@ -1,8 +1,13 @@
 package org.deletethis.hardcode.objects;
 
+import org.deletethis.hardcode.objects.impl.ConstructionStrategy;
+
 import java.util.List;
 
 public interface NodeDefinition {
-    ObjectInfo getObjectInfo();
+    Class<?> getType();
+    boolean isRoot();
+    ConstructionStrategy getConstructionStrategy();
     List<NodeParameter> getParameters();
+    String toString();
 }

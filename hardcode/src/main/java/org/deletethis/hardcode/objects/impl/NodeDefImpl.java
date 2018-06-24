@@ -1,37 +1,24 @@
 package org.deletethis.hardcode.objects.impl;
 
+import org.deletethis.hardcode.impl.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
 import java.util.Collections;
 import java.util.List;
 
 public class NodeDefImpl implements NodeDefinition {
-    private final ObjectInfo objectInfo;
+    private final Class<?> type;
+    private final String asString;
+    private final ConstructionStrategy constructionStrategy;
     private final List<NodeParameter> parameters;
+    private final boolean root;
 
     public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters, boolean root) {
+        this.type = type;
+        this.asString = asString;
+        this.constructionStrategy = constructionStrategy;
         this.parameters = parameters;
-        this.objectInfo = new ObjectInfo() {
-            @Override
-            public Class<?> getType() {
-                return type;
-            }
-
-            @Override
-            public Expression getCode(CodegenContext context, ObjectContext obj) {
-                return constructionStrategy.getCode(context, obj);
-            }
-
-            @Override
-            public boolean isRoot() {
-                return root;
-            }
-
-            @Override
-            public String toString() {
-                return asString;
-            }
-        };
+        this.root = root;
     }
 
     public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {
@@ -43,12 +30,27 @@ public class NodeDefImpl implements NodeDefinition {
     }
 
     @Override
-    public ObjectInfo getObjectInfo() {
-        return objectInfo;
+    public Class<?> getType() {
+        return type;
+    }
+
+    @Override
+    public boolean isRoot() {
+        return root;
+    }
+
+    @Override
+    public ConstructionStrategy getConstructionStrategy() {
+        return constructionStrategy;
     }
 
     @Override
     public List<NodeParameter> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public String toString() {
+        return asString;
     }
 }

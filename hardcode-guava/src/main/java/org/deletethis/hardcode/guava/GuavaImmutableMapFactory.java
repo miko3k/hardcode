@@ -3,12 +3,9 @@ package org.deletethis.hardcode.guava;
 import com.google.common.collect.*;
 import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.HardcodeConfiguration;
-import org.deletethis.hardcode.HardcodeException;
-import org.deletethis.hardcode.HardcodeSplit;
 import org.deletethis.hardcode.objects.*;
 import org.deletethis.hardcode.objects.impl.NodeDefImpl;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class GuavaImmutableMapFactory implements NodeFactory {
@@ -69,7 +66,9 @@ public class GuavaImmutableMapFactory implements NodeFactory {
     private static final String PARAM = "out";
 
 
-    private Expression getCode(TypeInfo typeInfo, CodegenContext context, ObjectContext obj, Integer split) {
+    private Expression getCode(TypeInfo typeInfo, CodegenContext context, ObjectContext obj) {
+        Integer split = obj.getSplit();
+
         List<Expression> arguments = obj.getArguments();
         Class<?> clz = typeInfo.getType();
         Class<?> builder = typeInfo.getBuilder();
@@ -105,7 +104,7 @@ public class GuavaImmutableMapFactory implements NodeFactory {
         }
     }
 
-    private Optional<NodeDefinition> createIt(TypeInfo typeInfo, Iterable<? extends Map.Entry<?,?>> entryIterable, Integer split) {
+    private Optional<NodeDefinition> createIt(TypeInfo typeInfo, Iterable<? extends Map.Entry<?,?>> entryIterable) {
 
         List<NodeParameter> members = new ArrayList<>();
         int idx = 0;
@@ -117,30 +116,21 @@ public class GuavaImmutableMapFactory implements NodeFactory {
         return Optional.of(new NodeDefImpl(
                 typeInfo.getType(),
                 typeInfo.getType().getSimpleName(),
-                (context, obj) -> getCode(typeInfo, context, obj, split),
+                (context, obj) -> getCode(typeInfo, context, obj),
                 members)
         );
     }
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration, List<Annotation> annotations) {
-        Integer split = null;
-        for(Annotation a: annotations) {
-            if(a instanceof HardcodeSplit) {
-                split = ((HardcodeSplit)a).value();
-                if(split <= 0)
-                    throw new HardcodeException("illegal split: " + split);
-            }
-        }
-
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         TypeInfo aClass = findMapClass(object);
         if(aClass != null) {
-            return createIt(aClass, ((Map<?, ?>) object).entrySet(), split);
+            return createIt(aClass, ((Map<?, ?>) object).entrySet());
         }
 
         aClass = findMultimapClass(object);
         if(aClass != null) {
-            return createIt(aClass, ((Multimap<?, ?>) object).entries(), split);
+            return createIt(aClass, ((Multimap<?, ?>) object).entries());
         }
 
         return Optional.empty();

@@ -4,11 +4,9 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.CrossRootReferenceException;
-import org.deletethis.hardcode.HardcodeException;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.ObjectContext;
-import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.ParameterName;
 
 import javax.lang.model.element.Modifier;
@@ -34,7 +32,7 @@ public class Printer {
 
             args.add(argument.getExpression());
         }
-        return n.getCode(context, new ObjectContext(args));
+        return n.getCode(context, new ObjectContext(args, n.getSplit()));
     }
 
     private ExprInfo print(Context context, ObjectInfo n) {

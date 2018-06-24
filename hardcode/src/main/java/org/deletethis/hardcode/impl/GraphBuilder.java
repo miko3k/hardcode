@@ -4,7 +4,6 @@ import org.deletethis.hardcode.CycleException;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.MapDigraph;
-import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
 import java.lang.annotation.Annotation;
@@ -22,33 +21,11 @@ public class GraphBuilder {
         this.configuration = configuration;
     }
 
-    private static class NullObject implements ObjectInfo {
-        @Override
-        public Class<?> getType() {
-            return null;
-        }
-
-        @Override
-        public Expression getCode(CodegenContext context, ObjectContext obj) {
-            return Expression.simple("null");
-        }
-
-        @Override
-        public boolean isRoot() {
-            return false;
-        }
-
-        @Override
-        public String toString() {
-            return "[null]";
-        }
-    }
-
     private ObjectInfo createNode(Object o, List<Annotation> annotations) {
         //System.out.println("NODE: " + o);
 
         if(o == null) {
-            NullObject nullObject = new NullObject();
+            ObjectInfo nullObject = ObjectInfo.ofNull();
             digraph.addVertex(nullObject);
             return nullObject;
         }
@@ -63,16 +40,21 @@ public class GraphBuilder {
                 return n;
             }
 
-            BuiltinAnnotations ba = new BuiltinAnnotations();
-            // this is never gonna be null, even if argument is
-            List<Annotation> passedAnnotations = ba.process(annotations);
+            BuiltinAnnotations ba = new BuiltinAnnotations(annotations);
 
             for(NodeFactory factory: nodeFactories) {
-                Optional<NodeDefinition> nodeOptional = factory.createNode(o, configuration, passedAnnotations);
+                Optional<NodeDefinition> nodeOptional = factory.createNode(o, configuration);
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    ObjectInfo node = ba.wrap(nodeDef.getObjectInfo());
+                    ObjectInfo node = ObjectInfo.ofNodeDefinion(nodeDef);
+                    if(ba.isRoot()) {
+                        node.setRoot(true);
+                    }
+                    if(ba.getSplit() != null) {
+                        node.setSplit(ba.getSplit());
+                    }
+
                     digraph.addVertex(node);
 
                     for(NodeParameter param: nodeDef.getParameters()) {

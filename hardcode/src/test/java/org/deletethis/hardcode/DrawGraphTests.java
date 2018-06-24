@@ -3,7 +3,7 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.Graphviz;
-import org.deletethis.hardcode.objects.ObjectInfo;
+import org.deletethis.hardcode.impl.ObjectInfo;
 import org.deletethis.hardcode.objects.ParameterName;
 import org.deletethis.hardcode.testing.HardcodeTesting;
 import org.junit.Assert;

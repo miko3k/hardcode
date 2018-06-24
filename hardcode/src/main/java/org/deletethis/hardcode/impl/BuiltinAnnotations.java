@@ -1,8 +1,8 @@
 package org.deletethis.hardcode.impl;
 
 import org.deletethis.hardcode.HardcodeRoot;
+import org.deletethis.hardcode.HardcodeSplit;
 import org.deletethis.hardcode.objects.ObjectContext;
-import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 
@@ -13,49 +13,29 @@ import java.util.List;
 
 public class BuiltinAnnotations {
     private boolean root = false;
+    private Integer split = null;
 
-    private boolean process(Annotation a) {
+    private void process(Annotation a) {
         if(a.annotationType().equals(HardcodeRoot.class)) {
             root = true;
-            return true;
-        } else {
-            return false;
+        } else if(a.annotationType().equals(HardcodeSplit.class)) {
+            split = ((HardcodeSplit) a).value();
         }
     }
 
-    public List<Annotation> process(List<Annotation> list) {
-        if(list == null)
-            return Collections.emptyList();
-
-        ArrayList<Annotation> out = new ArrayList<>(list.size());
-        for(Annotation a: list) {
-            if(!process(a)) {
-                out.add(a);
+    BuiltinAnnotations(List<Annotation> annotations) {
+        if(annotations != null) {
+            for(Annotation a: annotations) {
+                process(a);
             }
         }
-        return Collections.unmodifiableList(out);
     }
 
-    public ObjectInfo wrap(ObjectInfo input) {
-        if(root == false) {
-            return input;
-        }
+    public boolean isRoot() {
+        return root;
+    }
 
-        return new ObjectInfo() {
-            @Override
-            public Class<?> getType() {
-                return input.getType();
-            }
-
-            @Override
-            public Expression getCode(CodegenContext context, ObjectContext obj) {
-                return input.getCode(context, obj);
-            }
-
-            @Override
-            public boolean isRoot() {
-                return true;
-            }
-        };
+    public Integer getSplit() {
+        return split;
     }
 }

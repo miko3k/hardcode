@@ -10,7 +10,6 @@ import org.deletethis.hardcode.util.TypeUtil;
 import org.deletethis.hardcode.objects.impl.introspection.FieldInstrospectionStartegy;
 import org.deletethis.hardcode.objects.impl.introspection.IntrospectionStartegy;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -107,7 +106,7 @@ public class ObjectNodeFactory implements NodeFactory {
     }
 
     @Override
-    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration, List<Annotation> annotations) {
+    public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         Objects.requireNonNull(object);
 
         Class<?> clz = object.getClass();

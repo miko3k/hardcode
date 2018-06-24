@@ -1,6 +1,5 @@
 package org.deletethis.hardcode.impl;
 
-import org.deletethis.hardcode.objects.ObjectInfo;
 import org.deletethis.hardcode.objects.Expression;
 
 public class ExprInfo {
