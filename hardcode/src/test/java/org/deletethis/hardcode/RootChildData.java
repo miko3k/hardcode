@@ -3,15 +3,16 @@ package org.deletethis.hardcode;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ChildData implements Serializable {
+@HardcodeRoot
+public class RootChildData implements Serializable {
     private String value;
-    private ChildData more;
+    private RootChildData more;
 
-    public ChildData(String value) {
+    public RootChildData(String value) {
         this.value = value;
     }
 
-    public ChildData(String value, ChildData more) {
+    public RootChildData(String value, RootChildData more) {
         this.value = value;
         this.more = more;
     }
@@ -19,14 +20,15 @@ public class ChildData implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ChildData)) return false;
-        ChildData childData = (ChildData) o;
+        if (!(o instanceof RootChildData)) return false;
+        RootChildData childData = (RootChildData) o;
         return Objects.equals(value, childData.value) &&
                 Objects.equals(more, childData.more);
     }
 
     @Override
     public int hashCode() {
+
         return Objects.hash(value, more);
     }
 }

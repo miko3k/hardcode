@@ -131,6 +131,11 @@ public class Graphviz<T,E> {
         print(new File(file));
     }
 
+    public void printTemp(String file) {
+        String property = System.getProperty("java.io.tmpdir");
+        print(new File(property, file));
+    }
+
 
 
 

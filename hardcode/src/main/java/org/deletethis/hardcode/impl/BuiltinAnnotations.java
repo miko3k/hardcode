@@ -1,5 +1,6 @@
 package org.deletethis.hardcode.impl;
 
+import org.deletethis.hardcode.ConfigMismatchException;
 import org.deletethis.hardcode.HardcodeRoot;
 import org.deletethis.hardcode.HardcodeSplit;
 import org.deletethis.hardcode.objects.ObjectContext;
@@ -31,11 +32,16 @@ public class BuiltinAnnotations {
         }
     }
 
-    public boolean isRoot() {
-        return root;
-    }
-
-    public Integer getSplit() {
-        return split;
+    public void apply(ObjectInfo objectInfo) {
+        if(root) {
+            objectInfo.setRoot(true);
+        }
+        if(split != null) {
+            if(objectInfo.getSplit() != null) {
+                if(!split.equals(objectInfo.getSplit()))
+                    throw new ConfigMismatchException("incompatible splits: " + objectInfo.getSplit() + " and " + split);
+            }
+            objectInfo.setSplit(split);
+        }
     }
 }

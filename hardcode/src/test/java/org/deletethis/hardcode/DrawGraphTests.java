@@ -98,8 +98,8 @@ public class DrawGraphTests {
         Hardcode hc2 = Hardcode.builtinConfig(dc);
 
         Map<String, Object> map = new HashMap<>();
-        ChildData cd1 = new ChildData("hello");
-        ChildData cd2 = new ChildData("world");
+        RootChildData cd1 = new RootChildData("hello");
+        RootChildData cd2 = new RootChildData("world");
         map.put("data1a", data1);
         map.put("data1b", data1);
         map.put("data2", data2);

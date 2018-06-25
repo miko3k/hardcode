@@ -21,56 +21,51 @@ public class GraphBuilder {
         this.configuration = configuration;
     }
 
-    private ObjectInfo createNode(Object o, List<Annotation> annotations) {
+    private ObjectInfo createNode(Object object, List<Annotation> annotations) {
         //System.out.println("NODE: " + o);
 
-        if(o == null) {
+        if(object == null) {
             ObjectInfo nullObject = ObjectInfo.ofNull();
             digraph.addVertex(nullObject);
             return nullObject;
         }
 
-        if(!objectsInProgress.add(o)) {
+        if(!objectsInProgress.add(object)) {
             throw new CycleException("cycle detected");
         }
 
         try {
-            ObjectInfo n = objectMap.get(o);
+            BuiltinAnnotations ba = new BuiltinAnnotations(annotations);
+
+            ObjectInfo n = objectMap.get(object);
             if (n != null) {
+                ba.apply(n);
                 return n;
             }
 
-            BuiltinAnnotations ba = new BuiltinAnnotations(annotations);
-
             for(NodeFactory factory: nodeFactories) {
-                Optional<NodeDefinition> nodeOptional = factory.createNode(o, configuration);
+                Optional<NodeDefinition> nodeOptional = factory.createNode(object, configuration);
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
                     ObjectInfo node = ObjectInfo.ofNodeDefinion(nodeDef);
-                    if(ba.isRoot()) {
-                        node.setRoot(true);
-                    }
-                    if(ba.getSplit() != null) {
-                        node.setSplit(ba.getSplit());
-                    }
-
+                    ba.apply(node);
                     digraph.addVertex(node);
 
                     for(NodeParameter param: nodeDef.getParameters()) {
-                        ObjectInfo n2 = createNode(param.getValue(), param.getAnnotations());
-                        digraph.createEdge(node, n2, param.getParameterName());
+                        ObjectInfo otherNode = createNode(param.getValue(), param.getAnnotations());
+                        digraph.createEdge(node, otherNode, param.getParameterName());
                     }
 
                     if(factory.enableReferenceDetection()) {
-                        objectMap.put(o, node);
+                        objectMap.put(object, node);
                     }
                     return node;
                 }
             }
             throw new IllegalArgumentException();
         } finally {
-            objectsInProgress.remove(o);
+            objectsInProgress.remove(object);
         }
     }
 
@@ -81,6 +76,7 @@ public class GraphBuilder {
         if(!gb.objectsInProgress.isEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }
+        new GraphVerifier(gb.digraph).verify();
         return gb.digraph;
     }
 }
