@@ -3,10 +3,8 @@ package org.deletethis.hardcode.impl;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
-import org.deletethis.hardcode.CrossRootReferenceException;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.ObjectContext;
 import org.deletethis.hardcode.objects.ParameterName;
 
 import javax.lang.model.element.Modifier;
@@ -15,7 +13,7 @@ import java.util.function.Supplier;
 
 public class Printer {
     private final Digraph<ObjectInfo, ParameterName> graph;
-    private final Map<ObjectInfo, ExprInfo> exprMap = new HashMap<>();
+    private final Map<ObjectInfo, Expression> exprMap = new HashMap<>();
     private final NumberNameAllocator methodNameAllocator = new NumberNameAllocator();
     private final TypeSpec.Builder clz;
     private static final String METHOD_NAME = "get";
@@ -24,13 +22,8 @@ public class Printer {
         List<Expression> args = new ArrayList<>();
 
         for (ObjectInfo a : graph.getSuccessors(n)) {
-            ExprInfo argument = print(context, a);
-
-            if (context.getRoot() != argument.getRoot()) {
-                throw new CrossRootReferenceException("cross-root reference");
-            }
-
-            args.add(argument.getExpression());
+            Expression argument = print(context, a);
+            args.add(argument);
         }
         ObjectContextImpl objectContext = new ObjectContextImpl(args, n.getSplit());
         Expression code = n.getCode(context, objectContext);
@@ -38,11 +31,11 @@ public class Printer {
         return code;
     }
 
-    private ExprInfo print(Context context, ObjectInfo n) {
+    private Expression print(Context context, ObjectInfo n) {
         Objects.requireNonNull(context);
         Objects.requireNonNull(n);
 
-        ExprInfo exprInfo = exprMap.get(n);
+        Expression exprInfo = exprMap.get(n);
         if(exprInfo != null) {
             return exprInfo;
         }
@@ -69,9 +62,8 @@ public class Printer {
 //        if(context.getRoot() == n)
 //            throw new IllegalArgumentException();
 
-        ExprInfo result = new ExprInfo(context.getRoot(), expression);
-        exprMap.put(n, result);
-        return result;
+        exprMap.put(n, expression);
+        return expression;
     }
 
 
@@ -114,8 +106,8 @@ public class Printer {
         }
 
         Context mainContext = createMainContext(returnType, supplier);
-        ExprInfo mainMethod = print(mainContext, graph.getRoot());
-        mainContext.finish(mainMethod.getExpression());
+        Expression mainMethod = print(mainContext, graph.getRoot());
+        mainContext.finish(mainMethod);
         return clz.build();
     }
 
