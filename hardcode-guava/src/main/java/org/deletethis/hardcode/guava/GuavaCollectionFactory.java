@@ -27,7 +27,7 @@ public class GuavaCollectionFactory implements NodeFactory {
             return Expression.complex(cb);
         } else {
             String variable = context.allocateVariable(typeInfo.getType());
-            context.addStatement("$T $L = $T.builderWithExpectedSize($L)", typeInfo.getBuilder(), variable, typeInfo, obj.getArguments().size());
+            context.addStatement("$T $L = $T.builderWithExpectedSize($L)", typeInfo.getBuilder(), variable, typeInfo.getType(), obj.getArguments().size());
 
             SplitHelper splitHelper = SplitHelper.get(context, obj.getSplit(), variable, typeInfo.getBuilder());
             for (Expression arg : obj.getArguments()) {
