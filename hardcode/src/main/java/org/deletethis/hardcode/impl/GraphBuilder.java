@@ -76,7 +76,6 @@ public class GraphBuilder {
         if(!gb.objectsInProgress.isEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }
-        new GraphVerifier(gb.digraph).verify();
         return gb.digraph;
     }
 }

@@ -15,7 +15,8 @@ public class SimpleExceptionTests {
         Container<Object> c2 = new Container<>();
         c1.setValue(c2);
         c2.setValue(c1);
-        Hardcode.builtinConfig().buildGraph(c1);
+        Digraph<ObjectInfo, ParameterName> g = Hardcode.builtinConfig().buildGraph(c1);
+        Hardcode.builtinConfig().verifyGraph(g);
     }
 
     @Test(expected = CrossRootReferenceException.class)
@@ -27,16 +28,17 @@ public class SimpleExceptionTests {
         list.add(data1);
         list.add(data2);
         Digraph<ObjectInfo, ParameterName> g = Hardcode.builtinConfig().buildGraph(list);
-        new Graphviz<>(g).printTemp("cr");
+        Hardcode.builtinConfig().verifyGraph(g);
+//        new Graphviz<>(g).printTemp("cr");
     }
 
-    public static class DifferentSplit {
+    public static class Splits {
         @HardcodeSplit(2)
         Object a;
         @HardcodeSplit(3)
         Object b;
 
-        public DifferentSplit(Object a, Object b) {
+        public Splits(Object a, Object b) {
             this.a = a;
             this.b = b;
         }
@@ -45,8 +47,9 @@ public class SimpleExceptionTests {
     @Test(expected = ConfigMismatchException.class)
     public void split() {
         ArrayList<Integer> list = new ArrayList<>();
-        DifferentSplit ds = new DifferentSplit(list, list);
-        Hardcode.builtinConfig().buildGraph(ds);
+        Splits ds = new Splits(list, list);
+        Digraph<ObjectInfo, ParameterName> g = Hardcode.builtinConfig().buildGraph(ds);
+        Hardcode.builtinConfig().verifyGraph(g);
     }
 
     @Test(expected = CrossRootReferenceException.class)
@@ -54,10 +57,22 @@ public class SimpleExceptionTests {
         ArrayList<ChildData> list = new ArrayList<>();
         ChildData common = new ChildData("common");
         ChildData c1 = new ChildData("c1", common);
-        ChildData c2 = new ChildData("c1", common);
+        ChildData c2 = new ChildData("c2", common);
         list.add(c1);
         list.add(c2);
-        DifferentSplit ds = new DifferentSplit(list, null);
-        Hardcode.builtinConfig().buildGraph(ds);
+        Splits ds = new Splits(list, null);
+        Digraph<ObjectInfo, ParameterName> g = Hardcode.builtinConfig().buildGraph(ds);
+        Hardcode.builtinConfig().verifyGraph(g);
+    }
+
+    @Test(expected = CrossRootReferenceException.class)
+    public void splitMultiple() {
+        Data d1 = new Data("foo", 1, null);
+        ArrayList<Data> list = new ArrayList<>();
+        list.add(d1);
+        list.add(d1);
+        Splits ds = new Splits(list, null);
+        Digraph<ObjectInfo, ParameterName> g = Hardcode.builtinConfig().buildGraph(ds);
+        Hardcode.builtinConfig().verifyGraph(g);
     }
 }

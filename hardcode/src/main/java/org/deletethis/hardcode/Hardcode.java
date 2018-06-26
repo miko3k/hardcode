@@ -3,6 +3,7 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.impl.GraphBuilder;
+import org.deletethis.hardcode.impl.GraphVerifier;
 import org.deletethis.hardcode.impl.Printer;
 import org.deletethis.hardcode.objects.NodeFactory;
 import org.deletethis.hardcode.impl.ObjectInfo;
@@ -104,12 +105,16 @@ public class Hardcode {
         return GraphBuilder.buildGraph(nodeFactoryList, configuration, root);
     }
 
+    public void verifyGraph(Digraph<ObjectInfo, ParameterName> graph) {
+        new GraphVerifier(graph).verify();
+    }
+
     public TypeSpec createClass(String className, Object o) {
         return createClassFromGraph(className, buildGraph(o));
     }
 
     public TypeSpec createClassFromGraph(String className, Digraph<ObjectInfo, ParameterName> graph) {
-
+        verifyGraph(graph);
         return new Printer(className, graph).run(configuration.generateSupplier());
 
     }

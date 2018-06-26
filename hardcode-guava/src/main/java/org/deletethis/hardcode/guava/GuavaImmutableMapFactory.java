@@ -90,7 +90,7 @@ public class GuavaImmutableMapFactory implements NodeFactory {
                 // FIXME: verify if argument (+ ALL CHILDREN) is only referenced here
                 int n = 0;
                 while(n < arguments.size()) {
-                    CodegenContext ctx = context.createVoidMethod("createSub" + clz.getSimpleName(), builder, PARAM);
+                    CodegenContext ctx = context.createVoidMethod("fillPartial" + clz.getSimpleName(), builder, PARAM);
 
                     for (int i = 0; i < split && n < arguments.size(); ++i) {
                         ctx.addStatement("$L.put($L, $L)", PARAM, arguments.get(n).getCode(), arguments.get(n + 1).getCode());

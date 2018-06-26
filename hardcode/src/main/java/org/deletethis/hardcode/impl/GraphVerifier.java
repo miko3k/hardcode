@@ -1,8 +1,6 @@
 package org.deletethis.hardcode.impl;
 
-import org.deletethis.hardcode.CrossRootReferenceException;
-import org.deletethis.hardcode.CycleException;
-import org.deletethis.hardcode.HardcodeConfiguration;
+import org.deletethis.hardcode.*;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.MapDigraph;
 import org.deletethis.hardcode.objects.NodeDefinition;
@@ -13,11 +11,11 @@ import org.deletethis.hardcode.objects.ParameterName;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-class GraphVerifier {
+public class GraphVerifier {
     private final Digraph<ObjectInfo, ParameterName> digraph;
     private final Map<ObjectInfo, ObjectInfo> parents;
 
-    GraphVerifier(Digraph<ObjectInfo, ParameterName> digraph) {
+    public GraphVerifier(Digraph<ObjectInfo, ParameterName> digraph) {
         this.digraph = digraph;
         this.parents = digraph.createMap();
     }
@@ -35,6 +33,9 @@ class GraphVerifier {
             if(currentVertex.isRoot()) {
                 dfs(successor, currentVertex);
             } else if(currentVertex.getSplit() != null) {
+                if(digraph.getInDegree(successor) != 1) {
+                    throw new CrossRootReferenceException("Each member of @" + HardcodeSplit.class.getSimpleName() + " must be referenced once");
+                }
                 dfs(successor, successor);
             } else {
                 dfs(successor, currentRoot);
@@ -42,7 +43,7 @@ class GraphVerifier {
         }
     }
 
-    void verify() {
+    public void verify() {
         ObjectInfo root = digraph.getRoot();
 
         dfs(root, root);
