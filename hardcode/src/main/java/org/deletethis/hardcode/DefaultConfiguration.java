@@ -1,12 +1,12 @@
 package org.deletethis.hardcode;
 
-import org.deletethis.hardcode.objects.IntrospectionConfiguration;
+import org.deletethis.hardcode.objects.NodeFactory;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-public class DefaultConfiguration implements HardcodeConfiguration, IntrospectionConfiguration {
+public class DefaultConfiguration implements HardcodeConfiguration {
     private final Set<Class<?>> hardcodeRoots = new HashSet<>();
+    private final List<NodeFactory> addtionalFactories = new ArrayList<>();
     private boolean generateSupplier = true;
 
     @Override
@@ -25,5 +25,14 @@ public class DefaultConfiguration implements HardcodeConfiguration, Introspectio
     @Override
     public boolean generateSupplier() {
         return generateSupplier;
+    }
+
+    public void registerNodeFactory(NodeFactory nodeFactory) {
+        addtionalFactories.add(nodeFactory);
+    }
+
+    @Override
+    public Collection<NodeFactory> getAdditionalNodeFactories() {
+        return addtionalFactories;
     }
 }

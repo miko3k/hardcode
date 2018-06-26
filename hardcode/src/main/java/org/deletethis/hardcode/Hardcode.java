@@ -25,13 +25,7 @@ public class Hardcode {
 
     private Hardcode(HardcodeConfiguration configuration, List<NodeFactory> nodeFactoryList) {
         this.nodeFactoryList = new ArrayList<>(nodeFactoryList);
-        this.nodeFactoryList.sort(Comparator.comparing(NodeFactory::getOrdering));
-        this.configuration = configuration;
-    }
-
-    private Hardcode(HardcodeConfiguration configuration, List<NodeFactory> a, List<NodeFactory> b) {
-        this.nodeFactoryList = new ArrayList<>(a);
-        this.nodeFactoryList.addAll(b);
+        this.nodeFactoryList.addAll(configuration.getAdditionalNodeFactories());
         this.nodeFactoryList.sort(Comparator.comparing(NodeFactory::getOrdering));
         this.configuration = configuration;
     }
@@ -69,20 +63,8 @@ public class Hardcode {
         return new Hardcode(c, builtin());
     }
 
-    public static Hardcode builtinConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcode(c(), builtin(), nodeFactories);
-    }
-
-    public static Hardcode builtinConfig(HardcodeConfiguration c, List<NodeFactory> nodeFactories) {
-        return new Hardcode(c, builtin(), nodeFactories);
-    }
-
-    public static Hardcode customConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcode(c(), nodeFactories);
-    }
-
-    public static Hardcode customConfig(HardcodeConfiguration c, List<NodeFactory> nodeFactories) {
-        return new Hardcode(c, nodeFactories);
+    public static Hardcode customConfig(HardcodeConfiguration c) {
+        return new Hardcode(c, Collections.emptyList());
     }
 
     public static Hardcode defaultConfig() {
@@ -91,14 +73,6 @@ public class Hardcode {
 
     public static Hardcode defaultConfig(HardcodeConfiguration c) {
         return new Hardcode(c, def());
-    }
-
-    public static Hardcode defaultConfig(List<NodeFactory> nodeFactories) {
-        return new Hardcode(c(), def(), nodeFactories);
-    }
-
-    public static Hardcode defaultConfig(HardcodeConfiguration c, List<NodeFactory> nodeFactories) {
-        return new Hardcode(c, def(), nodeFactories);
     }
 
     public Digraph<ObjectInfo, ParameterName> buildGraph(Object root) {

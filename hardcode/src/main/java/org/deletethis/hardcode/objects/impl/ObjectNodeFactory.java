@@ -113,11 +113,7 @@ public class ObjectNodeFactory implements NodeFactory {
         if(clz.isSynthetic())
             return Optional.empty();
 
-        Set<Class<?>> rootClasses = null;
-        if(configuration instanceof IntrospectionConfiguration) {
-            rootClasses = ((IntrospectionConfiguration)configuration).getHardcodeRoots();
-        }
-
+        Set<Class<?>> rootClasses = configuration.getHardcodeRoots();
 
         boolean root = isRoot(rootClasses, new HashSet<>(), clz);
 
