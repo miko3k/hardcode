@@ -2,15 +2,16 @@ package org.deletethis.hardcode.objects.impl;
 
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
+import org.deletethis.hardcode.util.SplitHelper;
 
 import java.util.*;
 
 public class MapNodeFactory implements NodeFactory {
-    final private static Set<Class> CLASSES_WITH_CAPACITY = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+    private static final Set<Class> CLASSES_WITH_CAPACITY = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             HashMap.class, Hashtable.class, LinkedHashMap.class
     )));
 
-    final private static Set<Class> CLASSES_WITHOUT_CAPACITY = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+    private static final Set<Class> CLASSES_WITHOUT_CAPACITY = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             TreeMap.class
     )));
 
@@ -30,9 +31,12 @@ public class MapNodeFactory implements NodeFactory {
         } else {
             context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
+        SplitHelper splitHelper = SplitHelper.get(context, obj.getSplit(), variable, clz);
+
         for (int i = 0; i < arguments.size(); i += 2) {
-            context.addStatement("$L.put($L, $L)", variable, arguments.get(i).getCode(), arguments.get(i + 1).getCode());
+            splitHelper.addStatement("$L.put($L, $L)", splitHelper.getBuilder(), arguments.get(i).getCode(), arguments.get(i + 1).getCode());
         }
+        splitHelper.finish();
         return Expression.simple(variable);
     }
 

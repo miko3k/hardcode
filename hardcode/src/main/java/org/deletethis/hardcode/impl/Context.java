@@ -54,7 +54,7 @@ class Context implements CodegenContext {
 
 
     @Override
-    public CodegenContext createVoidMethod(String nameHint, String paramName, Class<?> paramType) {
+    public CodegenContext createProcedure(String nameHint, String paramName, Class<?> paramType) {
         Context context = new Context(methodNameAllocator, clz, currentRoot, methodNameAllocator.newName(nameHint));
         if(!context.variableAllocator.newName(paramName).equals(paramName))
             throw new IllegalStateException("wtf?");

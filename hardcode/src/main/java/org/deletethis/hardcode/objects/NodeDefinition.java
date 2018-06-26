@@ -1,7 +1,5 @@
 package org.deletethis.hardcode.objects;
 
-import org.deletethis.hardcode.objects.impl.ConstructionStrategy;
-
 import java.util.List;
 
 public interface NodeDefinition {

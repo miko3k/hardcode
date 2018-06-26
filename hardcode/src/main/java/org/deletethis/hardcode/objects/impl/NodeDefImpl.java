@@ -1,6 +1,5 @@
 package org.deletethis.hardcode.objects.impl;
 
-import org.deletethis.hardcode.impl.ObjectInfo;
 import org.deletethis.hardcode.objects.*;
 
 import java.util.Collections;

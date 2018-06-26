@@ -37,7 +37,7 @@ class SplitHelperImpl implements SplitHelper {
         }
 
         if(currentContext == null) {
-            currentContext = parentContext.createVoidMethod("parial" + builderType.getSimpleName(), PARAM, builderType);
+            currentContext = parentContext.createProcedure("parial" + builderType.getSimpleName(), PARAM, builderType);
             currentFill = 0;
         }
 

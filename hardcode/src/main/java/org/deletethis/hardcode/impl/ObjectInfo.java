@@ -4,7 +4,7 @@ import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeDefinition;
 import org.deletethis.hardcode.objects.ObjectContext;
-import org.deletethis.hardcode.objects.impl.ConstructionStrategy;
+import org.deletethis.hardcode.objects.ConstructionStrategy;
 
 public class ObjectInfo {
     private final Class<?> type;

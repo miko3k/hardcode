@@ -2,6 +2,7 @@ package org.deletethis.hardcode.objects.impl;
 
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
+import org.deletethis.hardcode.util.SplitHelper;
 import org.deletethis.hardcode.util.TypeUtil;
 
 import java.util.*;
@@ -29,9 +30,11 @@ public class CollectionNodeFactory implements NodeFactory {
         } else {
             context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
+        SplitHelper splitHelper = SplitHelper.get(context, objectContext.getSplit(), variable, clz);
         for (Expression arg : objectContext.getArguments()) {
-            context.addStatement("$L.add($L)", variable, arg.getCode());
+            splitHelper.addStatement("$L.add($L)", variable, arg.getCode());
         }
+        splitHelper.finish();
         return Expression.simple(variable);
     }
 
