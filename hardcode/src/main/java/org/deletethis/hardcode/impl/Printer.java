@@ -32,7 +32,10 @@ public class Printer {
 
             args.add(argument.getExpression());
         }
-        return n.getCode(context, new ObjectContext(args, n.getSplit()));
+        ObjectContextImpl objectContext = new ObjectContextImpl(args, n.getSplit());
+        Expression code = n.getCode(context, objectContext);
+        objectContext.verify();
+        return code;
     }
 
     private ExprInfo print(Context context, ObjectInfo n) {

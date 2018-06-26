@@ -22,7 +22,7 @@ public class ObjectNodeFactory implements NodeFactory {
         CodeBlock.Builder bld = CodeBlock.builder();
         bld.add("new $T(", clz);
         int n = 0;
-        for (Expression b : obj) {
+        for (Expression b : obj.getArguments()) {
             if(n > 0) {
                 bld.add(", ");
             }

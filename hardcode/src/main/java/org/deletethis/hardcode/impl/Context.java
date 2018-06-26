@@ -32,7 +32,7 @@ class Context implements CodegenContext {
         this.methodBuilder.addAnnotation(unchecked());
     }
 
-    public MethodSpec.Builder getMethodBuilder() {
+    MethodSpec.Builder getMethodBuilder() {
         return methodBuilder;
     }
 
@@ -47,13 +47,14 @@ class Context implements CodegenContext {
     }
 
 
-    public void finish(Expression expression) {
+    void finish(Expression expression) {
         methodBuilder.addStatement("return $L", expression.getCode());
         finish();
     }
 
+
     @Override
-    public CodegenContext createVoidMethod(String nameHint, Class<?> paramType, String paramName) {
+    public CodegenContext createVoidMethod(String nameHint, String paramName, Class<?> paramType) {
         Context context = new Context(methodNameAllocator, clz, currentRoot, methodNameAllocator.newName(nameHint));
         if(!context.variableAllocator.newName(paramName).equals(paramName))
             throw new IllegalStateException("wtf?");
@@ -63,17 +64,13 @@ class Context implements CodegenContext {
         return context;
     }
 
-    public NumberNameAllocator getVariableAllocator() {
-        return variableAllocator;
-    }
-
     @Override
     public String allocateVariable(Class<?> hint) {
         Objects.requireNonNull(hint);
         return variableAllocator.newName(hint);
     }
 
-    public ObjectInfo getRoot() {
+    ObjectInfo getRoot() {
         return currentRoot;
     }
 

@@ -22,14 +22,14 @@ public class CollectionNodeFactory implements NodeFactory {
         return true;
     }
 
-    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext arguments) {
+    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext objectContext) {
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
-            context.addStatement("$T $L = new $T($L)", clz, variable, clz, arguments.getArguments().size());
+            context.addStatement("$T $L = new $T($L)", clz, variable, clz, objectContext.getArguments().size());
         } else {
             context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
-        for (Expression arg : arguments) {
+        for (Expression arg : objectContext.getArguments()) {
             context.addStatement("$L.add($L)", variable, arg.getCode());
         }
         return Expression.simple(variable);

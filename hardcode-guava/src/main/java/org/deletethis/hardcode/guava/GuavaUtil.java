@@ -9,7 +9,7 @@ class GuavaUtil {
         CodeBlock.Builder cb = CodeBlock.builder();
         cb.add("$T.of(", what);
         boolean first = true;
-        for (Expression e : obj) {
+        for (Expression e : obj.getArguments()) {
             if (first) {
                 first = false;
             } else {

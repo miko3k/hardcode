@@ -5,57 +5,19 @@ import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 import org.deletethis.hardcode.objects.impl.NodeDefImpl;
+import org.deletethis.hardcode.util.SplitHelper;
 
 import java.util.*;
 
 public class GuavaImmutableMapFactory implements NodeFactory {
-    private static class TypeInfo {
-        private final Class<?> type;
-        private final Class<?> builder;
-
-        TypeInfo(Class<?> type, Class<?> builder) {
-            this.type = type;
-            this.builder = builder;
-        }
-
-        Class<?> getType() {
-            return type;
-        }
-
-        Class<?> getBuilder() {
-            return builder;
-        }
-
-        boolean matches(Object o) {
-            return type.isInstance(o);
-        }
-    }
-
-    private static final Set<TypeInfo> MAP_CLASSES = ImmutableSet.of(
-            new TypeInfo(ImmutableMap.class, ImmutableMap.Builder.class)
+    private static final TypeInfos MAP_CLASSES = TypeInfos.of(
+            ImmutableMap.class, ImmutableMap.Builder.class, 10
     );
 
-    private static final Set<TypeInfo> MULTIMAP_CLASSES = ImmutableSet.of(
-            new TypeInfo(ImmutableListMultimap.class, ImmutableListMultimap.Builder.class),
-            new TypeInfo(ImmutableSetMultimap.class, ImmutableSetMultimap.Builder.class)
+    private static final TypeInfos MULTIMAP_CLASSES = TypeInfos.of(
+            ImmutableListMultimap.class, ImmutableListMultimap.Builder.class, 10,
+            ImmutableSetMultimap.class, ImmutableSetMultimap.Builder.class, 10
     );
-
-
-    private TypeInfo findMapClass(Object o) {
-        for (TypeInfo c : MAP_CLASSES) {
-            if (c.matches(o))
-                return c;
-        }
-        return null;
-    }
-
-    private TypeInfo findMultimapClass(Object o) {
-        for (TypeInfo c : MULTIMAP_CLASSES) {
-            if (c.matches(o))
-                return c;
-        }
-        return null;
-    }
 
 
     @Override
@@ -63,43 +25,26 @@ public class GuavaImmutableMapFactory implements NodeFactory {
         return false;
     }
 
-    private static final String PARAM = "out";
-
-
     private Expression getCode(TypeInfo typeInfo, CodegenContext context, ObjectContext obj) {
-        Integer split = obj.getSplit();
-
         List<Expression> arguments = obj.getArguments();
         Class<?> clz = typeInfo.getType();
         Class<?> builder = typeInfo.getBuilder();
 
         // there are also longer variants, but's use builder for larger ones
-        if (arguments.size() <= 10) {
+        if (arguments.size() <= typeInfo.getOfMax()) {
             CodeBlock cb = GuavaUtil.printOf(clz, obj);
             return Expression.complex(cb);
         } else {
             String variable = context.allocateVariable(clz);
 
             context.addStatement("$T $L = $T.builder()", builder, variable, clz);
+            SplitHelper splitHelper = SplitHelper.get(context, obj.getSplit(), variable, builder);
 
-            if(split == null) {
-                for(int i=0;i<arguments.size();i+=2) {
-                    context.addStatement("$L.put($L, $L)", variable, arguments.get(i).getCode(), arguments.get(i + 1).getCode());
-                }
-            } else {
-                // FIXME: verify if argument (+ ALL CHILDREN) is only referenced here
-                int n = 0;
-                while(n < arguments.size()) {
-                    CodegenContext ctx = context.createVoidMethod("fillPartial" + clz.getSimpleName(), builder, PARAM);
-
-                    for (int i = 0; i < split && n < arguments.size(); ++i) {
-                        ctx.addStatement("$L.put($L, $L)", PARAM, arguments.get(n).getCode(), arguments.get(n + 1).getCode());
-                        n += 2;
-                    }
-                    context.addStatement("$L($L)", ctx.getMethodName(), variable);
-                    ctx.finish();
-                }
+            for (int i = 0; i < arguments.size(); i += 2) {
+                splitHelper.addStatement("$L.put($L, $L)", splitHelper.getBuilder(), arguments.get(i).getCode(), arguments.get(i + 1).getCode());
             }
+            splitHelper.finish();
+
             return Expression.complex("$L.build()", variable);
         }
     }
@@ -115,7 +60,7 @@ public class GuavaImmutableMapFactory implements NodeFactory {
         ++idx;
         return Optional.of(new NodeDefImpl(
                 typeInfo.getType(),
-                typeInfo.getType().getSimpleName(),
+                typeInfo.toString(),
                 (context, obj) -> getCode(typeInfo, context, obj),
                 members)
         );
@@ -123,12 +68,12 @@ public class GuavaImmutableMapFactory implements NodeFactory {
 
     @Override
     public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
-        TypeInfo aClass = findMapClass(object);
+        TypeInfo aClass = MAP_CLASSES.find(object);
         if(aClass != null) {
             return createIt(aClass, ((Map<?, ?>) object).entrySet());
         }
 
-        aClass = findMultimapClass(object);
+        aClass = MULTIMAP_CLASSES.find(object);
         if(aClass != null) {
             return createIt(aClass, ((Multimap<?, ?>) object).entries());
         }

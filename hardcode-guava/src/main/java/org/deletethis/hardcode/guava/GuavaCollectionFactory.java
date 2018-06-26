@@ -6,41 +6,34 @@ import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 import org.deletethis.hardcode.objects.impl.NodeDefImpl;
+import org.deletethis.hardcode.util.SplitHelper;
 
 import java.util.*;
 
 public class GuavaCollectionFactory implements NodeFactory {
-    private static final Set<Class<?>> CLASSES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            ImmutableList.class, ImmutableSet.class
-
-    )));
-
-    private Class<?> findClass(Object o) {
-        for (Class<?> c : CLASSES) {
-            if (c.isInstance(o))
-                return c;
-        }
-        return null;
-    }
+    private static final TypeInfos CLASSES = TypeInfos.of(
+            ImmutableList.class, ImmutableList.Builder.class, 12,
+            ImmutableSet.class, ImmutableSet.Builder.class, 6
+    );
 
     @Override
     public boolean enableReferenceDetection() {
         return false;
     }
 
-    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext obj) {
-        // there are also longer variants, but's use builder for larger ones
-        if (obj.getArguments().size() < 10) {
-            CodeBlock cb = GuavaUtil.printOf(clz, obj);
+    private Expression getCode(TypeInfo typeInfo, CodegenContext context, ObjectContext obj) {
+        if (obj.getArguments().size() < typeInfo.getOfMax()) {
+            CodeBlock cb = GuavaUtil.printOf(typeInfo.getType(), obj);
             return Expression.complex(cb);
         } else {
-            String variable = context.allocateVariable(clz);
+            String variable = context.allocateVariable(typeInfo.getType());
+            context.addStatement("$T $L = $T.builderWithExpectedSize($L)", typeInfo.getBuilder(), variable, typeInfo, obj.getArguments().size());
 
-            context.addStatement("$T.Builder $L = $T.builderWithExpectedSize($L)", clz, variable, clz, obj.getArguments().size());
-
-            for (Expression arg : obj) {
-                context.addStatement("$L.add($L)", variable, arg.getCode());
+            SplitHelper splitHelper = SplitHelper.get(context, obj.getSplit(), variable, typeInfo.getBuilder());
+            for (Expression arg : obj.getArguments()) {
+                splitHelper.addStatement("$L.add($L)", variable, arg.getCode());
             }
+            splitHelper.finish();
             return Expression.complex("$L.build()", variable);
         }
     }
@@ -48,9 +41,9 @@ public class GuavaCollectionFactory implements NodeFactory {
 
     @Override
     public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
-        Class<?> aClass = findClass(object);
+        TypeInfo typeInfo = CLASSES.find(object);
 
-        if (aClass == null)
+        if (typeInfo == null)
             return Optional.empty();
 
         Collection<?> coll = (Collection<?>) object;
@@ -60,7 +53,7 @@ public class GuavaCollectionFactory implements NodeFactory {
             members.add(new NodeParameter(new IndexParamteter(idx), o));
             ++idx;
         }
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj), members));
+        return Optional.of(new NodeDefImpl(typeInfo.getType(), typeInfo.toString(), (context, obj) -> getCode(typeInfo, context, obj), members));
     }
 
     @Override
