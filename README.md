@@ -39,8 +39,8 @@ public class HelloWorld {
   }
 }
 ```
-Produces the following output - a `Provider`, which provides a single `String`,
-that unsurprisingly greets the world!
+Produces the output - a `Provider` which provides a single `String`.
+
 ```java
 package com.example.helloworld;
 
@@ -60,8 +60,8 @@ public class HelloWorldSupplier implements Supplier<String> {
 ## Features
 - can split an object data into multiple functions, to work around the 64k method size limit
 - object graph support
--- handles multiple references to the single object
--- unfortunately, cycles are not supported
+  - handles multiple references to the single object
+  - unfortunately, cycles are not supported
 - can create [Grahviz](https://www.graphviz.org) representation of your object tree
 - supports most common of the collections
 - supports some of [Guava](https://github.com/google/guava) immutable types
