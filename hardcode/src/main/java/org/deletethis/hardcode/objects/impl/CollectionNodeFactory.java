@@ -53,7 +53,7 @@ public class CollectionNodeFactory implements NodeFactory {
             ++idx;
         }
 
-        return Optional.of(new NodeDefImpl(aClass, TypeUtil.simpleToString(object), (context, obj) -> getCode(aClass, context, obj), members));
+        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj), members));
     }
 
     @Override

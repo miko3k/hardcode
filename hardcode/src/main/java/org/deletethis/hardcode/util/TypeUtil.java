@@ -26,10 +26,4 @@ public class TypeUtil {
     public static <T> Class<T> wrapType(Class<T> c) {
         return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
     }
-
-    public static String simpleToString(Object obj) {
-        Class<?> clz = Objects.requireNonNull(obj).getClass();
-        return clz.getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(obj));
-    }
-
 }

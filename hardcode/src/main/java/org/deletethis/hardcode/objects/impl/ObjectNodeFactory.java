@@ -146,7 +146,7 @@ public class ObjectNodeFactory implements NodeFactory {
         return Optional.of(
                 new NodeDefImpl(
                         clz,
-                        TypeUtil.simpleToString(object),
+                        clz.getSimpleName(),
                         ((context, obj) -> getCode(clz, argNames, obj)),
                         arguments,
                         root));
