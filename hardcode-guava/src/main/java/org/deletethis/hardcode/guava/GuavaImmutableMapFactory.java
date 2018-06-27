@@ -38,7 +38,7 @@ public class GuavaImmutableMapFactory implements NodeFactory {
             String variable = context.allocateVariable(clz);
 
             context.addStatement("$T $L = $T.builder()", builder, variable, clz);
-            SplitHelper splitHelper = SplitHelper.get(context, obj.getSplit(), variable, builder);
+            SplitHelper splitHelper = SplitHelper.get(context, typeInfo.toString(), obj.getSplit(), variable, builder);
 
             for (int i = 0; i < arguments.size(); i += 2) {
                 splitHelper.addStatement("$L.put($L, $L)", splitHelper.getBuilder(), arguments.get(i).getCode(), arguments.get(i + 1).getCode());

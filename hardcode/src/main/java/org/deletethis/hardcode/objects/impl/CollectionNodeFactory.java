@@ -30,7 +30,7 @@ public class CollectionNodeFactory implements NodeFactory {
         } else {
             context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
-        SplitHelper splitHelper = SplitHelper.get(context, objectContext.getSplit(), variable, clz);
+        SplitHelper splitHelper = SplitHelper.get(context, clz.getSimpleName(), objectContext.getSplit(), variable, clz);
         for (Expression arg : objectContext.getArguments()) {
             splitHelper.addStatement("$L.add($L)", variable, arg.getCode());
         }

@@ -1,5 +1,6 @@
 package org.deletethis.hardcode.testing;
 
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.xml.bind.DatatypeConverter;
@@ -41,6 +42,7 @@ public class CachingSupplierCompiler implements SupplierCompiler {
         try {
             String name = sha(typeSpec.toString());
             File f = TempFileFactory.getInstance().createFile(name);
+            File fsrc = TempFileFactory.getInstance().createFile(name + ".java");
 
             if(f.exists()) {
                 try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))) {
@@ -64,6 +66,9 @@ public class CachingSupplierCompiler implements SupplierCompiler {
             // serialization was successful, let's write it out
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(bytes.toByteArray());
+            }
+            try (FileWriter fw = new FileWriter(fsrc)) {
+                JavaFile.builder(ActualSupplierCompiler.PACKAGE_NAME, typeSpec).build().writeTo(fw);
             }
             return () -> result;
         } catch(IOException|ClassNotFoundException e) {

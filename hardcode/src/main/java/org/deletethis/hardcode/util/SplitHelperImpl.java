@@ -12,7 +12,7 @@ class SplitHelperImpl implements SplitHelper {
     private Class<?> builderType;
     private int currentFill;
 
-    SplitHelperImpl(CodegenContext parentContext, int split, String builder, Class<?> builderType) {
+    SplitHelperImpl(CodegenContext parentContext, String nameHint, String builder, Class<?> builderType, int split) {
         this.parentContext = parentContext;
         this.split = split;
         this.builder = builder;
@@ -37,7 +37,7 @@ class SplitHelperImpl implements SplitHelper {
         }
 
         if(currentContext == null) {
-            currentContext = parentContext.createProcedure("parial" + builderType.getSimpleName(), PARAM, builderType);
+            currentContext = parentContext.createProcedure("partial" + builderType.getSimpleName(), PARAM, builderType);
             currentFill = 0;
         }
 

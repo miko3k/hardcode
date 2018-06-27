@@ -3,7 +3,7 @@ package org.deletethis.hardcode.util;
 import org.deletethis.hardcode.objects.CodegenContext;
 
 public interface SplitHelper {
-    static SplitHelper get(CodegenContext parentContext, Integer split, String builder, Class<?> builderType) {
+    static SplitHelper get(CodegenContext parentContext, String typeNameHint, Integer split, String builder, Class<?> builderType) {
         if(split == null) {
             return new SplitHelper() {
                 @Override
@@ -22,7 +22,7 @@ public interface SplitHelper {
                 }
             };
         } else {
-            return new SplitHelperImpl(parentContext, split, builder, builderType);
+            return new SplitHelperImpl(parentContext, "create" + typeNameHint, builder, builderType, split);
         }
     }
 

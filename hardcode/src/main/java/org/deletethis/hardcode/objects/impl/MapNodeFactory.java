@@ -31,7 +31,7 @@ public class MapNodeFactory implements NodeFactory {
         } else {
             context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
-        SplitHelper splitHelper = SplitHelper.get(context, obj.getSplit(), variable, clz);
+        SplitHelper splitHelper = SplitHelper.get(context, clz.getSimpleName(), obj.getSplit(), variable, clz);
 
         for (int i = 0; i < arguments.size(); i += 2) {
             splitHelper.addStatement("$L.put($L, $L)", splitHelper.getBuilder(), arguments.get(i).getCode(), arguments.get(i + 1).getCode());

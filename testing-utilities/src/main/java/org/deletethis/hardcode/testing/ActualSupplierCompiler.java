@@ -11,12 +11,13 @@ import java.util.function.Supplier;
  * implements {@link Supplier}, this class will invoke any {@code get()} without arguments that is available.
  */
 public class ActualSupplierCompiler implements SupplierCompiler {
+    public static final String PACKAGE_NAME = "generated.files";
+
     public <T> Supplier<T> get(TypeSpec typeSpec) {
         try {
-            String packageName = "generated.files";
 
             CompilerRunner compilerRunner = new CompilerRunner();
-            Class<?> clz = compilerRunner.compile(packageName, typeSpec);
+            Class<?> clz = compilerRunner.compile(PACKAGE_NAME, typeSpec);
             Method get = clz.getMethod("get");
 
             Object object = clz.newInstance();
