@@ -23,23 +23,22 @@ Following source code
 package org.deletethis.hardcode.examples;
 
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.Hardcode;
 
 public class HelloWorld {
     public static void main(String[] args) {
-    // create the hardcode object
-    Hardcode hardcode = Hardcode.defaultConfig();
+        // create the hardcode object
+        Hardcode hardcode = Hardcode.defaultConfig();
 
-    // create a class
-    TypeSpec helloType = hardcode.createClass("HelloWorldSupplier", "Hello world!\n");
+        // create a class
+        JavaFile helloFile = hardcode.createJavaFile("com.example.helloworld", "HelloWorldSupplier", "Hello world!\n");
 
-    // write class somewhere
-    System.out.println(JavaFile.builder("com.example.helloworld", helloType).build());
-  }
+        // write class somewhere
+        System.out.println(helloFile);
+    }
 }
 ```
-Produces the output - a `Provider` which provides a single `String`.
+Produces an implementation of the `Provider` which provides a single `String`.
 
 ```java
 package com.example.helloworld;

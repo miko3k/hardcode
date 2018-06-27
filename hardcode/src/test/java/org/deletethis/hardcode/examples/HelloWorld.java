@@ -1,7 +1,6 @@
 package org.deletethis.hardcode.examples;
 
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.Hardcode;
 
 public class HelloWorld {
@@ -10,9 +9,9 @@ public class HelloWorld {
         Hardcode hardcode = Hardcode.defaultConfig();
 
         // create a class
-        TypeSpec helloType = hardcode.createClass("HelloWorldSupplier", "Hello world!\n");
+        JavaFile helloFile = hardcode.createJavaFile("com.example.helloworld", "HelloWorldSupplier", "Hello world!\n");
 
         // write class somewhere
-        System.out.println(JavaFile.builder("com.example.helloworld", helloType).build());
+        System.out.println(helloFile);
     }
 }

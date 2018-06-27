@@ -1,5 +1,6 @@
 package org.deletethis.hardcode;
 
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.impl.GraphBuilder;
@@ -19,6 +20,7 @@ import org.deletethis.hardcode.objects.impl.MapNodeFactory;
  * A class to hardcode structures into a code. For input {@link Object}, it is able to generate source code do
  * build such an object as a {@link TypeSpec}.
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class Hardcode {
     private final List<NodeFactory> nodeFactoryList;
     private final HardcodeConfiguration configuration;
@@ -87,9 +89,16 @@ public class Hardcode {
         return createClassFromGraph(className, buildGraph(o));
     }
 
+    public JavaFile createJavaFile(String packageName, String className, Object o) {
+        return JavaFile.builder(packageName, createClass(className, o)).build();
+    }
+
     public TypeSpec createClassFromGraph(String className, Digraph<ObjectInfo, ParameterName> graph) {
         verifyGraph(graph);
         return new Printer(className, graph).run(configuration.generateSupplier());
+    }
 
+    public JavaFile createJavaFileFromGraph(String packageName, String className, Digraph<ObjectInfo, ParameterName> graph) {
+        return JavaFile.builder(packageName, createClassFromGraph(className, graph)).build();
     }
 }
