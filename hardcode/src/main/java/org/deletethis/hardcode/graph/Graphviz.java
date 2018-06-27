@@ -87,8 +87,13 @@ public class Graphviz<T,E> {
             out.println("graph objects {");
         }
 
+        Map<T, Integer> vertices = digraph.createMap();
+
         for (T n : digraph.getAllVertices()) {
-            out.print("  " + System.identityHashCode(n));
+            int idx = vertices.size();
+            vertices.put(n, idx);
+
+            out.print("  " + idx);
             if(attributes) {
                 String str = n.toString();
                 if(marks != null) {
@@ -108,11 +113,11 @@ public class Graphviz<T,E> {
         }
         for (T n1 : digraph.getAllVertices()) {
             for (ConnectedVertex<T, E> n2 : digraph.getSuccessorConnections(n1)) {
-                out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2.getVertex()) + " [label=" + escape(n2.getEdge().toString()) + "];");
+                out.println("  " + vertices.get(n1) + conn +  vertices.get(n2.getVertex()) + " [label=" + escape(n2.getEdge().toString()) + "];");
             }
             if(predecessors && arrows && attributes) {
                 for (T n2 : digraph.getPredecessors(n1)) {
-                    out.println("  " + System.identityHashCode(n1) + conn + System.identityHashCode(n2) + " [style=\"dotted\"];");
+                    out.println("  " + vertices.get(n1) + conn + vertices.get(n2) + " [style=\"dotted\"];");
                 }
             }
         }
