@@ -9,7 +9,7 @@ public class NodeDefImpl implements NodeDefinition {
     private final String asString;
     private final ConstructionStrategy constructionStrategy;
     private final List<NodeParameter> parameters;
-    private Set<Class<?>> fatalExceptions = new HashSet<>();
+    private Set<Class<? extends Throwable>> fatalExceptions = new HashSet<>();
     private boolean root;
 
     public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {
@@ -27,7 +27,7 @@ public class NodeDefImpl implements NodeDefinition {
         this.root = root;
     }
 
-    public void addFatalException(Class<?> exceptionClass) {
+    public void addFatalException(Class<? extends Throwable> exceptionClass) {
         fatalExceptions.add(Objects.requireNonNull(exceptionClass));
     }
 
@@ -52,7 +52,7 @@ public class NodeDefImpl implements NodeDefinition {
     }
 
     @Override
-    public Collection<Class<?>> getFatalExceptions() {
+    public Collection<Class<? extends Throwable>> getFatalExceptions() {
         return fatalExceptions;
     }
 

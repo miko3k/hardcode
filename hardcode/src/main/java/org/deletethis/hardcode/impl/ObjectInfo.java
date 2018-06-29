@@ -20,9 +20,9 @@ public class ObjectInfo {
     private boolean root;
     private Integer split;
     private final String asString;
-    private Collection<Class<?>> fatalExceptions;
+    private Collection<Class<? extends Throwable>> fatalExceptions;
 
-    public ObjectInfo(Class<?> type, ConstructionStrategy constructionStrategy, boolean root, Integer split, String asString, Collection<Class<?>> fatalExceptions) {
+    public ObjectInfo(Class<?> type, ConstructionStrategy constructionStrategy, boolean root, Integer split, String asString, Collection<Class<? extends Throwable>> fatalExceptions) {
         this.type = type;
         this.constructionStrategy = Objects.requireNonNull(constructionStrategy);
         this.root = root;
@@ -67,7 +67,7 @@ public class ObjectInfo {
         return asString;
     }
 
-    Collection<Class<?>> getFatalExceptions() {
+    Collection<Class<? extends Throwable>> getFatalExceptions() {
         return fatalExceptions;
     }
 

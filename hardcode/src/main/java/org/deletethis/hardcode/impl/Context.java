@@ -20,7 +20,7 @@ class Context implements CodegenContext {
     private final String methodName;
     private final TypeSpec.Builder clz;
     private final NumberNameAllocator methodNameAllocator;
-    private final Set<Class<?>> unhandledExceptions = new HashSet<>();
+    private final Set<Class<? extends Throwable>> unhandledExceptions = new HashSet<>();
     private final CodeBlock.Builder code = CodeBlock.builder();
 
     private static AnnotationSpec unchecked() {
@@ -104,7 +104,7 @@ class Context implements CodegenContext {
         return methodName;
     }
 
-    public void addUnhandled(Collection<Class<?>> exception) {
+    public void addUnhandled(Collection<Class<? extends Throwable>> exception) {
         unhandledExceptions.addAll(exception);
     }
 }

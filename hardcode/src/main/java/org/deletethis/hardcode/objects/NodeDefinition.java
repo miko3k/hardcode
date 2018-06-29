@@ -7,6 +7,6 @@ public interface NodeDefinition {
     boolean isRoot();
     ConstructionStrategy getConstructionStrategy();
     Collection<NodeParameter> getParameters();
-    Collection<Class<?>> getFatalExceptions();
+    Collection<Class<? extends Throwable>> getFatalExceptions();
     String toString();
 }

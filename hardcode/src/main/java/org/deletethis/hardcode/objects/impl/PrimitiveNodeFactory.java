@@ -31,7 +31,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
         return complex(clz, value, fn, null);
     }
 
-    private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn, Class<?> exc) {
+    private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn, Class<? extends Throwable> exc) {
         NodeDefImpl nodeDef = new NodeDefImpl(
                 clz,
                 String.valueOf(value),
