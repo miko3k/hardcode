@@ -3,16 +3,11 @@ package org.deletethis.hardcode.impl;
 import org.deletethis.hardcode.ConfigMismatchException;
 import org.deletethis.hardcode.HardcodeRoot;
 import org.deletethis.hardcode.HardcodeSplit;
-import org.deletethis.hardcode.objects.ObjectContext;
-import org.deletethis.hardcode.objects.CodegenContext;
-import org.deletethis.hardcode.objects.Expression;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class BuiltinAnnotations {
+class BuiltinAnnotations {
     private boolean root = false;
     private Integer split = null;
 
@@ -32,9 +27,9 @@ public class BuiltinAnnotations {
         }
     }
 
-    public void apply(ObjectInfo objectInfo) {
+    void apply(ObjectInfo objectInfo) {
         if(root) {
-            objectInfo.setRoot(true);
+            objectInfo.makeRoot();
         }
         if(split != null) {
             if(objectInfo.getSplit() != null) {

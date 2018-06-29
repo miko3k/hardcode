@@ -1,13 +1,15 @@
 package org.deletethis.hardcode.graph;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Function;
 
 class AdapterCollection<FROM,TO> extends AbstractCollection<TO> {
     private final Collection<FROM> base;
     private final Function<FROM, TO> function;
 
-    public AdapterCollection(Collection<FROM> base, Function<FROM, TO> function) {
+    AdapterCollection(Collection<FROM> base, Function<FROM, TO> function) {
         this.base = base;
         this.function = function;
     }

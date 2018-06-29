@@ -6,6 +6,10 @@ import org.deletethis.hardcode.objects.NodeDefinition;
 import org.deletethis.hardcode.objects.ObjectContext;
 import org.deletethis.hardcode.objects.ConstructionStrategy;
 
+/**
+ * Information about object. Serves as a node of the object tree. Most of the members are package, however
+ * class itself is public.
+ */
 public class ObjectInfo {
     private final Class<?> type;
     private final ConstructionStrategy constructionStrategy;
@@ -50,15 +54,15 @@ public class ObjectInfo {
         return asString;
     }
 
-    public void setRoot(boolean root) {
-        this.root = root;
+    void makeRoot() {
+        this.root = true;
     }
 
-    public Integer getSplit() {
+    Integer getSplit() {
         return split;
     }
 
-    public void setSplit(Integer split) {
+    void setSplit(Integer split) {
         this.split = split;
     }
 }

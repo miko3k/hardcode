@@ -9,19 +9,19 @@ import org.deletethis.hardcode.objects.*;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class GraphBuilder {
+class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
     private final HardcodeConfiguration configuration;
     private final Map<Object, ObjectInfo> objectMap = new IdentityHashMap<>();
     private final Digraph<ObjectInfo, ParameterName> digraph = new MapDigraph<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    private GraphBuilder(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration) {
+    GraphBuilder(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration) {
         this.nodeFactories = nodeFactories;
         this.configuration = configuration;
     }
 
-    private ObjectInfo createNode(Object object, List<Annotation> annotations) {
+    ObjectInfo createNode(Object object, List<Annotation> annotations) {
         //System.out.println("NODE: " + o);
 
         if(object == null) {
@@ -77,5 +77,13 @@ public class GraphBuilder {
             throw new IllegalStateException("something left in progress?");
         }
         return gb.digraph;
+    }
+
+    boolean isInProgressEmpty() {
+        return objectsInProgress.isEmpty();
+    }
+
+    Digraph<ObjectInfo, ParameterName> getGraph() {
+        return digraph;
     }
 }

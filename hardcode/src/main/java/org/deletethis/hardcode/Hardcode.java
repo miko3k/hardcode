@@ -3,11 +3,8 @@ package org.deletethis.hardcode;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.graph.Digraph;
-import org.deletethis.hardcode.impl.GraphBuilder;
-import org.deletethis.hardcode.impl.GraphVerifier;
-import org.deletethis.hardcode.impl.Printer;
+import org.deletethis.hardcode.impl.*;
 import org.deletethis.hardcode.objects.NodeFactory;
-import org.deletethis.hardcode.impl.ObjectInfo;
 import org.deletethis.hardcode.objects.ParameterName;
 import org.deletethis.hardcode.objects.impl.CollectionNodeFactory;
 import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
@@ -78,11 +75,11 @@ public class Hardcode {
     }
 
     public Digraph<ObjectInfo, ParameterName> buildGraph(Object root) {
-        return GraphBuilder.buildGraph(nodeFactoryList, configuration, root);
+        return HardcodeImpl.buildGraph(nodeFactoryList, configuration, root);
     }
 
     public void verifyGraph(Digraph<ObjectInfo, ParameterName> graph) {
-        new GraphVerifier(graph).verify();
+        HardcodeImpl.verify(graph);
     }
 
     public TypeSpec createClass(String className, Object o) {
@@ -95,7 +92,7 @@ public class Hardcode {
 
     public TypeSpec createClassFromGraph(String className, Digraph<ObjectInfo, ParameterName> graph) {
         verifyGraph(graph);
-        return new Printer(className, graph).run(configuration.generateSupplier());
+        return HardcodeImpl.print(className, configuration, graph);
     }
 
     public JavaFile createJavaFileFromGraph(String packageName, String className, Digraph<ObjectInfo, ParameterName> graph) {

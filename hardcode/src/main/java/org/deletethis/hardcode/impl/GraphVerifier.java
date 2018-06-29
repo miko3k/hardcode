@@ -11,7 +11,7 @@ import org.deletethis.hardcode.objects.ParameterName;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class GraphVerifier {
+class GraphVerifier {
     private final Digraph<ObjectInfo, ParameterName> digraph;
     private final Map<ObjectInfo, ObjectInfo> parents;
 

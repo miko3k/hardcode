@@ -6,7 +6,7 @@ import org.deletethis.hardcode.objects.ObjectContext;
 import java.util.Iterator;
 import java.util.List;
 
-public class ObjectContextImpl implements ObjectContext {
+class ObjectContextImpl implements ObjectContext {
     private List<Expression> arguments;
     private Integer split;
     //private boolean splitRequested;

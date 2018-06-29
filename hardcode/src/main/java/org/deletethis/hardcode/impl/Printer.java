@@ -11,7 +11,7 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class Printer {
+class Printer {
     private final Digraph<ObjectInfo, ParameterName> graph;
     private final Map<ObjectInfo, Expression> exprMap = new HashMap<>();
     private final NumberNameAllocator methodNameAllocator = new NumberNameAllocator();
@@ -115,10 +115,7 @@ public class Printer {
         TypeSpec.Builder result = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC);
 
-
-
         this.graph = graph;
         this.clz = result;
-
     }
 }
