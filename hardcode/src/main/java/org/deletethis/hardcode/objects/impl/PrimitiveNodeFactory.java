@@ -21,10 +21,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
     }
 
     private <T> Optional<NodeDefinition> simple(Class<?> clz, T value, Function<T, CodeBlock> fn) {
-        return Optional.of(new NodeDefImpl(
-                clz,
-                String.valueOf(value),
-                (context, obj) -> Expression.simple(fn.apply(value))));
+        return Optional.of(NodeDefImpl.value(clz, String.valueOf(value), (context, obj) -> Expression.simple(fn.apply(value))));
     }
 
     private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn) {
@@ -32,10 +29,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
     }
 
     private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn, Class<? extends Throwable> exc) {
-        NodeDefImpl nodeDef = new NodeDefImpl(
-                clz,
-                String.valueOf(value),
-                (context, obj) -> Expression.complex(fn.apply(value)));
+        NodeDefImpl nodeDef = NodeDefImpl.value(clz, String.valueOf(value), (context, obj) -> Expression.complex(fn.apply(value)));
         if(exc != null)
             nodeDef.addFatalException(exc);
         return Optional.of(nodeDef);

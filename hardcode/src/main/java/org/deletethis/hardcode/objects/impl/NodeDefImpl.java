@@ -2,25 +2,64 @@ package org.deletethis.hardcode.objects.impl;
 
 import org.deletethis.hardcode.objects.*;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class NodeDefImpl implements NodeDefinition {
+    private static class NodeParameterImpl implements NodeParameter {
+        private final ParameterName parameterName;
+        private final Object value;
+        private final List<Annotation> annotations;
+
+        private NodeParameterImpl(ParameterName parameterName, Object value, List<Annotation> annotations) {
+            this.parameterName = parameterName;
+            this.value = value;
+            this.annotations = annotations;
+        }
+
+        public ParameterName getParameterName() {
+            return parameterName;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public List<Annotation> getAnnotations() {
+            return annotations;
+        }
+    }
+
+    private final boolean valueBased;
     private final Class<?> type;
     private final String asString;
     private final ConstructionStrategy constructionStrategy;
-    private final List<NodeParameter> parameters;
-    private Set<Class<? extends Throwable>> fatalExceptions = new HashSet<>();
+    private final List<NodeParameter> parameters = new ArrayList<>();
+    private final Set<Class<? extends Throwable>> fatalExceptions = new HashSet<>();
 
-    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {
+    private NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, boolean valueBased) {
         this.type = type;
         this.asString = asString;
         this.constructionStrategy = constructionStrategy;
-        this.parameters = parameters;
+        this.valueBased = valueBased;
     }
 
-    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
-        this(type, asString, constructionStrategy, Collections.emptyList());
+    public static NodeDefImpl value(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
+        return new NodeDefImpl(type, asString, constructionStrategy, true);
     }
+
+    public static NodeDefImpl ref(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
+        return new NodeDefImpl(type, asString, constructionStrategy, false);
+    }
+
+    public void addParameter(ParameterName parameterName, Object value, List<Annotation> annotations) {
+        parameters.add(new NodeParameterImpl(parameterName, value, annotations));
+    }
+
+    public void addParameter(ParameterName parameterName, Object value) {
+        parameters.add(new NodeParameterImpl(parameterName, value, Collections.emptyList()));
+    }
+
 
     public void addFatalException(Class<? extends Throwable> exceptionClass) {
         fatalExceptions.add(Objects.requireNonNull(exceptionClass));
@@ -49,5 +88,10 @@ public class NodeDefImpl implements NodeDefinition {
     @Override
     public String toString() {
         return asString;
+    }
+
+    @Override
+    public boolean isValueBased() {
+        return valueBased;
     }
 }

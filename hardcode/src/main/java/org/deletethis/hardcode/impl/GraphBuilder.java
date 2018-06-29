@@ -61,7 +61,7 @@ class GraphBuilder {
                         digraph.createEdge(node, otherNode, param.getParameterName());
                     }
 
-                    if(factory.enableReferenceDetection()) {
+                    if(!nodeDef.isValueBased()) {
                         objectMap.put(object, node);
                     }
                     return node;

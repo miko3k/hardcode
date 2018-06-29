@@ -46,14 +46,15 @@ public class GuavaCollectionFactory implements NodeFactory {
         if (typeInfo == null)
             return Optional.empty();
 
+        NodeDefImpl nodeDef = NodeDefImpl.value(typeInfo.getType(), typeInfo.toString(), (context, obj) -> getCode(typeInfo, context, obj));
+
         Collection<?> coll = (Collection<?>) object;
         int idx = 0;
-        List<NodeParameter> members = new ArrayList<>(coll.size());
         for(Object o: coll) {
-            members.add(new NodeParameter(new IndexParamteter(idx), o));
+            nodeDef.addParameter(new IndexParamteter(idx), o);
             ++idx;
         }
-        return Optional.of(new NodeDefImpl(typeInfo.getType(), typeInfo.toString(), (context, obj) -> getCode(typeInfo, context, obj), members));
+        return Optional.of(nodeDef);
     }
 
     @Override

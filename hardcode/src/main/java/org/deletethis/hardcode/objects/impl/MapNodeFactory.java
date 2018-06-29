@@ -49,15 +49,16 @@ public class MapNodeFactory implements NodeFactory {
             return Optional.empty();
 
         Map<?,?> coll = (Map<?,?>)object;
-        List<NodeParameter> members = new ArrayList<>(coll.size()*2);
+
+        NodeDefImpl nodeDef = NodeDefImpl.ref(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj));
 
         int idx = 0;
         for(Map.Entry<?,?> o: coll.entrySet()) {
-            members.add(new NodeParameter(new MapParameter(true, idx), o.getKey()));
-            members.add(new NodeParameter(new MapParameter(false, idx), o.getValue()));
+            nodeDef.addParameter(new MapParameter(true, idx), o.getKey());
+            nodeDef.addParameter(new MapParameter(false, idx), o.getValue());
             ++idx;
         }
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj), members));
+        return Optional.of(nodeDef);
     }
 
     @Override

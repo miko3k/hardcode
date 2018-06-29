@@ -85,12 +85,11 @@ public class ObjectNodeFactory implements NodeFactory {
         if(clz.isSynthetic())
             return Optional.empty();
 
-        Set<Class<?>> rootClasses = configuration.getHardcodeRoots();
-
         Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
         ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
-        List<NodeParameter> arguments = new ArrayList<>();
         List<String> argNames = new ArrayList<>();
+
+        NodeDefImpl nodeDef = NodeDefImpl.ref(clz, clz.getSimpleName(), ((context, obj) -> getCode(clz, argNames, obj)));
 
         for(ParameterWrapper p: cons.getParameters()) {
             String name = p.getName();
@@ -111,13 +110,8 @@ public class ObjectNodeFactory implements NodeFactory {
                     throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign " + valueClass.getName() + " to " + type.getName());
                 }
             }
-            arguments.add(new NodeParameter(new NamedParameter(name), value, member.getAnnotations()));
+            nodeDef.addParameter(new NamedParameter(name), value, member.getAnnotations());
         }
-        NodeDefImpl nodeDef = new NodeDefImpl(
-                clz,
-                clz.getSimpleName(),
-                ((context, obj) -> getCode(clz, argNames, obj)),
-                arguments);
 
         return Optional.of(nodeDef);
     }

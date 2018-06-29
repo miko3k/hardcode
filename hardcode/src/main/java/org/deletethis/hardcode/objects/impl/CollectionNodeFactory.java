@@ -45,15 +45,17 @@ public class CollectionNodeFactory implements NodeFactory {
         if(!CLASSES_WITH_CAPACITY.contains(aClass) && !CLASSES_WITHOUT_CAPACITY.contains(aClass))
             return Optional.empty();
 
+        NodeDefImpl def = NodeDefImpl.ref(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj));
+
         Collection<?> coll = (Collection<?>)object;
         List<NodeParameter> members = new ArrayList<>(coll.size());
         int idx = 0;
         for(Object obj: coll) {
-            members.add(new NodeParameter(new IndexParamteter(idx), obj));
+            def.addParameter(new IndexParamteter(idx), obj);
             ++idx;
         }
 
-        return Optional.of(new NodeDefImpl(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj), members));
+        return Optional.of(def);
     }
 
     @Override

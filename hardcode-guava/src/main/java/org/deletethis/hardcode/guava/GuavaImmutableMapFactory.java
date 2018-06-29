@@ -51,19 +51,18 @@ public class GuavaImmutableMapFactory implements NodeFactory {
 
     private Optional<NodeDefinition> createIt(TypeInfo typeInfo, Iterable<? extends Map.Entry<?,?>> entryIterable) {
 
-        List<NodeParameter> members = new ArrayList<>();
-        int idx = 0;
-        for (Map.Entry<?, ?> e : entryIterable) {
-            members.add(new NodeParameter(new MapParameter(true, idx), e.getKey()));
-            members.add(new NodeParameter(new MapParameter(false, idx), e.getValue()));
-        }
-        ++idx;
-        return Optional.of(new NodeDefImpl(
+        NodeDefImpl nodeDef = NodeDefImpl.value(
                 typeInfo.getType(),
                 typeInfo.toString(),
-                (context, obj) -> getCode(typeInfo, context, obj),
-                members)
-        );
+                (context, obj) -> getCode(typeInfo, context, obj));
+
+        int idx = 0;
+        for (Map.Entry<?, ?> e : entryIterable) {
+            nodeDef.addParameter(new MapParameter(true, idx), e.getKey());
+            nodeDef.addParameter(new MapParameter(false, idx), e.getValue());
+        }
+        ++idx;
+        return Optional.of(nodeDef);
     }
 
     @Override
