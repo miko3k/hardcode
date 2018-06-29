@@ -2,10 +2,10 @@ package org.deletethis.hardcode.guava;
 
 import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.ObjectContext;
+import org.deletethis.hardcode.objects.CodegenParameters;
 
 class GuavaUtil {
-    static CodeBlock printOf(Class<?> what, ObjectContext obj) {
+    static CodeBlock printOf(Class<?> what, CodegenParameters obj) {
         CodeBlock.Builder cb = CodeBlock.builder();
         cb.add("$T.of(", what);
         boolean first = true;

@@ -3,7 +3,6 @@ package org.deletethis.hardcode.objects.impl;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 import org.deletethis.hardcode.util.SplitHelper;
-import org.deletethis.hardcode.util.TypeUtil;
 
 import java.util.*;
 
@@ -18,7 +17,7 @@ public class CollectionNodeFactory implements NodeFactory {
     )));
 
 
-    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext objectContext) {
+    private Expression getCode(Class<?> clz, CodegenContext context, CodegenParameters objectContext) {
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
             context.addStatement("$T $L = new $T($L)", clz, variable, clz, objectContext.getArguments().size());

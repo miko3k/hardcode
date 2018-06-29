@@ -33,22 +33,22 @@ public class NodeDefImpl implements NodeDefinition {
     private final boolean valueBased;
     private final Class<?> type;
     private final String asString;
-    private final ConstructionStrategy constructionStrategy;
+    private final CodeGenerator constructionStrategy;
     private final List<NodeParameter> parameters = new ArrayList<>();
     private final Set<Class<? extends Throwable>> fatalExceptions = new HashSet<>();
 
-    private NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, boolean valueBased) {
+    private NodeDefImpl(Class<?> type, String asString, CodeGenerator constructionStrategy, boolean valueBased) {
         this.type = type;
         this.asString = asString;
         this.constructionStrategy = constructionStrategy;
         this.valueBased = valueBased;
     }
 
-    public static NodeDefImpl value(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
+    public static NodeDefImpl value(Class<?> type, String asString, CodeGenerator constructionStrategy) {
         return new NodeDefImpl(type, asString, constructionStrategy, true);
     }
 
-    public static NodeDefImpl ref(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
+    public static NodeDefImpl ref(Class<?> type, String asString, CodeGenerator constructionStrategy) {
         return new NodeDefImpl(type, asString, constructionStrategy, false);
     }
 
@@ -71,7 +71,7 @@ public class NodeDefImpl implements NodeDefinition {
     }
 
     @Override
-    public ConstructionStrategy getConstructionStrategy() {
+    public CodeGenerator getConstructionStrategy() {
         return constructionStrategy;
     }
 

@@ -16,7 +16,7 @@ public class MapNodeFactory implements NodeFactory {
     );
 
 
-    private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext obj) {
+    private Expression getCode(Class<?> clz, CodegenContext context, CodegenParameters obj) {
         List<Expression> arguments = obj.getArguments();
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {

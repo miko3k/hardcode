@@ -1,17 +1,16 @@
 package org.deletethis.hardcode.impl;
 
 import org.deletethis.hardcode.objects.Expression;
-import org.deletethis.hardcode.objects.ObjectContext;
+import org.deletethis.hardcode.objects.CodegenParameters;
 
-import java.util.Iterator;
 import java.util.List;
 
-class ObjectContextImpl implements ObjectContext {
+class CodegenParametersImpl implements CodegenParameters {
     private List<Expression> arguments;
     private Integer split;
     //private boolean splitRequested;
 
-    public ObjectContextImpl(List<Expression> arguments, Integer split) {
+    public CodegenParametersImpl(List<Expression> arguments, Integer split) {
         this.arguments = arguments;
         this.split = split;
     }

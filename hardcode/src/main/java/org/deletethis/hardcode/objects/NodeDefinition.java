@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface NodeDefinition {
     Class<?> getType();
-    ConstructionStrategy getConstructionStrategy();
+    CodeGenerator getConstructionStrategy();
     Collection<NodeParameter> getParameters();
     Collection<Class<? extends Throwable>> getFatalExceptions();
 

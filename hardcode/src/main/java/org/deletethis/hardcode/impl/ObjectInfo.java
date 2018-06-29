@@ -3,8 +3,8 @@ package org.deletethis.hardcode.impl;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.NodeDefinition;
-import org.deletethis.hardcode.objects.ObjectContext;
-import org.deletethis.hardcode.objects.ConstructionStrategy;
+import org.deletethis.hardcode.objects.CodegenParameters;
+import org.deletethis.hardcode.objects.CodeGenerator;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,13 +16,13 @@ import java.util.Objects;
  */
 public class ObjectInfo {
     private final Class<?> type;
-    private final ConstructionStrategy constructionStrategy;
+    private final CodeGenerator constructionStrategy;
     private boolean root;
     private Integer split;
     private final String asString;
     private Collection<Class<? extends Throwable>> fatalExceptions;
 
-    public ObjectInfo(Class<?> type, ConstructionStrategy constructionStrategy, boolean root, Integer split, String asString, Collection<Class<? extends Throwable>> fatalExceptions) {
+    public ObjectInfo(Class<?> type, CodeGenerator constructionStrategy, boolean root, Integer split, String asString, Collection<Class<? extends Throwable>> fatalExceptions) {
         this.type = type;
         this.constructionStrategy = Objects.requireNonNull(constructionStrategy);
         this.root = root;
@@ -55,8 +55,8 @@ public class ObjectInfo {
     Class<?> getType() {
         return type;
     }
-    Expression getCode(CodegenContext context, ObjectContext obj) {
-        return constructionStrategy.getCode(context, obj);
+    Expression getCode(CodegenContext context, CodegenParameters parameters) {
+        return constructionStrategy.getCode(context, parameters);
     }
     boolean isRoot() {
         return root;

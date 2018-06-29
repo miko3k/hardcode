@@ -26,9 +26,9 @@ class Printer {
             args.add(argument);
         }
         context.addUnhandled(n.getFatalExceptions());
-        ObjectContextImpl objectContext = new ObjectContextImpl(args, n.getSplit());
-        Expression code = n.getCode(context, objectContext);
-        objectContext.verify();
+        CodegenParametersImpl params = new CodegenParametersImpl(args, n.getSplit());
+        Expression code = n.getCode(context, params);
+        params.verify();
         return code;
     }
 
