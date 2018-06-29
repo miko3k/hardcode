@@ -10,8 +10,14 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import sun.tools.tree.DoubleExpression;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -109,5 +115,26 @@ public class DrawGraphTests {
 
         Map<String, Object> run = run(hc2, map);
         Assert.assertEquals(map, run);
+    }
+
+    @Test
+    public void primitives() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI("http://example.com");
+        URL url = new URL("http://example.com");
+        Date date = new Date(123456789);
+
+        Assert.assertEquals(Integer.valueOf(5), run(5));
+        Assert.assertEquals(Long.valueOf(5L), run(5L));
+        Assert.assertEquals(Float.valueOf(5f), run(5f));
+        Assert.assertEquals(Byte.valueOf((byte)5), run((byte)5));
+        Assert.assertEquals(Boolean.TRUE, run(Boolean.TRUE));
+        Assert.assertEquals(Double.valueOf(5.0), run(5.0));
+        Assert.assertEquals(Character.valueOf('c'), run('c'));
+        Assert.assertEquals(Short.valueOf((short)5), run((short)5));
+        Assert.assertEquals(uri, run(uri));
+        Assert.assertEquals(url, run(url));
+        Assert.assertEquals(date, run(date));
+
+
     }
 }

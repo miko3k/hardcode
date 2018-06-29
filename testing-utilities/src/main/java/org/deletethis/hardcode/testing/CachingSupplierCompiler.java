@@ -55,6 +55,10 @@ public class CachingSupplierCompiler implements SupplierCompiler {
                     ex.printStackTrace();
                 }
             }
+            // let's write out source code - can be useful even if actual compilation fails
+            try (FileWriter fw = new FileWriter(fsrc)) {
+                JavaFile.builder(ActualSupplierCompiler.PACKAGE_NAME, typeSpec).build().writeTo(fw);
+            }
 
             Supplier<T> supp = other.get(typeSpec);
             T result = supp.get();
@@ -66,9 +70,6 @@ public class CachingSupplierCompiler implements SupplierCompiler {
             // serialization was successful, let's write it out
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(bytes.toByteArray());
-            }
-            try (FileWriter fw = new FileWriter(fsrc)) {
-                JavaFile.builder(ActualSupplierCompiler.PACKAGE_NAME, typeSpec).build().writeTo(fw);
             }
             return () -> result;
         } catch(IOException|ClassNotFoundException e) {

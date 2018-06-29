@@ -56,6 +56,30 @@ public class HelloWorldSupplier implements Supplier<String> {
   }
 }
 ```
+
+## Compatibility
+
+This library requires Java 8 to generate code. Generated code can be 
+[configured](https://github.com/miko3k/hardcode/blob/master/hardcode/src/main/java/org/deletethis/hardcode/HardcodeConfiguration.java)
+ to support Java as low as 1.5.
+ 
+Supported types:
+* `java.lang.String` 
+* primitive types `int`, `float`, `long`, `char`, `double`, `float`, `short`, `byte`
+* many collection 
+* few other useful types - `URI`, `URL` and `Date`
+
+### POJOs
+ 
+User defined POJOs are supported, however they must follow some conventions:
+* source must be compiled with `-parameters`
+* all arguments constructor must be present
+* getter are not used, we read fields by default
+
+*TODO: support getter/setters as well*
+ 
+ 
+
 ## Features
 - can split an object data into multiple functions, to work around the 64k method size limit
 - object graph support

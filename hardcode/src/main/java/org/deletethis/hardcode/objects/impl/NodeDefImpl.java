@@ -2,30 +2,36 @@ package org.deletethis.hardcode.objects.impl;
 
 import org.deletethis.hardcode.objects.*;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class NodeDefImpl implements NodeDefinition {
     private final Class<?> type;
     private final String asString;
     private final ConstructionStrategy constructionStrategy;
     private final List<NodeParameter> parameters;
-    private final boolean root;
+    private List<Class<?>> fatalExceptions;
+    private boolean root;
 
-    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters, boolean root) {
+    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {
         this.type = type;
         this.asString = asString;
         this.constructionStrategy = constructionStrategy;
         this.parameters = parameters;
-        this.root = root;
-    }
-
-    public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {
-        this(type, asString, constructionStrategy, parameters, false);
     }
 
     public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy) {
         this(type, asString, constructionStrategy, Collections.emptyList());
+    }
+
+    public void setRoot(boolean root) {
+        this.root = root;
+    }
+
+    public void addFatalException(Class<?> exceptionClass) {
+        fatalExceptions.add(Objects.requireNonNull(exceptionClass));
     }
 
     @Override
@@ -46,6 +52,11 @@ public class NodeDefImpl implements NodeDefinition {
     @Override
     public List<NodeParameter> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public Collection<Class<?>> getFatalExceptions() {
+        return fatalExceptions;
     }
 
     @Override

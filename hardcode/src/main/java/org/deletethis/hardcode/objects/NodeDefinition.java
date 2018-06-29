@@ -1,11 +1,12 @@
 package org.deletethis.hardcode.objects;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface NodeDefinition {
     Class<?> getType();
     boolean isRoot();
     ConstructionStrategy getConstructionStrategy();
-    List<NodeParameter> getParameters();
+    Collection<NodeParameter> getParameters();
+    Collection<Class<?>> getFatalExceptions();
     String toString();
 }
