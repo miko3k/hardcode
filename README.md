@@ -64,10 +64,11 @@ This library requires Java 8 to generate code. Generated code can be
  to support Java as low as 1.5.
  
 Supported types:
-* `java.lang.String` 
+* `java.lang.String`, `enum`  
 * primitive types `int`, `float`, `long`, `char`, `double`, `float`, `short`, `byte`
 * many collection 
 * few other useful types - `URI`, `URL` and `Date`
+* POJOs, see below
 
 ### POJOs
  
@@ -78,7 +79,16 @@ User defined POJOs are supported, however they must follow some conventions:
 
 *TODO: support getter/setters as well*
  
- 
+## Project structure
+
+Everything has maven group id of `org.deletethis.hardcode`.
+
+There are following artifacts:
+
+* `hardcode-annotations` - very simple library with essential annotations - to be used as runtime dependency
+* `hardcode` - main library, should not be used during runtime
+* `hardcode-guava` - support for several [Guava][1] types
+* `testing-utilities` - not very interesting to public, makes writing unit tests easier
 
 ## Features
 - can split an object data into multiple functions, to work around the 64k method size limit
@@ -87,14 +97,13 @@ User defined POJOs are supported, however they must follow some conventions:
   - unfortunately, cycles are not supported
 - can create [Grahviz](https://www.graphviz.org) representation of your object tree
 - supports most common of the collections
-- supports some of [Guava](https://github.com/google/guava) immutable types
+- supports some of [Guava][1] immutable types
 - support for custom serializers, either via API or `java.util.ServiceLoader`
 - `Provider` is optional, in order to support Java 7 - or  Android up to API level 23
 
 
 ## Todo
 - support for more more types
-  - guava types
   - frequently used JDK types, such as `Date` or `URL`
   - support more Guava types
 - rewrite `@HardcodeSplit` - especially error checking
@@ -106,3 +115,5 @@ User defined POJOs are supported, however they must follow some conventions:
 - better test coverage
 - javadoc for public APIs
 
+
+[1]: https://github.com/google/guava "Guava"

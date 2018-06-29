@@ -1,13 +1,17 @@
 package org.deletethis.hardcode.impl;
 
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 
 import javax.lang.model.element.Modifier;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 class Context implements CodegenContext {
     private final ObjectInfo currentRoot;
@@ -16,6 +20,8 @@ class Context implements CodegenContext {
     private final String methodName;
     private final TypeSpec.Builder clz;
     private final NumberNameAllocator methodNameAllocator;
+    private final Set<Class<?>> unhandledExceptions = new HashSet<>();
+    private final CodeBlock.Builder code = CodeBlock.builder();
 
     private static AnnotationSpec unchecked() {
         AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
@@ -38,18 +44,38 @@ class Context implements CodegenContext {
 
     @Override
     public void addStatement(String format, Object... args) {
-        methodBuilder.addStatement(format, args);
+        code.addStatement(format, args);
     }
 
-    @Override
-    public void finish() {
+    void finish(Expression expression) {
+        String exceptionVariable = allocateVariable(Exception.class);
+
+        if(expression != null) {
+            code.addStatement("return $L", expression.getCode());
+        }
+
+        if(!unhandledExceptions.isEmpty()) {
+            methodBuilder.beginControlFlow("try");
+        }
+
+        methodBuilder.addCode(code.build());
+
+        if(!unhandledExceptions.isEmpty()) {
+            // we are not using multi catch here - it would be more difficult and would make code require java 1.7
+            for(Class<?> c: unhandledExceptions) {
+                methodBuilder.nextControlFlow("catch($T $L)", c, exceptionVariable);
+                methodBuilder.addStatement("throw new $T($L)", IllegalStateException.class, exceptionVariable);
+            }
+            methodBuilder.endControlFlow();
+        }
+
         clz.addMethod(methodBuilder.build());
     }
 
 
-    void finish(Expression expression) {
-        methodBuilder.addStatement("return $L", expression.getCode());
-        finish();
+    @Override
+    public void finish() {
+        finish(null);
     }
 
 
@@ -76,5 +102,9 @@ class Context implements CodegenContext {
 
     public String getMethodName() {
         return methodName;
+    }
+
+    public void addUnhandled(Collection<Class<?>> exception) {
+        unhandledExceptions.addAll(exception);
     }
 }

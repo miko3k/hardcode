@@ -6,6 +6,10 @@ import org.deletethis.hardcode.objects.NodeDefinition;
 import org.deletethis.hardcode.objects.ObjectContext;
 import org.deletethis.hardcode.objects.ConstructionStrategy;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+
 /**
  * Information about object. Serves as a node of the object tree. Most of the members are package, however
  * class itself is public.
@@ -16,13 +20,15 @@ public class ObjectInfo {
     private boolean root;
     private Integer split;
     private final String asString;
+    private Collection<Class<?>> fatalExceptions;
 
-    private ObjectInfo(Class<?> type, ConstructionStrategy constructionStrategy, boolean root, Integer split, String asString) {
+    public ObjectInfo(Class<?> type, ConstructionStrategy constructionStrategy, boolean root, Integer split, String asString, Collection<Class<?>> fatalExceptions) {
         this.type = type;
-        this.constructionStrategy = constructionStrategy;
+        this.constructionStrategy = Objects.requireNonNull(constructionStrategy);
         this.root = root;
         this.split = split;
-        this.asString = asString;
+        this.asString = Objects.requireNonNull(asString);
+        this.fatalExceptions = (fatalExceptions == null) ? Collections.emptyList() : fatalExceptions;
     }
 
     static ObjectInfo ofNodeDefinion(NodeDefinition def) {
@@ -31,12 +37,19 @@ public class ObjectInfo {
                 def.getConstructionStrategy(),
                 def.isRoot(),
                 null,
-                def.toString()
+                def.toString(),
+                def.getFatalExceptions()
         );
     }
 
     static ObjectInfo ofNull() {
-        return new ObjectInfo(null, (a,b) -> Expression.simple("null"), false, null, "null");
+        return new ObjectInfo(
+                null,
+                (a,b) -> Expression.simple("null"),
+                false,
+                null,
+                "null",
+                null);
     }
 
     Class<?> getType() {
@@ -52,6 +65,10 @@ public class ObjectInfo {
     @Override
     public String toString() {
         return asString;
+    }
+
+    Collection<Class<?>> getFatalExceptions() {
+        return fatalExceptions;
     }
 
     void makeRoot() {

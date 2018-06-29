@@ -9,6 +9,7 @@ public class DefaultConfiguration implements HardcodeConfiguration {
     private final Set<Class<?>> hardcodeRoots = new HashSet<>();
     private final List<NodeFactory> addtionalFactories = new ArrayList<>();
     private boolean generateSupplier = true;
+    private boolean generateMultipleCatch = true;
     private final Map<Class<?>, Object> map = new HashMap<>();
 
     @Override
@@ -65,5 +66,4 @@ public class DefaultConfiguration implements HardcodeConfiguration {
     public <T> T getAdditionalConfiguration(Class<T> clz) {
         return (T) map.get(clz);
     }
-
 }

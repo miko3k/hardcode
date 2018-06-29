@@ -2,17 +2,14 @@ package org.deletethis.hardcode.objects.impl;
 
 import org.deletethis.hardcode.objects.*;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class NodeDefImpl implements NodeDefinition {
     private final Class<?> type;
     private final String asString;
     private final ConstructionStrategy constructionStrategy;
     private final List<NodeParameter> parameters;
-    private List<Class<?>> fatalExceptions;
+    private Set<Class<?>> fatalExceptions = new HashSet<>();
     private boolean root;
 
     public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {

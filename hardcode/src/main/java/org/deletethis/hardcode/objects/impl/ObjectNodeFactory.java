@@ -143,13 +143,14 @@ public class ObjectNodeFactory implements NodeFactory {
             }
             arguments.add(new NodeParameter(new NamedParameter(name), value, member.getAnnotations()));
         }
-        return Optional.of(
-                new NodeDefImpl(
-                        clz,
-                        clz.getSimpleName(),
-                        ((context, obj) -> getCode(clz, argNames, obj)),
-                        arguments,
-                        root));
+        NodeDefImpl nodeDef = new NodeDefImpl(
+                clz,
+                clz.getSimpleName(),
+                ((context, obj) -> getCode(clz, argNames, obj)),
+                arguments);
+
+        nodeDef.setRoot(root);
+        return Optional.of(nodeDef);
     }
 
     @Override

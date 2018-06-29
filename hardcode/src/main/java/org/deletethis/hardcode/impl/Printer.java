@@ -25,6 +25,7 @@ class Printer {
             Expression argument = print(context, a);
             args.add(argument);
         }
+        context.addUnhandled(n.getFatalExceptions());
         ObjectContextImpl objectContext = new ObjectContextImpl(args, n.getSplit());
         Expression code = n.getCode(context, objectContext);
         objectContext.verify();

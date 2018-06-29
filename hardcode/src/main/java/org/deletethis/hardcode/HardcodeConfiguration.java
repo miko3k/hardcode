@@ -13,9 +13,9 @@ import java.util.Set;
  */
 public interface HardcodeConfiguration {
     /**
-     * <p>Should generated code implement {@link java.util.function.Supplier}.
+     * <p>Implements {@link java.util.function.Supplier}.
      *
-     * <p>Setting this to false should make the code 1.5 compatible, otherwise 1.8 will be required.
+     * <p>Setting this to true makes code require Java 1.8 to run.
      *
      * @return {@code true} if {@link java.util.function.Supplier} should be implemented, {@code false} otherwise
      */

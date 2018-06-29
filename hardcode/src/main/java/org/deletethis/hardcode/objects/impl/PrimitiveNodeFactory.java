@@ -6,7 +6,9 @@ import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 
 import java.io.ByteArrayOutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
@@ -26,10 +28,17 @@ public class PrimitiveNodeFactory implements NodeFactory {
     }
 
     private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn) {
-        return Optional.of(new NodeDefImpl(
+        return complex(clz, value, fn, null);
+    }
+
+    private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn, Class<?> exc) {
+        NodeDefImpl nodeDef = new NodeDefImpl(
                 clz,
                 String.valueOf(value),
-                (context, obj) -> Expression.complex(fn.apply(value))));
+                (context, obj) -> Expression.complex(fn.apply(value)));
+        if(exc != null)
+            nodeDef.addFatalException(exc);
+        return Optional.of(nodeDef);
     }
 
     
@@ -84,10 +93,10 @@ public class PrimitiveNodeFactory implements NodeFactory {
             return simple(clz, object, (val)->CodeBlock.of("$T.$L", clz, val));
         }
         if(object.getClass().equals(URI.class)) {
-            return complex(URI.class, object, (val)->CodeBlock.of("new $T($S)", URI.class, object));
+            return complex(URI.class, object, (val) -> CodeBlock.of("new $T($S)", URI.class, object), URISyntaxException.class);
         }
         if(object.getClass().equals(URL.class)) {
-            return complex(URI.class, object, (val)->CodeBlock.of("new $T($S)", URL.class, object));
+            return complex(URL.class, object, (val)->CodeBlock.of("new $T($S)", URL.class, object), MalformedURLException.class);
         }
         if(object.getClass().equals(Date.class)) {
             return complex(Date.class, object, (val)->CodeBlock.of("new $T($L)", Date.class, ((Date)object).getTime()));
