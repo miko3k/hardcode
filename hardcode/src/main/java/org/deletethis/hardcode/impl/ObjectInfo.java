@@ -35,7 +35,7 @@ public class ObjectInfo {
         return new ObjectInfo(
                 def.getType(),
                 def.getConstructionStrategy(),
-                def.isRoot(),
+                false,
                 null,
                 def.toString(),
                 def.getFatalExceptions()

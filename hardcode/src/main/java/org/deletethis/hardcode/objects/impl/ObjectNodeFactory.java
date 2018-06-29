@@ -77,34 +77,6 @@ public class ObjectNodeFactory implements NodeFactory {
         }
     }
 
-    private boolean isRoot(Set<Class<?>> rootClasses, Set<Class<?>> alreadyChecked, Class<?> clz) {
-        if(alreadyChecked.contains(clz)) {
-            throw new IllegalArgumentException();
-        }
-        alreadyChecked.add(clz);
-        if(clz.isAnnotationPresent(HardcodeRoot.class)) {
-            return true;
-        }
-        if(rootClasses != null && rootClasses.contains(clz)) {
-            return true;
-        }
-        Class<?> sup = clz.getSuperclass();
-        if(sup != null && !alreadyChecked.contains(sup)) {
-            if(isRoot(rootClasses, alreadyChecked, sup)) {
-                return true;
-            }
-        }
-        Class<?>[] ifaces = clz.getInterfaces();
-        for(Class<?> iface: ifaces) {
-            if(!alreadyChecked.contains(iface)) {
-                if (isRoot(rootClasses, alreadyChecked, iface)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     @Override
     public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         Objects.requireNonNull(object);
@@ -114,8 +86,6 @@ public class ObjectNodeFactory implements NodeFactory {
             return Optional.empty();
 
         Set<Class<?>> rootClasses = configuration.getHardcodeRoots();
-
-        boolean root = isRoot(rootClasses, new HashSet<>(), clz);
 
         Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
         ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
@@ -149,7 +119,6 @@ public class ObjectNodeFactory implements NodeFactory {
                 ((context, obj) -> getCode(clz, argNames, obj)),
                 arguments);
 
-        nodeDef.setRoot(root);
         return Optional.of(nodeDef);
     }
 

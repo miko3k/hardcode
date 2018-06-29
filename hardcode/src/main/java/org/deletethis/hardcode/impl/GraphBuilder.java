@@ -22,8 +22,6 @@ class GraphBuilder {
     }
 
     ObjectInfo createNode(Object object, List<Annotation> annotations) {
-        //System.out.println("NODE: " + o);
-
         if(object == null) {
             ObjectInfo nullObject = ObjectInfo.ofNull();
             digraph.addVertex(nullObject);
@@ -50,6 +48,12 @@ class GraphBuilder {
 
                     ObjectInfo node = ObjectInfo.ofNodeDefinion(nodeDef);
                     ba.apply(node);
+                    if(!node.isRoot()) {
+                        if(GraphBuilderUtil.isRoot(configuration.getHardcodeRoots(), node.getType())) {
+                            node.makeRoot();
+                        }
+                    }
+
                     digraph.addVertex(node);
 
                     for(NodeParameter param: nodeDef.getParameters()) {

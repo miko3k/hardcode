@@ -10,7 +10,6 @@ public class NodeDefImpl implements NodeDefinition {
     private final ConstructionStrategy constructionStrategy;
     private final List<NodeParameter> parameters;
     private Set<Class<? extends Throwable>> fatalExceptions = new HashSet<>();
-    private boolean root;
 
     public NodeDefImpl(Class<?> type, String asString, ConstructionStrategy constructionStrategy, List<NodeParameter> parameters) {
         this.type = type;
@@ -23,10 +22,6 @@ public class NodeDefImpl implements NodeDefinition {
         this(type, asString, constructionStrategy, Collections.emptyList());
     }
 
-    public void setRoot(boolean root) {
-        this.root = root;
-    }
-
     public void addFatalException(Class<? extends Throwable> exceptionClass) {
         fatalExceptions.add(Objects.requireNonNull(exceptionClass));
     }
@@ -34,11 +29,6 @@ public class NodeDefImpl implements NodeDefinition {
     @Override
     public Class<?> getType() {
         return type;
-    }
-
-    @Override
-    public boolean isRoot() {
-        return root;
     }
 
     @Override
