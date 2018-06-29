@@ -11,15 +11,10 @@ public class MapNodeFactory implements NodeFactory {
             HashMap.class, Hashtable.class, LinkedHashMap.class
     )));
 
-    private static final Set<Class> CLASSES_WITHOUT_CAPACITY = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+    private static final Set<Class> CLASSES_WITHOUT_CAPACITY = Collections.singleton(
             TreeMap.class
-    )));
+    );
 
-
-    @Override
-    public boolean enableReferenceDetection() {
-        return true;
-    }
 
     private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext obj) {
         List<Expression> arguments = obj.getArguments();

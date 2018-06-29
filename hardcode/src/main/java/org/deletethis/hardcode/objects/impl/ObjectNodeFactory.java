@@ -35,11 +35,6 @@ public class ObjectNodeFactory implements NodeFactory {
     }
 
 
-    @Override
-    public boolean enableReferenceDetection() {
-        return true;
-    }
-
     private ConstructorWrapper findMatchingConstructor(Class<?> clz, Set<String> parameterNames) {
         ConstructorWrapper result = null;
 

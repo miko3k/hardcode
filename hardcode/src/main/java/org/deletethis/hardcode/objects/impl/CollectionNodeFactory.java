@@ -18,11 +18,6 @@ public class CollectionNodeFactory implements NodeFactory {
     )));
 
 
-    @Override
-    public boolean enableReferenceDetection() {
-        return true;
-    }
-
     private Expression getCode(Class<?> clz, CodegenContext context, ObjectContext objectContext) {
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {

@@ -16,10 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class DrawGraphTests {
@@ -134,6 +131,28 @@ public class DrawGraphTests {
         Assert.assertEquals(uri, run(uri));
         Assert.assertEquals(url, run(url));
         Assert.assertEquals(date, run(date));
+
+        List<Object> array = new ArrayList<>();
+        array.add(0.5599999999999999 + 0.04);
+        array.add(0.68 + 0.04);
+        array.add(2.05+1.01);
+        array.add(0.5599999999999999f + 0.04f);
+        array.add(0.68f + 0.04f);
+        array.add(2.05f+1.01f);
+        array.add(0.6812345678901234534363457890f);
+        array.add(0.68123456789012345623427890e5f);
+        array.add(0.6812345678901233344567890e10f);
+        array.add(0.6812345678901244334567890e30f);
+        array.add(0.6812345678901238734567890e34f);
+        array.add(0.6812345678901234591267890e37f);
+        array.add(0.9234342345732433124523428e38f);
+        array.add(Float.NaN);
+        array.add(Float.POSITIVE_INFINITY);
+        array.add(Float.NEGATIVE_INFINITY);
+        array.add(Double.NaN);
+        array.add(Double.POSITIVE_INFINITY);
+        array.add(Double.NEGATIVE_INFINITY);
+        Assert.assertEquals(array, run(array));
 
 
     }

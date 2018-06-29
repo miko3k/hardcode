@@ -13,87 +13,83 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class PrimitiveNodeFactory implements NodeFactory {
-    @Override
-    public boolean enableReferenceDetection() {
-        return false;
+    private <T> Optional<NodeDefinition> simple(Class<?> clz, T value, CodeBlock fn) {
+        return Optional.of(NodeDefImpl.value(clz, String.valueOf(value), (context, obj) -> Expression.simple(fn)));
     }
 
-    private <T> Optional<NodeDefinition> simple(Class<?> clz, T value, Function<T, CodeBlock> fn) {
-        return Optional.of(NodeDefImpl.value(clz, String.valueOf(value), (context, obj) -> Expression.simple(fn.apply(value))));
-    }
-
-    private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn) {
-        return complex(clz, value, fn, null);
-    }
-
-    private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, Function<T, CodeBlock> fn, Class<? extends Throwable> exc) {
-        NodeDefImpl nodeDef = NodeDefImpl.value(clz, String.valueOf(value), (context, obj) -> Expression.complex(fn.apply(value)));
+    private <T> Optional<NodeDefinition> complex(Class<?> clz, T value, CodeBlock fn, Class<? extends Throwable> exc) {
+        NodeDefImpl nodeDef = NodeDefImpl.value(clz, String.valueOf(value), (context, obj) -> Expression.complex(fn));
         if(exc != null)
             nodeDef.addFatalException(exc);
         return Optional.of(nodeDef);
     }
 
-    
+
+    private <T extends Number> Optional<NodeDefinition> flt(Class<T> clz, T value, Function<T, Boolean> isNan, Function<T, Boolean> isInf, CodeBlock fn) {
+        if(isNan.apply(value)) {
+            return simple(clz, value, CodeBlock.of("$T.NaN", clz));
+        } else if(isInf.apply(value) && value.doubleValue() < 0) {
+            return simple(clz, value, CodeBlock.of("$T.NEGATIVE_INFINITY", clz));
+        } else if(isInf.apply(value)) {
+            return simple(clz, value, CodeBlock.of("$T.POSITIVE_INFINITY", clz));
+        } else {
+            // I believe printing is always exact, if not we might require more logic and covert bits to float
+            return simple(clz, value, fn);
+        }
+    }
+
+
     @Override
     public Optional<NodeDefinition> createNode(Object object, HardcodeConfiguration configuration) {
         if(object.getClass().equals(Integer.class)) {
-            return simple(Integer.class, object, (val)->CodeBlock.of("$L", val));
+            return simple(Integer.class, object, CodeBlock.of("$L", object));
         }
         if(object.getClass().equals(Long.class)) {
-            return simple(Long.class, object, (val)->CodeBlock.of("$LL", val));
+            return simple(Long.class, object, CodeBlock.of("$LL", object));
         }
+
         if(object.getClass().equals(Float.class)) {
             float f = (float)object;
-            String str = String.valueOf(f);
-            if(f == Float.parseFloat(str)) {
-                return simple(Float.class, object, (val)->CodeBlock.of("$Lf", val));
-            } else {
-                int integer = Float.floatToIntBits(f);
-                return complex(Float.class, object, (val)->CodeBlock.of("$T.intBitsToFloat($L)", Float.class, integer));
-            }
+            return flt(Float.class,  f, (a) -> a.isNaN(), (a) -> a.isInfinite(), CodeBlock.of("$Lf", f));
         }
         if(object.getClass().equals(Double.class)) {
             double f = (double)object;
-            String str = String.valueOf(f);
-            if(f == Double.parseDouble(str)) {
-                return simple(Double.class, object, (val)->CodeBlock.of("$L", val));
-            } else {
-                long integer = Double.doubleToLongBits(f);
-                return complex(Double.class, object, (val)->CodeBlock.of("$T.longBitsToDouble($L)", Float.class, integer));
-            }
+            return flt(Double.class,  f, (a) -> a.isNaN(), (a) -> a.isInfinite(), CodeBlock.of("$L", f));
         }
         if(object.getClass().equals(Boolean.class)) {
-            return simple(Boolean.class, object, (val)->CodeBlock.of("$L", val));
+            return simple(Boolean.class, object, CodeBlock.of("$L", object));
         }
         if(object.getClass().equals(Byte.class)) {
-            return simple(Byte.class, object, (val)->CodeBlock.of("(byte)$L", val));
+            return simple(Byte.class, object, CodeBlock.of("(byte)$L", object));
         }
         if(object.getClass().equals(Short.class)) {
-            return simple(Short.class, object, (val)->CodeBlock.of("(short)$L", val));
+            return simple(Short.class, object, CodeBlock.of("(short)$L", object));
         }
 
         if(object.getClass().equals(Character.class)) {
             // no easy way to print single quite literal -- there's Util in JavaPoet, but it's not public
-            return simple(Character.class, object, (val)->CodeBlock.of("(char)$L", (int)((Character)val)));
+            return simple(Character.class, object, CodeBlock.of("(char)$L", (int)((Character)object)));
         }
 
         if(object.getClass().equals(String.class)) {
-            return simple(String.class, object, (val)->CodeBlock.of("$S", val));
+            return simple(String.class, object, CodeBlock.of("$S", object));
         }
         if(object instanceof Enum) {
             Class<?> clz = object.getClass();
-            return simple(clz, object, (val)->CodeBlock.of("$T.$L", clz, val));
+            String name = ((Enum)object).name();
+            return simple(clz, name, CodeBlock.of("$T.$L", clz, name));
         }
         if(object.getClass().equals(URI.class)) {
-            return complex(URI.class, object, (val) -> CodeBlock.of("new $T($S)", URI.class, object), URISyntaxException.class);
+            return complex(URI.class, object, CodeBlock.of("new $T($S)", URI.class, object), URISyntaxException.class);
         }
         if(object.getClass().equals(URL.class)) {
-            return complex(URL.class, object, (val)->CodeBlock.of("new $T($S)", URL.class, object), MalformedURLException.class);
+            return complex(URL.class, object, CodeBlock.of("new $T($S)", URL.class, object), MalformedURLException.class);
         }
         if(object.getClass().equals(Date.class)) {
-            return complex(Date.class, object, (val)->CodeBlock.of("new $T($L)", Date.class, ((Date)object).getTime()));
+            return complex(Date.class, object, CodeBlock.of("new $T($L)", Date.class, ((Date)object).getTime()), null);
         }
 
         return Optional.empty();
