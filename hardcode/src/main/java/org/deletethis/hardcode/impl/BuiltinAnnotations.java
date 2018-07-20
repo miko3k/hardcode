@@ -27,7 +27,7 @@ class BuiltinAnnotations {
         }
     }
 
-    void apply(ObjectInfo objectInfo) {
+    void apply(ObjectInfoImpl objectInfo) {
         if(root) {
             objectInfo.makeRoot();
         }

@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 
 public interface NodeParameter {
-    ParameterName getParameterName();
+    ParameterName getName();
 
     Object getValue();
 

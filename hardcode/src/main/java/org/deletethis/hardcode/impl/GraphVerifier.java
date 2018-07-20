@@ -15,7 +15,7 @@ class GraphVerifier {
     private final Digraph<ObjectInfo, ParameterName> digraph;
     private final Map<ObjectInfo, ObjectInfo> parents;
 
-    public GraphVerifier(Digraph<ObjectInfo, ParameterName> digraph) {
+    GraphVerifier(Digraph<ObjectInfo, ParameterName> digraph) {
         this.digraph = digraph;
         this.parents = digraph.createMap();
     }
@@ -43,7 +43,7 @@ class GraphVerifier {
         }
     }
 
-    public void verify() {
+    void verify() {
         ObjectInfo root = digraph.getRoot();
 
         dfs(root, root);

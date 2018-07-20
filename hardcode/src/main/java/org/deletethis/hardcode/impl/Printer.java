@@ -27,7 +27,7 @@ class Printer {
         }
         context.addUnhandled(n.getFatalExceptions());
         CodegenParametersImpl params = new CodegenParametersImpl(args, n.getSplit());
-        Expression code = n.getCode(context, params);
+        Expression code = n.getCodeGenerator().getCode(context, params);
         params.verify();
         return code;
     }
@@ -58,10 +58,6 @@ class Printer {
             context.addStatement("$T $L = $L", n.getType(), var, expression.getCode());
             expression = Expression.simple(var);
         }
-
-        // root is printend in special way, and it should never end up in the map for itself
-//        if(context.getRoot() == n)
-//            throw new IllegalArgumentException();
 
         exprMap.put(n, expression);
         return expression;

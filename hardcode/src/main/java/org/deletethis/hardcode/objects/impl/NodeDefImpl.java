@@ -17,7 +17,7 @@ public class NodeDefImpl implements NodeDefinition {
             this.annotations = annotations;
         }
 
-        public ParameterName getParameterName() {
+        public ParameterName getName() {
             return parameterName;
         }
 

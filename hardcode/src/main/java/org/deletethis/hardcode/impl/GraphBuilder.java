@@ -12,7 +12,7 @@ import java.util.*;
 class GraphBuilder {
     private final List<NodeFactory> nodeFactories;
     private final HardcodeConfiguration configuration;
-    private final Map<Object, ObjectInfo> objectMap = new IdentityHashMap<>();
+    private final Map<Object, ObjectInfoImpl> objectMap = new IdentityHashMap<>();
     private final Digraph<ObjectInfo, ParameterName> digraph = new MapDigraph<>();
     private final Set<Object> objectsInProgress = Collections.newSetFromMap(new IdentityHashMap<>());
 
@@ -21,9 +21,9 @@ class GraphBuilder {
         this.configuration = configuration;
     }
 
-    ObjectInfo createNode(Object object, List<Annotation> annotations) {
+    ObjectInfoImpl createNode(Object object, List<Annotation> annotations) {
         if(object == null) {
-            ObjectInfo nullObject = ObjectInfo.ofNull();
+            ObjectInfoImpl nullObject = ObjectInfoImpl.ofNull();
             digraph.addVertex(nullObject);
             return nullObject;
         }
@@ -35,7 +35,7 @@ class GraphBuilder {
         try {
             BuiltinAnnotations ba = new BuiltinAnnotations(annotations);
 
-            ObjectInfo n = objectMap.get(object);
+            ObjectInfoImpl n = objectMap.get(object);
             if (n != null) {
                 ba.apply(n);
                 return n;
@@ -46,7 +46,7 @@ class GraphBuilder {
                 if(nodeOptional.isPresent()) {
                     NodeDefinition nodeDef = nodeOptional.get();
 
-                    ObjectInfo node = ObjectInfo.ofNodeDefinion(nodeDef);
+                    ObjectInfoImpl node = ObjectInfoImpl.ofNodeDefinion(nodeDef);
                     ba.apply(node);
                     if(!node.isRoot()) {
                         if(GraphBuilderUtil.isRoot(configuration.getHardcodeRoots(), node.getType())) {
@@ -58,7 +58,7 @@ class GraphBuilder {
 
                     for(NodeParameter param: nodeDef.getParameters()) {
                         ObjectInfo otherNode = createNode(param.getValue(), param.getAnnotations());
-                        digraph.createEdge(node, otherNode, param.getParameterName());
+                        digraph.createEdge(node, otherNode, param.getName());
                     }
 
                     if(!nodeDef.isValueBased()) {
