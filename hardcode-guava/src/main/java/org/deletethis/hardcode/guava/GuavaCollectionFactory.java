@@ -16,11 +16,6 @@ public class GuavaCollectionFactory implements NodeFactory {
             ImmutableSet.class, ImmutableSet.Builder.class, 6
     );
 
-    @Override
-    public boolean enableReferenceDetection() {
-        return false;
-    }
-
     private Expression getCode(TypeInfo typeInfo, CodegenContext context, CodegenParameters obj) {
         if (obj.getArguments().size() < typeInfo.getOfMax()) {
             CodeBlock cb = GuavaUtil.printOf(typeInfo.getType(), obj);

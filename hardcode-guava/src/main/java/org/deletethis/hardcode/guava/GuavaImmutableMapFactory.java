@@ -20,11 +20,6 @@ public class GuavaImmutableMapFactory implements NodeFactory {
     );
 
 
-    @Override
-    public boolean enableReferenceDetection() {
-        return false;
-    }
-
     private Expression getCode(TypeInfo typeInfo, CodegenContext context, CodegenParameters obj) {
         List<Expression> arguments = obj.getArguments();
         Class<?> clz = typeInfo.getType();

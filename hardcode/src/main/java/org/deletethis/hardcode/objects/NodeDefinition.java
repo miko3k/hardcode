@@ -6,6 +6,10 @@ public interface NodeDefinition {
     Class<?> getType();
     CodeGenerator getConstructionStrategy();
     Collection<NodeParameter> getParameters();
+
+    /**
+     * Returns list of checked exceptions constructor can throw. Statement will be wrappend in try..catch block
+     */
     Collection<Class<? extends Throwable>> getFatalExceptions();
 
     /**
