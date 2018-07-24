@@ -33,41 +33,95 @@ public class ObjectNodeFactoryTests {
         public FewConstructors(ByteArrayInputStream a) { }
     }
 
-    // let's construct this sneakily via factory method
-    private FewConstructors getInvalidConstructors(Object a) {
-        FewConstructors result = new FewConstructors();
-        result.a = a;
-        return result;
+    private Optional<NodeDefinition> test(Object o) {
+        return new ObjectNodeFactory().createNode(o, new DefaultConfiguration());
     }
 
-    private void run(Object o) {
-        new ObjectNodeFactory().createNode(getInvalidConstructors(o), new DefaultConfiguration());
+    private void fewConstructors(Object a) {
+        FewConstructors fewConstructors = new FewConstructors();
+        fewConstructors.a = a;
+        test(fewConstructors);
     }
 
     @Test(expected = HardcodeException.class)
     public void moreThanOne() {
-        run(new ByteArrayInputStream(new byte[]{}));
+        fewConstructors(new ByteArrayInputStream(new byte[]{}));
     }
 
     @Test(expected = HardcodeException.class)
     public void none() {
-        run("String");
+        fewConstructors("String");
     }
 
     @Test
     public void integer() {
-        run(42);
+        fewConstructors(42);
     }
 
+    @Test(expected = HardcodeException.class)
+    public void nothing() {
+        fewConstructors(null);
+    }
 
     @Test
     public void justOne() {
-        run(new InputStream() {
+        fewConstructors(new InputStream() {
             @Override
             public int read()  {
                 return 0;
             }
         });
+    }
+
+    public static class BadName {
+        private String x = "x";
+
+        public BadName(String y) {
+            this.x = y;
+        }
+    }
+
+    @Test(expected = HardcodeException.class)
+    public void badName() {
+        test(new BadName("a"));
+    }
+
+    public static class PrimitiveNull {
+        private Integer x = null;
+
+        public PrimitiveNull(int x) { }
+    }
+
+    @Test(expected = HardcodeException.class)
+    public void primitiveNull() {
+        test(new PrimitiveNull(1));
+    }
+
+    public class Inner { }
+    private static class PrivateStatic { }
+
+    public static class DefaultConstructor { }
+    public static class NoDefaultConstructor { private NoDefaultConstructor() { } }
+    public static class ExplicitDefaultConstructor { public ExplicitDefaultConstructor() { } }
+
+    @Test(expected = HardcodeException.class)
+    public void noDefaultConstructor() {
+        test(new NoDefaultConstructor());
+    }
+
+    @Test
+    public void defaultConstructor() {
+        Assert.assertTrue(test(new DefaultConstructor()).isPresent());
+        Assert.assertTrue(test(new ExplicitDefaultConstructor()).isPresent());
+    }
+
+    @Test
+    public void ignoredClasses() {
+        Callable<Integer> a = () -> 1;
+        Assert.assertFalse(test(a).isPresent());
+        Assert.assertFalse(test(new Inner()).isPresent());
+        Assert.assertFalse(test(new PrivateStatic()).isPresent());
+
     }
 
 }

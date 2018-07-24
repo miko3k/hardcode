@@ -33,10 +33,17 @@ public class ObjectNodeFactory implements NodeFactory {
         return Expression.complex(bld.build());
     }
 
-    private LinkedHashMap<String, Object> matchConstructor(Constructor<?> c, Map<String, Object> parameters) {
+    private boolean isAccessible(Constructor<?> c) {
         if(Modifier.isPrivate(c.getModifiers()))
-            return null;
+            return false;
 
+        // TODO: better access checking
+
+        return true;
+
+    }
+
+    private LinkedHashMap<String, Object> matchConstructor(Constructor<?> c, Map<String, Object> parameters) {
         Parameter[] constructorParameters = c.getParameters();
 
         if(constructorParameters.length != parameters.size())
@@ -93,7 +100,10 @@ public class ObjectNodeFactory implements NodeFactory {
     private LinkedHashMap<String, Object> findMatchingConstructor(Class<?> clz, Map<String, Object> parameters) {
         LinkedHashMap<String, Object> result = null;
 
-        for(Constructor<?> c: clz.getDeclaredConstructors()) {
+        for (Constructor<?> c : clz.getDeclaredConstructors()) {
+            if (!isAccessible(c))
+                continue;
+
             LinkedHashMap<String, Object> candidate = matchConstructor(c, parameters);
 
             if (candidate != null) {
@@ -105,7 +115,7 @@ public class ObjectNodeFactory implements NodeFactory {
                 }
             }
         }
-        if(result == null) {
+        if (result == null) {
             throw new HardcodeException(clz.getName()
                     + ": no matching constructor for parameters: " + describeParameters(parameters));
         }
@@ -122,14 +132,13 @@ public class ObjectNodeFactory implements NodeFactory {
 
         // we cannot handle non static member classes
         int mods = clz.getModifiers();
-        if(clz.isMemberClass() && !Modifier.isStatic(mods) && !Modifier.isPrivate(mods))
+        if(clz.isMemberClass() && (!Modifier.isStatic(mods) || Modifier.isPrivate(mods)))
             return Optional.empty();
 
         IntrospectionResult introspection = strategy.introspect(clz);
         Map<String, Object> memberValues = introspection.getMemberValues(object);
 
         LinkedHashMap<String, Object> cons = findMatchingConstructor(clz, memberValues);
-
         NodeDefImpl nodeDef = NodeDefImpl.ref(
                 clz,
                 clz.getSimpleName(),

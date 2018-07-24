@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import sun.tools.tree.DoubleExpression;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -83,6 +84,15 @@ public class DrawGraphTests {
         Assert.assertEquals(Enm.BAZ, run(Enm.BAZ));
     }
 
+    @SuppressWarnings("WeakerAccess")
+    public static class Empty implements Serializable {}
+
+    @Test
+    public void empty() {
+        Empty run = run(new Empty());
+        Assert.assertNotNull(run);
+    }
+
     @Test
     public void inheritance() {
         ExtData data1 = new ExtData(true, "foo", 1, Long.MIN_VALUE);
@@ -98,7 +108,7 @@ public class DrawGraphTests {
 
         DefaultConfiguration dc = new DefaultConfiguration();
         dc.addRootClass(Data.class);
-        Hardcode hc2 = Hardcode.builtinConfig(dc);
+        Hardcode hc = Hardcode.builtinConfig(dc);
 
         Map<String, Object> map = new HashMap<>();
         RootChildData cd1 = new RootChildData("hello");
@@ -110,8 +120,23 @@ public class DrawGraphTests {
         map.put("cd1b", cd1);
         map.put("cd2", cd2);
 
-        Map<String, Object> run = run(hc2, map);
+        Map<String, Object> run = run(hc, map);
         Assert.assertEquals(map, run);
+        Assert.assertSame(run.get("data1a"), run.get("data1b"));
+
+        Map<String, String> treeMap = new TreeMap<>();
+        treeMap.put("a", "b");
+        treeMap.put("c", "d");
+        Assert.assertEquals(treeMap, run(hc, treeMap));
+
+
+        LinkedList<String> linkedList = new LinkedList<>();
+        linkedList.add("a");
+        linkedList.add("b");
+        Assert.assertEquals(linkedList, run(hc, linkedList));
+
+
+
     }
 
     @Test
