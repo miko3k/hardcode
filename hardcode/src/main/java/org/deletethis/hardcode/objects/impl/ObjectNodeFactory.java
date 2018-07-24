@@ -1,31 +1,31 @@
 package org.deletethis.hardcode.objects.impl;
 
 import org.deletethis.hardcode.HardcodeConfiguration;
+import org.deletethis.hardcode.HardcodeException;
 import org.deletethis.hardcode.objects.*;
-import org.deletethis.hardcode.objects.impl.introspection.ConstructorWrapper;
+import org.deletethis.hardcode.objects.impl.introspection.*;
 import com.squareup.javapoet.CodeBlock;
-import org.deletethis.hardcode.objects.impl.introspection.ParameterWrapper;
 import org.deletethis.hardcode.util.TypeUtil;
-import org.deletethis.hardcode.objects.impl.introspection.FieldIntrospectionStartegy;
-import org.deletethis.hardcode.objects.impl.introspection.IntrospectionStartegy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ObjectNodeFactory implements NodeFactory {
 
     private IntrospectionStartegy strategy = new FieldIntrospectionStartegy();
 
-    private Expression getCode(Class<?> clz, List<String> argNames, CodegenParameters obj) {
+    private Expression getCode(Class<?> clz, CodegenParameters obj) {
         CodeBlock.Builder bld = CodeBlock.builder();
         bld.add("new $T(", clz);
         int n = 0;
-        for (Expression b : obj.getArguments()) {
+        for (CodegenParameters.Argument b : obj.getArgumentList()) {
             if(n > 0) {
                 bld.add(", ");
             }
-            bld.add("/*$L*/ ", argNames.get(n));
+            bld.add("/*$L*/ ", b.getName());
             bld.add(b.getCode());
             ++n;
         }
@@ -33,42 +33,83 @@ public class ObjectNodeFactory implements NodeFactory {
         return Expression.complex(bld.build());
     }
 
+    private LinkedHashMap<String, Object> matchConstructor(Constructor<?> c, Map<String, Object> parameters) {
+        if(Modifier.isPrivate(c.getModifiers()))
+            return null;
 
-    private ConstructorWrapper findMatchingConstructor(Class<?> clz, Set<String> parameterNames) {
-        ConstructorWrapper result = null;
+        Parameter[] constructorParameters = c.getParameters();
 
-        for(Constructor<?> c: clz.getDeclaredConstructors()) {
-            if(Modifier.isPrivate(c.getModifiers()))
-                continue;
+        if(constructorParameters.length != parameters.size())
+            return null;
 
-            ConstructorWrapper constructorWrapper = new ConstructorWrapper(c);
+        LinkedHashMap<String, Object> orderedParameters = new LinkedHashMap<>();
+        Class<?> clz = c.getDeclaringClass();
 
-            List<ParameterWrapper> parameters = constructorWrapper.getParameters();
+        for(Parameter p: constructorParameters) {
+            if(!p.isNamePresent())
+                throw new HardcodeException(clz.getName() + ": constructor parameter names not present");
 
-            if(parameters.size() != parameterNames.size())
-                continue;
+            String name = p.getName();
 
-            boolean ok = true;
+            if(!parameters.containsKey(name)) {
+                return null;
+            }
 
-            for(ParameterWrapper p: parameters) {
-                if(!parameterNames.contains(p.getName())) {
-                    ok = false;
-                    break;
+            Object value = parameters.get(name);
+            Class<?> type = p.getType();
+
+            if(value == null) {
+                if (type.isPrimitive()) {
+                    return null;
+                }
+            } else {
+                Class<?> valueClass = value.getClass();
+                if(!TypeUtil.wrapType(type).isAssignableFrom(valueClass)) {
+                    return null;
                 }
             }
-            if(ok) {
-                if(result == null) {
-                    result = constructorWrapper;
+            orderedParameters.put(name, value);
+
+        }
+        // should be true, map keys are unique, parameters names too and size matches
+        assert orderedParameters.keySet().containsAll(parameters.keySet());
+
+        return orderedParameters;
+    }
+
+    private String paramToString(Map.Entry<String, Object> param) {
+        if(param.getValue() == null) {
+            return param.getKey() + " = null";
+        } else {
+            // I think output is more readable like this, without invoking toString
+            return param.getKey() + " = " + TypeUtil.getClassSimpleName(param.getValue().getClass());
+        }
+    }
+
+    private String describeParameters(Map<String, Object> parameters) {
+        return parameters.entrySet().stream().map(this::paramToString).collect(Collectors.joining(", "));
+    }
+
+    private LinkedHashMap<String, Object> findMatchingConstructor(Class<?> clz, Map<String, Object> parameters) {
+        LinkedHashMap<String, Object> result = null;
+
+        for(Constructor<?> c: clz.getDeclaredConstructors()) {
+            LinkedHashMap<String, Object> candidate = matchConstructor(c, parameters);
+
+            if (candidate != null) {
+                if (result == null) {
+                    result = candidate;
                 } else {
-                    throw new IllegalArgumentException(clz.getName() + ": more than one constructor matches parameter names: " + parameterNames);
+                    throw new HardcodeException(clz.getName()
+                            + ": more than one matching constructor for parameters: " + describeParameters(parameters));
                 }
             }
         }
         if(result == null) {
-            throw new IllegalArgumentException(clz.getName() + ": no constructor matches paramter names: " + parameterNames);
-        } else {
-            return result;
+            throw new HardcodeException(clz.getName()
+                    + ": no matching constructor for parameters: " + describeParameters(parameters));
         }
+        return result;
     }
 
     @Override
@@ -79,32 +120,27 @@ public class ObjectNodeFactory implements NodeFactory {
         if(clz.isSynthetic())
             return Optional.empty();
 
-        Map<String, IntrospectionStartegy.Member> introspect = strategy.introspect(clz);
-        ConstructorWrapper cons = findMatchingConstructor(clz, introspect.keySet());
-        List<String> argNames = new ArrayList<>();
+        // we cannot handle non static member classes
+        int mods = clz.getModifiers();
+        if(clz.isMemberClass() && !Modifier.isStatic(mods) && !Modifier.isPrivate(mods))
+            return Optional.empty();
 
-        NodeDefImpl nodeDef = NodeDefImpl.ref(clz, clz.getSimpleName(), ((context, obj) -> getCode(clz, argNames, obj)));
+        IntrospectionResult introspection = strategy.introspect(clz);
+        Map<String, Object> memberValues = introspection.getMemberValues(object);
 
-        for(ParameterWrapper p: cons.getParameters()) {
-            String name = p.getName();
-            Class<?> type = p.getType();
+        LinkedHashMap<String, Object> cons = findMatchingConstructor(clz, memberValues);
 
-            IntrospectionStartegy.Member member = introspect.get(name);
+        NodeDefImpl nodeDef = NodeDefImpl.ref(
+                clz,
+                clz.getSimpleName(),
+                ((context, obj) -> getCode(clz, obj)));
 
-            Object value = member.getValue(object);
-            argNames.add(name);
-            // IS THIS REALLY NECESSARY??
-            if(value == null) {
-                if (type.isPrimitive()) {
-                    throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign null to " + type.getName());
-                }
-            } else {
-                Class<?> valueClass = value.getClass();
-                if(!TypeUtil.wrapType(type).isAssignableFrom(valueClass)) {
-                    throw new IllegalArgumentException(clz.getName() + ": " + name + ": cannot assign " + valueClass.getName() + " to " + type.getName());
-                }
-            }
-            nodeDef.addParameter(new NamedParameter(name), value, member.getAnnotations());
+        for(Map.Entry<String, Object> e: cons.entrySet()) {
+            String name = e.getKey();
+            nodeDef.addParameter(
+                    new NamedParameter(name),
+                    e.getValue(),
+                    introspection.getMemberAnnotations(name));
         }
 
         return Optional.of(nodeDef);

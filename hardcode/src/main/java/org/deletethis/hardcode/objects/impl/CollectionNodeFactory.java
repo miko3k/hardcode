@@ -20,12 +20,12 @@ public class CollectionNodeFactory implements NodeFactory {
     private Expression getCode(Class<?> clz, CodegenContext context, CodegenParameters objectContext) {
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
-            context.addStatement("$T $L = new $T($L)", clz, variable, clz, objectContext.getArguments().size());
+            context.addStatement("$T $L = new $T($L)", clz, variable, clz, objectContext.getArgumentList().size());
         } else {
             context.addStatement("$T $L = new $T()", clz, variable, clz);
         }
         SplitHelper splitHelper = SplitHelper.get(context, clz.getSimpleName(), objectContext.getSplit(), variable, clz);
-        for (Expression arg : objectContext.getArguments()) {
+        for (CodegenParameters.Argument arg : objectContext.getArgumentList()) {
             splitHelper.addStatement("$L.add($L)", variable, arg.getCode());
         }
         splitHelper.finish();
@@ -42,7 +42,6 @@ public class CollectionNodeFactory implements NodeFactory {
         NodeDefImpl def = NodeDefImpl.ref(aClass, aClass.getSimpleName(), (context, obj) -> getCode(aClass, context, obj));
 
         Collection<?> coll = (Collection<?>)object;
-        List<NodeParameter> members = new ArrayList<>(coll.size());
         int idx = 0;
         for(Object obj: coll) {
             def.addParameter(new IndexParamteter(idx), obj);

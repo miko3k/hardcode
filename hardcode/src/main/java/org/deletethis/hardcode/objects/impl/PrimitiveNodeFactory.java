@@ -33,7 +33,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
         } else if(isInf.apply(value)) {
             return simple(clz, value, CodeBlock.of("$T.POSITIVE_INFINITY", clz));
         } else {
-            // I believe printing is always exact, if not we might require more logic and covert bits to float
+            // I believe printing is always exact, if not we might require more logic and covert to bits and back
             return simple(clz, value, fn);
         }
     }

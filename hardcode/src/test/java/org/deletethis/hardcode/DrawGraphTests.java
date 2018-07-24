@@ -146,6 +146,8 @@ public class DrawGraphTests {
         array.add(0.6812345678901238734567890e34f);
         array.add(0.6812345678901234591267890e37f);
         array.add(0.9234342345732433124523428e38f);
+        array.add(2.2999999999999996);
+        array.add(2.2999999999999997);
         array.add(Float.NaN);
         array.add(Float.POSITIVE_INFINITY);
         array.add(Float.NEGATIVE_INFINITY);

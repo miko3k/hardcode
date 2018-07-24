@@ -8,31 +8,48 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class FieldIntrospectionStartegy implements IntrospectionStartegy {
-    private static class MemberImpl implements Member {
-        private final Field field;
+    private static class ResultImpl implements IntrospectionResult {
+        private final Map<String, List<Annotation>> memberAnnotations;
+        private final Map<String, Field> memberFields;
 
-        private MemberImpl(Field field) {
-            this.field = field;
+        public ResultImpl(Map<String, Field> memberFields) {
+            this.memberFields = memberFields;
+
+            HashMap<String, List<Annotation>> ann = new HashMap<>();
+
+            for(Map.Entry<String, Field> e: memberFields.entrySet()) {
+                ann.put(e.getKey(), Arrays.asList(e.getValue().getAnnotations()));
+            }
+            this.memberAnnotations = Collections.unmodifiableMap(ann);
         }
 
         @Override
-        public Object getValue(Object object) {
+        public List<Annotation> getMemberAnnotations(String memberName) {
+            List<Annotation> annotations = memberAnnotations.get(memberName);
+            return Objects.requireNonNull(annotations, "invalid member name: " + memberName);
+        }
+
+        @Override
+        public Map<String, Object> getMemberValues(Object object) {
+            Map<String, Object> result = new HashMap<>(memberFields.size()*2);
             try {
-                return field.get(Objects.requireNonNull(object));
+                for(Map.Entry<String, Field> e: memberFields.entrySet()) {
+                    String name = e.getKey();
+                    Field field = e.getValue();
+
+                    Object value = field.get(Objects.requireNonNull(object));
+                    result.put(name, value);
+                }
             } catch (IllegalAccessException e) {
                 throw new HardcodeException(e);
             }
-        }
-
-        @Override
-        public List<Annotation> getAnnotations() {
-            return Arrays.asList(field.getAnnotations());
+            return result;
         }
     }
 
     @Override
-    public Map<String, IntrospectionStartegy.Member> introspect(Class<?> clz) {
-        Map<String, IntrospectionStartegy.Member> result = new HashMap<>();
+    public IntrospectionResult introspect(Class<?> clz) {
+        Map<String, Field> memberFields = new HashMap<>();
 
         while(clz != null) {
             Field[] fields = clz.getDeclaredFields();
@@ -51,13 +68,13 @@ public class FieldIntrospectionStartegy implements IntrospectionStartegy {
                 if(Modifier.isTransient(modifiers))
                     continue;
 
-                if(result.containsKey(field.getName())) {
-                    throw new HardcodeException(clz.getName() + ": duplicate field: " + field.getName());
+                if(memberFields.containsKey(field.getName())) {
+                    throw new HardcodeException(clz.getName() + ": duplicate field: " + field.getName() + " in " + clz.getSimpleName());
                 }
-                result.put(field.getName(), new MemberImpl(field));
+                memberFields.put(field.getName(), field);
             }
             clz = clz.getSuperclass();
         }
-        return result;
+        return new ResultImpl(memberFields);
     }
 }

@@ -3,7 +3,9 @@ package org.deletethis.hardcode.impl;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import org.deletethis.hardcode.graph.ConnectedVertex;
 import org.deletethis.hardcode.graph.Digraph;
+import org.deletethis.hardcode.objects.CodegenParameters;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.ParameterName;
 
@@ -19,11 +21,12 @@ class Printer {
     private static final String METHOD_NAME = "get";
 
     private Expression printToContext(Context context, ObjectInfo n) {
-        List<Expression> args = new ArrayList<>();
+        List<CodegenParameters.Argument> args = new ArrayList<>();
 
-        for (ObjectInfo a : graph.getSuccessors(n)) {
-            Expression argument = print(context, a);
-            args.add(argument);
+
+        for (ConnectedVertex<ObjectInfo, ParameterName> conn : graph.getSuccessorConnections(n)) {
+            Expression argument = print(context, conn.getVertex());
+            args.add(new CodegenParametersImpl.CodegenArgument(argument, conn.getEdge()));
         }
         context.addUnhandled(n.getFatalExceptions());
         CodegenParametersImpl params = new CodegenParametersImpl(args, n.getSplit());

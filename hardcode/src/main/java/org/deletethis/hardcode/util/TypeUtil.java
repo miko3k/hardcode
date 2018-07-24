@@ -65,4 +65,12 @@ public class TypeUtil {
     public static Iterable<Class<?>> ancestors(Class<?> clz) {
         return () -> new AncessorIterator(clz);
     }
+
+    public static String getClassSimpleName(Class<?> clz) {
+        String str = clz.getSimpleName();
+        if(str.isEmpty())
+            str = clz.getTypeName();
+        return str;
+
+    }
 }

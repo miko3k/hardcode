@@ -17,7 +17,7 @@ public class MapNodeFactory implements NodeFactory {
 
 
     private Expression getCode(Class<?> clz, CodegenContext context, CodegenParameters obj) {
-        List<Expression> arguments = obj.getArguments();
+        List<CodegenParameters.Argument> arguments = obj.getArgumentList();
         String variable = context.allocateVariable(clz);
         if (CLASSES_WITH_CAPACITY.contains(clz)) {
             // arguments contain both keys and values, we create map with double initial capacitity

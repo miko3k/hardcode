@@ -21,7 +21,7 @@ public class GuavaImmutableMapFactory implements NodeFactory {
 
 
     private Expression getCode(TypeInfo typeInfo, CodegenContext context, CodegenParameters obj) {
-        List<Expression> arguments = obj.getArguments();
+        List<CodegenParameters.Argument> arguments = obj.getArgumentList();
         Class<?> clz = typeInfo.getType();
         Class<?> builder = typeInfo.getBuilder();
 

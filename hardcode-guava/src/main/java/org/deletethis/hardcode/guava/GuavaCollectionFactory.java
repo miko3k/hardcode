@@ -17,15 +17,15 @@ public class GuavaCollectionFactory implements NodeFactory {
     );
 
     private Expression getCode(TypeInfo typeInfo, CodegenContext context, CodegenParameters obj) {
-        if (obj.getArguments().size() < typeInfo.getOfMax()) {
+        if (obj.getArgumentList().size() < typeInfo.getOfMax()) {
             CodeBlock cb = GuavaUtil.printOf(typeInfo.getType(), obj);
             return Expression.complex(cb);
         } else {
             String variable = context.allocateVariable(typeInfo.getType());
-            context.addStatement("$T $L = $T.builderWithExpectedSize($L)", typeInfo.getBuilder(), variable, typeInfo.getType(), obj.getArguments().size());
+            context.addStatement("$T $L = $T.builderWithExpectedSize($L)", typeInfo.getBuilder(), variable, typeInfo.getType(), obj.getArgumentList().size());
 
             SplitHelper splitHelper = SplitHelper.get(context, typeInfo.toString(), obj.getSplit(), variable, typeInfo.getBuilder());
-            for (Expression arg : obj.getArguments()) {
+            for (CodegenParameters.Argument arg : obj.getArgumentList()) {
                 splitHelper.addStatement("$L.add($L)", splitHelper.getBuilder(), arg.getCode());
             }
             splitHelper.finish();
