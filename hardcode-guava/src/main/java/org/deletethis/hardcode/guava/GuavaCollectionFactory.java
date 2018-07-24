@@ -26,7 +26,7 @@ public class GuavaCollectionFactory implements NodeFactory {
 
             SplitHelper splitHelper = SplitHelper.get(context, typeInfo.toString(), obj.getSplit(), variable, typeInfo.getBuilder());
             for (Expression arg : obj.getArguments()) {
-                splitHelper.addStatement("$L.add($L)", variable, arg.getCode());
+                splitHelper.addStatement("$L.add($L)", splitHelper.getBuilder(), arg.getCode());
             }
             splitHelper.finish();
             return Expression.complex("$L.build()", variable);

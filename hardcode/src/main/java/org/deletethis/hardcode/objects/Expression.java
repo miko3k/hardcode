@@ -9,7 +9,7 @@ public class Expression {
     private final boolean simple;
 
     private Expression(CodeBlock block, boolean simple) {
-        this.block = block;
+        this.block = Objects.requireNonNull(block);
         this.simple = simple;
     }
 
@@ -19,6 +19,24 @@ public class Expression {
         } else {
             return "complex(" + block + ")";
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Expression)) return false;
+
+        Expression that = (Expression) o;
+
+        if (simple != that.simple) return false;
+        return block.equals(that.block);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = block.hashCode();
+        result = 31 * result + (simple ? 1 : 0);
+        return result;
     }
 
     public CodeBlock getCode() {
@@ -44,6 +62,4 @@ public class Expression {
     public static Expression complex(String cb, Object ... args) {
         return complex(CodeBlock.of(cb, args));
     }
-
-
 }
