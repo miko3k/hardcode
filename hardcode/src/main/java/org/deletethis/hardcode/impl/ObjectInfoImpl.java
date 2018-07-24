@@ -1,5 +1,6 @@
 package org.deletethis.hardcode.impl;
 
+import org.deletethis.hardcode.ConfigMismatchException;
 import org.deletethis.hardcode.objects.*;
 
 import java.util.Collection;
@@ -14,34 +15,17 @@ class ObjectInfoImpl implements ObjectInfo {
     private final String asString;
     private Collection<Class<? extends Throwable>> fatalExceptions;
 
-    public ObjectInfoImpl(Class<?> type, CodeGenerator codeGenerator, boolean root, Integer split, String asString, Collection<Class<? extends Throwable>> fatalExceptions) {
-        this.type = type;
-        this.codeGenerator = Objects.requireNonNull(codeGenerator);
-        this.root = root;
-        this.split = split;
-        this.asString = Objects.requireNonNull(asString);
-        this.fatalExceptions = (fatalExceptions == null) ? Collections.emptyList() : fatalExceptions;
-    }
+    public ObjectInfoImpl(NodeDefinition def) {
+        Collection<Class<? extends Throwable>> fatalExceptions = def.getFatalExceptions();
+        if(fatalExceptions == null)
+            fatalExceptions = Collections.emptyList();
 
-    static ObjectInfoImpl ofNodeDefinion(NodeDefinition def) {
-        return new ObjectInfoImpl(
-                def.getType(),
-                def.getConstructionStrategy(),
-                false,
-                null,
-                def.toString(),
-                def.getFatalExceptions()
-        );
-    }
-
-    static ObjectInfoImpl ofNull() {
-        return new ObjectInfoImpl(
-                null,
-                (a,b) -> Expression.simple("null"),
-                false,
-                null,
-                "null",
-                null);
+        this.type = Objects.requireNonNull(def.getType());
+        this.codeGenerator = Objects.requireNonNull(def.getConstructionStrategy());
+        this.root = false;
+        this.split = null;
+        this.asString = Objects.requireNonNull(def.toString());
+        this.fatalExceptions = fatalExceptions;
     }
 
     @Override
@@ -79,6 +63,11 @@ class ObjectInfoImpl implements ObjectInfo {
     }
 
     void setSplit(Integer split) {
+        if(this.split != null) {
+            if(!this.split.equals(split)) {
+                throw new ConfigMismatchException("incompatible splits: " + this.split + " and " + split);
+            }
+        }
         this.split = split;
     }
 }

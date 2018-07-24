@@ -21,21 +21,6 @@ public class Expression {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Expression)) return false;
-        Expression that = (Expression) o;
-        return simple == that.simple &&
-                Objects.equals(block, that.block);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(block, simple);
-    }
-
     public CodeBlock getCode() {
         return block;
     }

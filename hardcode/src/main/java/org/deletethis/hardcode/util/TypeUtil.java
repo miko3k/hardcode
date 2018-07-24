@@ -1,8 +1,7 @@
 package org.deletethis.hardcode.util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 public class TypeUtil {
     private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS;
@@ -25,5 +24,45 @@ public class TypeUtil {
     @SuppressWarnings("unchecked")
     public static <T> Class<T> wrapType(Class<T> c) {
         return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
+    }
+
+    private static class AncessorIterator implements Iterator<Class<?>> {
+        Set<Class<?>> visitedInterfaces = new HashSet<>();
+        Deque<Class<?>> remaining = new ArrayDeque<>();
+
+        private AncessorIterator(Class<?> clz) {
+            remaining.addLast(clz);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !remaining.isEmpty();
+        }
+
+        @Override
+        public Class<?> next() {
+            Class<?> result = remaining.removeFirst();
+
+            Class<?> superclass = result.getSuperclass();
+            if(superclass != null) {
+                // there's always a single parent class - no need to to track
+                // visited or not
+                remaining.addLast(superclass);
+            }
+            Class<?>[] interfaces = result.getInterfaces();
+            for(Class<?> iface: interfaces) {
+                if(!visitedInterfaces.contains(iface)) {
+                    visitedInterfaces.add(iface);
+                    remaining.addLast(iface);
+                }
+
+            }
+
+            return result;
+        }
+    }
+
+    public static Iterable<Class<?>> ancestors(Class<?> clz) {
+        return () -> new AncessorIterator(clz);
     }
 }

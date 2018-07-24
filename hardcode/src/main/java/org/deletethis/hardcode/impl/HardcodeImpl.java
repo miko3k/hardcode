@@ -12,7 +12,7 @@ public class HardcodeImpl {
     public static Digraph<ObjectInfo, ParameterName> buildGraph(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration, Object o) {
         GraphBuilder gb = new GraphBuilder(nodeFactories, configuration);
 
-        gb.createNode(o, null);
+        gb.createNode(o, new BuiltinAnnotations());
         if(!gb.isInProgressEmpty()) {
             throw new IllegalStateException("something left in progress?");
         }

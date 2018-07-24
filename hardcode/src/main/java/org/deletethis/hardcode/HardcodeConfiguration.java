@@ -1,8 +1,10 @@
 package org.deletethis.hardcode;
 
 import org.deletethis.hardcode.objects.NodeFactory;
+import org.deletethis.hardcode.objects.ParameterName;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -31,9 +33,29 @@ public interface HardcodeConfiguration {
     /**
      * <p>An alternative to {@link HardcodeRoot} annotation on class.
      *
-     * @return List of classes that should behave the same as {@link HardcodeRoot} annotation was present
+     * @return {@code true}, if the class should be considered to be the root
      */
-    Set<Class<?>> getHardcodeRoots();
+    boolean isRootClass(Class<?> clz);
+
+    /**
+     * <p>An alternative to {@link HardcodeRoot} annotation on a member.
+     *
+     * @param parent the parent class
+     * @param name the member name
+     *
+     * @return {@code true}, if member should be considered to be the root
+     */
+    boolean isRootMembers(Class<?> parent, ParameterName name);
+
+    /**
+     * <p>An alternative to {@link HardcodeSplit} annotation on a member.
+
+     * @param parent the parent class
+     * @param name the member name
+     *
+     * @return null if member should not be split, or split value
+     */
+    Integer getSplitMember(Class<?> parent, ParameterName name);
 
     /**
      * <p>Additional configuration for extensions.
@@ -41,8 +63,8 @@ public interface HardcodeConfiguration {
      * <p>They could require user to extend {@link HardcodeConfiguration}, however this approach doesn't really scale
      * well - two extensions whould have to provide to incompatible sublcasses of {@link DefaultConfiguration}.
      *
-     * <p>Therefore we have a mechanism to query objects by their type - somewhat like dependency injection - in order
-     * to provide additonal configuration.
+     * <p>Therefore we have a mechanism to query objects by their type - somewhat similar to dependency injection - in order
+     * to provide additional configuration.
      *
      * @param clz type of additional configuration object
      * @return additional config, or null if no such object exists

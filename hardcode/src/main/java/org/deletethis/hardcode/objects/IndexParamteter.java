@@ -14,4 +14,19 @@ public class IndexParamteter implements ParameterName {
     public String toString() {
         return String.valueOf(index);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IndexParamteter that = (IndexParamteter) o;
+
+        return index == that.index;
+    }
+
+    @Override
+    public int hashCode() {
+        return index;
+    }
 }

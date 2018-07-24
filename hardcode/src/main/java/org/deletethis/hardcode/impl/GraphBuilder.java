@@ -1,12 +1,11 @@
 package org.deletethis.hardcode.impl;
 
-import org.deletethis.hardcode.CycleException;
-import org.deletethis.hardcode.HardcodeConfiguration;
+import org.deletethis.hardcode.*;
 import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.graph.MapDigraph;
 import org.deletethis.hardcode.objects.*;
+import org.deletethis.hardcode.util.TypeUtil;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 class GraphBuilder {
@@ -21,9 +20,60 @@ class GraphBuilder {
         this.configuration = configuration;
     }
 
-    ObjectInfoImpl createNode(Object object, List<Annotation> annotations) {
+    private void applyAnnotations(ObjectInfoImpl n, BuiltinAnnotations annotations) {
+        if(annotations.isRoot())
+            n.makeRoot();
+
+        if(annotations.getSplit() != null)
+            n.setSplit(annotations.getSplit());
+    }
+
+
+    private void applyClass(ObjectInfoImpl node, Class<?> clz) {
+        boolean root = false;
+        for(Class<?> c: TypeUtil.ancestors(clz)) {
+            if(configuration.isRootClass(c)) {
+                root = true;
+            }
+
+            if(c.isAnnotationPresent(HardcodeRoot.class)) {
+                root = true;
+            }
+        }
+        if(root) {
+            node.makeRoot();
+        }
+    }
+
+    private BuiltinAnnotations defaultAnnotations(Class<?> clz, ParameterName param) {
+        BuiltinAnnotations result = new BuiltinAnnotations();
+        for(Class<?> c: TypeUtil.ancestors(clz)) {
+            if(configuration.isRootMembers(c, param)) {
+                result.makeRoot();
+            }
+            Integer split = configuration.getSplitMember(clz, param);
+            if(split != null && result.getSplit() != null) {
+                // only set split if it's not set yet. This allow setting different values in a subclasses
+                result.setSplit(split);
+            }
+        }
+        return result;
+    }
+
+    private NodeDefinition createNodeDefinition(Object object) {
+        for(NodeFactory factory: nodeFactories) {
+            Optional<NodeDefinition> tmp = factory.createNode(object, configuration);
+            if(tmp.isPresent()) {
+                return tmp.get();
+            }
+        }
+        throw new HardcodeException("unhandled type of class: " + object.getClass());
+    }
+
+    ObjectInfo createNode(Object object, BuiltinAnnotations annotations) {
+
         if(object == null) {
-            ObjectInfoImpl nullObject = ObjectInfoImpl.ofNull();
+            ObjectInfo nullObject = new ObjectInfoNull();
             digraph.addVertex(nullObject);
             return nullObject;
         }
@@ -33,54 +83,38 @@ class GraphBuilder {
         }
 
         try {
-            BuiltinAnnotations ba = new BuiltinAnnotations(annotations);
-
             ObjectInfoImpl n = objectMap.get(object);
-            if (n != null) {
-                ba.apply(n);
+
+            if(n != null) {
+                applyAnnotations(n, annotations);
                 return n;
             }
 
-            for(NodeFactory factory: nodeFactories) {
-                Optional<NodeDefinition> nodeOptional = factory.createNode(object, configuration);
-                if(nodeOptional.isPresent()) {
-                    NodeDefinition nodeDef = nodeOptional.get();
+            NodeDefinition nodeDef = createNodeDefinition(object);
 
-                    ObjectInfoImpl node = ObjectInfoImpl.ofNodeDefinion(nodeDef);
-                    ba.apply(node);
-                    if(!node.isRoot()) {
-                        if(GraphBuilderUtil.isRoot(configuration.getHardcodeRoots(), node.getType())) {
-                            node.makeRoot();
-                        }
-                    }
+            ObjectInfoImpl node = new ObjectInfoImpl(nodeDef);
 
-                    digraph.addVertex(node);
+            applyAnnotations(node, annotations);
+            applyClass(node, node.getType());
 
-                    for(NodeParameter param: nodeDef.getParameters()) {
-                        ObjectInfo otherNode = createNode(param.getValue(), param.getAnnotations());
-                        digraph.createEdge(node, otherNode, param.getName());
-                    }
+            digraph.addVertex(node);
 
-                    if(!nodeDef.isValueBased()) {
-                        objectMap.put(object, node);
-                    }
-                    return node;
-                }
+            for (NodeParameter param : nodeDef.getParameters()) {
+                BuiltinAnnotations builtinAnnotations = defaultAnnotations(node.getType(), param.getName());
+                builtinAnnotations.addAnnotations(param.getAnnotations());
+
+                ObjectInfo otherNode = createNode(param.getValue(), builtinAnnotations);
+                digraph.createEdge(node, otherNode, param.getName());
             }
-            throw new IllegalArgumentException();
+
+            if (!nodeDef.isValueBased()) {
+                objectMap.put(object, node);
+            }
+            return node;
+
         } finally {
             objectsInProgress.remove(object);
         }
-    }
-
-    public static Digraph<ObjectInfo, ParameterName> buildGraph(List<NodeFactory> nodeFactories, HardcodeConfiguration configuration, Object o) {
-        GraphBuilder gb = new GraphBuilder(nodeFactories, configuration);
-
-        gb.createNode(o, null);
-        if(!gb.objectsInProgress.isEmpty()) {
-            throw new IllegalStateException("something left in progress?");
-        }
-        return gb.digraph;
     }
 
     boolean isInProgressEmpty() {

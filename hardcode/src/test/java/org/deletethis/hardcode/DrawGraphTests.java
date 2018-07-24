@@ -97,7 +97,7 @@ public class DrawGraphTests {
         Data data2 = new Data("data2", 1, 49L);
 
         DefaultConfiguration dc = new DefaultConfiguration();
-        dc.addHardcodeRoot(Data.class);
+        dc.addRootClass(Data.class);
         Hardcode hc2 = Hardcode.builtinConfig(dc);
 
         Map<String, Object> map = new HashMap<>();
@@ -153,7 +153,5 @@ public class DrawGraphTests {
         array.add(Double.POSITIVE_INFINITY);
         array.add(Double.NEGATIVE_INFINITY);
         Assert.assertEquals(array, run(array));
-
-
     }
 }

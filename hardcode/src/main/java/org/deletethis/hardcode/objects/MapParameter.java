@@ -24,4 +24,22 @@ public class MapParameter implements ParameterName {
             return index + ".value";
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MapParameter that = (MapParameter) o;
+
+        if (key != that.key) return false;
+        return index == that.index;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (key ? 1 : 0);
+        result = 31 * result + index;
+        return result;
+    }
 }

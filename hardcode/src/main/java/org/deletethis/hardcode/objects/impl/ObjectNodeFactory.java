@@ -6,7 +6,7 @@ import org.deletethis.hardcode.objects.impl.introspection.ConstructorWrapper;
 import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.objects.impl.introspection.ParameterWrapper;
 import org.deletethis.hardcode.util.TypeUtil;
-import org.deletethis.hardcode.objects.impl.introspection.FieldInstrospectionStartegy;
+import org.deletethis.hardcode.objects.impl.introspection.FieldIntrospectionStartegy;
 import org.deletethis.hardcode.objects.impl.introspection.IntrospectionStartegy;
 
 import java.lang.reflect.Constructor;
@@ -15,7 +15,7 @@ import java.util.*;
 
 public class ObjectNodeFactory implements NodeFactory {
 
-    private IntrospectionStartegy strategy = new FieldInstrospectionStartegy();
+    private IntrospectionStartegy strategy = new FieldIntrospectionStartegy();
 
     private Expression getCode(Class<?> clz, List<String> argNames, CodegenParameters obj) {
         CodeBlock.Builder bld = CodeBlock.builder();

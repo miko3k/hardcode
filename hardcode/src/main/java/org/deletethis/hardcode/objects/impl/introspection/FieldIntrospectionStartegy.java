@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-public class FieldInstrospectionStartegy implements IntrospectionStartegy {
+public class FieldIntrospectionStartegy implements IntrospectionStartegy {
     private static class MemberImpl implements Member {
         private final Field field;
 

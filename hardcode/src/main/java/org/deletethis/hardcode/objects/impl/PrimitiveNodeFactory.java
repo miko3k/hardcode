@@ -5,7 +5,6 @@ import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.HardcodeConfiguration;
 import org.deletethis.hardcode.objects.*;
 
-import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +12,6 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class PrimitiveNodeFactory implements NodeFactory {
     private <T> Optional<NodeDefinition> simple(Class<?> clz, T value, CodeBlock fn) {
@@ -27,8 +25,7 @@ public class PrimitiveNodeFactory implements NodeFactory {
         return Optional.of(nodeDef);
     }
 
-
-    private <T extends Number> Optional<NodeDefinition> flt(Class<T> clz, T value, Function<T, Boolean> isNan, Function<T, Boolean> isInf, CodeBlock fn) {
+    private <T extends Number> Optional<NodeDefinition> floatOrDouble(Class<T> clz, T value, Function<T, Boolean> isNan, Function<T, Boolean> isInf, CodeBlock fn) {
         if(isNan.apply(value)) {
             return simple(clz, value, CodeBlock.of("$T.NaN", clz));
         } else if(isInf.apply(value) && value.doubleValue() < 0) {
@@ -53,11 +50,11 @@ public class PrimitiveNodeFactory implements NodeFactory {
 
         if(object.getClass().equals(Float.class)) {
             float f = (float)object;
-            return flt(Float.class,  f, (a) -> a.isNaN(), (a) -> a.isInfinite(), CodeBlock.of("$Lf", f));
+            return floatOrDouble(Float.class,  f, (a) -> a.isNaN(), (a) -> a.isInfinite(), CodeBlock.of("$Lf", f));
         }
         if(object.getClass().equals(Double.class)) {
             double f = (double)object;
-            return flt(Double.class,  f, (a) -> a.isNaN(), (a) -> a.isInfinite(), CodeBlock.of("$L", f));
+            return floatOrDouble(Double.class,  f, (a) -> a.isNaN(), (a) -> a.isInfinite(), CodeBlock.of("$L", f));
         }
         if(object.getClass().equals(Boolean.class)) {
             return simple(Boolean.class, object, CodeBlock.of("$L", object));
