@@ -1,6 +1,5 @@
 package org.deletethis.hardcode.util;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class TypeUtil {
@@ -26,11 +25,11 @@ public class TypeUtil {
         return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
     }
 
-    private static class AncessorIterator implements Iterator<Class<?>> {
+    private static class AncestorIterator implements Iterator<Class<?>> {
         Set<Class<?>> visitedInterfaces = new HashSet<>();
         Deque<Class<?>> remaining = new ArrayDeque<>();
 
-        private AncessorIterator(Class<?> clz) {
+        private AncestorIterator(Class<?> clz) {
             remaining.addLast(clz);
         }
 
@@ -62,14 +61,25 @@ public class TypeUtil {
         }
     }
 
+    /** Returns an {@link Iterable}, which will iterate over all ancestors of the given class, including superclasses
+     * and superinterfaces.
+     *
+     * @param clz the target class
+     * @return an {@link Iterable} going upwards in class hierarchy, returning each class or interface only once
+     */
     public static Iterable<Class<?>> ancestors(Class<?> clz) {
-        return () -> new AncessorIterator(clz);
+        return () -> new AncestorIterator(clz);
     }
 
+    /** Similar to {@link java.lang.Class#getSimpleName} but works also with anonymous classes */
     public static String getClassSimpleName(Class<?> clz) {
         String str = clz.getSimpleName();
-        if(str.isEmpty())
+        if(str.isEmpty()) {
             str = clz.getTypeName();
+            int idx = str.lastIndexOf('.');
+            if(idx >= 0)
+                str = str.substring(idx+1);
+        }
         return str;
 
     }

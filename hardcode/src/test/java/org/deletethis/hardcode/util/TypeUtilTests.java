@@ -1,12 +1,10 @@
 package org.deletethis.hardcode.util;
 
-import org.deletethis.hardcode.impl.ObjectInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class TypeUtilTests {
     class A { }
@@ -51,6 +49,13 @@ public class TypeUtilTests {
         Assert.assertEquals(Long.class, TypeUtil.wrapType(Long.class));
         Assert.assertEquals(Long.class, TypeUtil.wrapType(long.class));
         Assert.assertEquals(Long.class, TypeUtil.wrapType(Long.TYPE));
+
+    }
+
+    @Test
+    public void simpleClassName() {
+        Assert.assertEquals("String", TypeUtil.getClassSimpleName(String.class));
+        Assert.assertEquals("TypeUtilTests$1", TypeUtil.getClassSimpleName(new Object(){}.getClass()));
 
     }
 }

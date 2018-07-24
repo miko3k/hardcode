@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class ObjectNodeFactory implements NodeFactory {
 
-    private IntrospectionStartegy strategy = new FieldIntrospectionStartegy();
+    private IntrospectionStartegy strategy = new FieldIntrospectionStrategy();
 
     private Expression getCode(Class<?> clz, CodegenParameters obj) {
         CodeBlock.Builder bld = CodeBlock.builder();

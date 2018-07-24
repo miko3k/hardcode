@@ -22,7 +22,7 @@ class BuiltinAnnotations {
     }
 
 
-    public void addAnnotations(List<Annotation> annotations) {
+    void addAnnotations(List<Annotation> annotations) {
         if(annotations != null) {
             for(Annotation a: annotations) {
                 addAnnotation(a);

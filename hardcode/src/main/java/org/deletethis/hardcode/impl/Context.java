@@ -96,10 +96,6 @@ class Context implements CodegenContext {
         return variableAllocator.newName(hint);
     }
 
-    ObjectInfo getRoot() {
-        return currentRoot;
-    }
-
     public String getMethodName() {
         return methodName;
     }

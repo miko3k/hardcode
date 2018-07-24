@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface IntrospectionResult {
+    Set<String> getMembers();
     List<Annotation> getMemberAnnotations(String memberName);
     Map<String, Object> getMemberValues(Object object);
 }

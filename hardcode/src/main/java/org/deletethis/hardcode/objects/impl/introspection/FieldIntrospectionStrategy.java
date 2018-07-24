@@ -1,13 +1,14 @@
 package org.deletethis.hardcode.objects.impl.introspection;
 
 import org.deletethis.hardcode.HardcodeException;
+import org.deletethis.hardcode.HardcodeIgnore;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-public class FieldIntrospectionStartegy implements IntrospectionStartegy {
+public class FieldIntrospectionStrategy implements IntrospectionStartegy {
     private static class ResultImpl implements IntrospectionResult {
         private final Map<String, List<Annotation>> memberAnnotations;
         private final Map<String, Field> memberFields;
@@ -45,6 +46,11 @@ public class FieldIntrospectionStartegy implements IntrospectionStartegy {
             }
             return result;
         }
+
+        @Override
+        public Set<String> getMembers() {
+            return memberAnnotations.keySet();
+        }
     }
 
     @Override
@@ -54,8 +60,10 @@ public class FieldIntrospectionStartegy implements IntrospectionStartegy {
         while(clz != null) {
             Field[] fields = clz.getDeclaredFields();
             for(Field field : fields) {
-                if(!field.isAccessible())
-                    field.setAccessible(true);
+                field.setAccessible(true);
+
+                if(field.isAnnotationPresent(HardcodeIgnore.class))
+                    continue;
 
                 int modifiers = field.getModifiers();
 
