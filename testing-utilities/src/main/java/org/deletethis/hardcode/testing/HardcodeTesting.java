@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -19,17 +21,6 @@ public class HardcodeTesting {
     public static <T> T supply(TypeSpec typeSpec) {
         Supplier<T> supplier = SUPPLIER_COMPILER.get(typeSpec);
         return supplier.get();
-    }
-
-    public static byte [] serialize(Object obj) {
-        try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bytes);
-            oos.writeObject(obj);
-            return bytes.toByteArray();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
     }
 
     public static File outputFile(String name) {
