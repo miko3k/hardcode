@@ -6,6 +6,7 @@ import com.squareup.javapoet.TypeSpec;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -21,10 +22,10 @@ import java.util.function.Supplier;
  */
 public class CachingSupplierCompiler implements SupplierCompiler {
 
-    private String sha(String md5) {
+    private String sha(String input) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA1");
-            byte[] array = md.digest(md5.getBytes(StandardCharsets.UTF_8));
+            byte[] array = md.digest(input.getBytes(StandardCharsets.UTF_8));
             return DatatypeConverter.printHexBinary(array);
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
@@ -38,11 +39,11 @@ public class CachingSupplierCompiler implements SupplierCompiler {
     }
 
     @Override
-    public <T> Supplier<T> get(TypeSpec typeSpec) {
+    public <T> Supplier<T> get(List<TypeSpec> typeSpec) {
         try {
+            // toString prints out all its elements, should be good enough
             String name = sha(typeSpec.toString());
             File f = TempFileFactory.getInstance().createFile(name);
-            File fsrc = TempFileFactory.getInstance().createFile(name + ".java");
 
             if(f.exists()) {
                 try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))) {
@@ -56,8 +57,11 @@ public class CachingSupplierCompiler implements SupplierCompiler {
                 }
             }
             // let's write out source code - can be useful even if actual compilation fails
-            try (FileWriter fw = new FileWriter(fsrc)) {
-                JavaFile.builder(ActualSupplierCompiler.PACKAGE_NAME, typeSpec).build().writeTo(fw);
+            for(TypeSpec ts: typeSpec) {
+                File fsrc = TempFileFactory.getInstance().createFile(name + "-" + ts.name + ".java");
+                try (FileWriter fw = new FileWriter(fsrc)) {
+                    JavaFile.builder(ActualSupplierCompiler.PACKAGE_NAME, ts).build().writeTo(fw);
+                }
             }
 
             Supplier<T> supp = other.get(typeSpec);

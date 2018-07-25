@@ -5,15 +5,14 @@ import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
 
-public class ClassContext {
+class ClassContext {
     private GlobalContext globalContext;
     private NumberNameAllocator methodNameAllocator;
     private final String clzName;
     private final TypeSpec.Builder clzBuilder;
     private int lineCountGuess;
-    private boolean auxiliary;
 
-    public ClassContext(GlobalContext globalContext, String clzName, boolean auxiliary) {
+    ClassContext(GlobalContext globalContext, String clzName, boolean auxiliary) {
         this.globalContext = globalContext;
         this.methodNameAllocator = new NumberNameAllocator();
         this.clzName = clzName;
@@ -26,27 +25,26 @@ public class ClassContext {
             this.clzBuilder.addModifiers(Modifier.PUBLIC);
         }
         this.lineCountGuess = 0;
-        this.auxiliary = auxiliary;
     }
 
-    public String getClzName() {
+    String getClzName() {
         return clzName;
     }
 
-    public void addMethod(MethodSpec methodSpec) {
+    void addMethod(MethodSpec methodSpec) {
         lineCountGuess += methodSpec.toString().chars().filter(x -> x == '\n').count()+1;
         clzBuilder.addMethod(methodSpec);
     }
 
-    public String allocateMethodName(String nameHint) {
+    String allocateMethodName(String nameHint) {
         return methodNameAllocator.newName(nameHint);
     }
 
-    public TypeSpec.Builder getTypeBuilder() {
+    TypeSpec.Builder getTypeBuilder() {
         return clzBuilder;
     }
 
-    public boolean isFull() {
+    boolean isFull() {
         if(globalContext.getMaxClassLines() == null) {
             return false;
         } else {
@@ -54,11 +52,7 @@ public class ClassContext {
         }
     }
 
-    public GlobalContext getGlobalContext() {
+    GlobalContext getGlobalContext() {
         return globalContext;
-    }
-
-    public boolean isAuxiliary() {
-        return auxiliary;
     }
 }

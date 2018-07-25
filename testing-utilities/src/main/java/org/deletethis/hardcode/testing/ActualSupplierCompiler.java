@@ -4,6 +4,8 @@ import com.squareup.javapoet.TypeSpec;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 /**
@@ -13,11 +15,14 @@ import java.util.function.Supplier;
 public class ActualSupplierCompiler implements SupplierCompiler {
     public static final String PACKAGE_NAME = "generated.files";
 
-    public <T> Supplier<T> get(TypeSpec typeSpec) {
+    public <T> Supplier<T> get(List<TypeSpec> typeSpec) {
         try {
+            if(typeSpec == null || typeSpec.isEmpty()) {
+                throw new NoSuchElementException("empty list");
+            }
 
             CompilerRunner compilerRunner = new CompilerRunner();
-            Class<?> clz = compilerRunner.compile(PACKAGE_NAME, typeSpec);
+            Class<?> clz = compilerRunner.compile(PACKAGE_NAME, typeSpec).get(0);
             Method get = clz.getMethod("get");
 
             Object object = clz.newInstance();

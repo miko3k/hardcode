@@ -39,8 +39,7 @@ public class DrawGraphTests {
         new Graphviz<>(g).print(HardcodeTesting.outputFile(name.getMethodName() + ".gv"));
 
         TypeSpec theClass = hc.createClassFromGraph("TheClass", g);
-        Supplier<T> objectSupplier = HardcodeTesting.SUPPLIER_COMPILER.get(theClass);
-        return objectSupplier.get();
+        return HardcodeTesting.supply(theClass);
     }
 
 

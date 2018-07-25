@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class MethodContext implements CodegenContext, ProcedureContext {
-    final private ClassContext classContext;
+    private final ClassContext classContext;
     private final NumberNameAllocator variableAllocator = new NumberNameAllocator();
     private final MethodSpec.Builder methodBuilder;
     private final String methodName;

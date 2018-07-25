@@ -1,5 +1,6 @@
 package org.deletethis.hardcode.testing;
 
+import com.google.common.collect.ImmutableList;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.Compiler;
 import com.squareup.javapoet.JavaFile;
@@ -9,24 +10,25 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Optional;
+import java.net.URI;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Helper class to compile the {@link TypeSpec} into a {@link Class}.
  */
 class CompilerRunner {
     private static class JavaFileObjectLoader extends ClassLoader {
-        private final JavaFileObject object;
-        private final String name;
+        private final Map<String, JavaFileObject> objects;
 
-        private JavaFileObjectLoader(ClassLoader parent, JavaFileObject object, String name) {
+        private JavaFileObjectLoader(ClassLoader parent, Map<String, JavaFileObject> objects) {
             super(parent);
-            this.object = object;
-            this.name = name;
+            this.objects = objects;
         }
 
         public Class loadClass(String name) throws ClassNotFoundException {
-            if(!this.name.equals(name)) {
+            JavaFileObject object = objects.get(name);
+            if(object == null) {
                 return super.loadClass(name);
             }
 
@@ -50,24 +52,60 @@ class CompilerRunner {
         }
     }
 
-    Class<?> compile(String packageName, TypeSpec typeSpec) {
-        String className = typeSpec.name;
-        String fullName = packageName + "." + className;
+    public static class Input {
+        private final String packageName;
+        private final TypeSpec typeSpec;
 
-        JavaFileObject sourceObject = JavaFile.builder(packageName, typeSpec).build().toJavaFileObject();
+        Input(String packageName, TypeSpec typeSpec) {
+            this.packageName = packageName;
+            this.typeSpec = typeSpec;
+        }
 
-        Compilation compilation = Compiler.javac().compile(sourceObject);
-        Optional<JavaFileObject> destObject = compilation.generatedFile(StandardLocation.CLASS_OUTPUT, packageName, className + ".class");
+        String getPackageName() { return packageName; }
+        String getClassName() { return typeSpec.name; }
+        String getFullName() { return getPackageName() + "." + getClassName(); }
+    }
 
-        if(destObject.isPresent()) {
-            JavaFileObjectLoader classLoader = new JavaFileObjectLoader(this.getClass().getClassLoader(), destObject.get(), fullName);
+
+    private List<Class<?>> compile(List<Input> input) {
+        JavaFileObject [] sourceObjects = new JavaFileObject[input.size()];
+        for(int i = 0; i < input.size(); ++i) {
+            Input in = input.get(i);
+            sourceObjects[i] = JavaFile.builder(in.packageName, in.typeSpec).build().toJavaFileObject();
+        }
+
+        Compilation compilation = Compiler.javac().compile(sourceObjects);
+        Map<String, JavaFileObject> javaFileObjectMap = new HashMap<>();
+
+        // it might be nice to iterate over all generated files and place them into classloader, however
+        // I don't know how to get FQCN from JavaFileObject
+        for(Input in: input) {
+            Optional<JavaFileObject> destObject = compilation.generatedFile(StandardLocation.CLASS_OUTPUT, in.getPackageName(), in.getClassName() + ".class");
+            if(destObject.isPresent()) {
+                javaFileObjectMap.put(in.getFullName(), destObject.get());
+            } else {
+                throw new AssertionError("output object not found");
+            }
+
+        }
+        JavaFileObjectLoader javaFileObjectLoader = new JavaFileObjectLoader(this.getClass().getClassLoader(), javaFileObjectMap);
+        List<Class<?>> output = new ArrayList<>(input.size());
+        for(Input in: input) {
             try {
-                return classLoader.loadClass(fullName);
+                output.add(javaFileObjectLoader.loadClass(in.getFullName()));
             } catch (ClassNotFoundException e) {
                 throw new AssertionError(e);
             }
-        } else {
-            throw new AssertionError("output object not found");
         }
+        return output;
+    }
+
+    List<Class<?>> compile(String packageName, List<TypeSpec> typeSpecs) {
+        List<Input> input = typeSpecs.stream().map(t -> new Input(packageName, t)).collect(Collectors.toList());
+        return compile(input);
+    }
+
+    Class<?> compile(String packageName, TypeSpec typeSpec) {
+        return compile(packageName, Collections.singletonList(typeSpec)).get(0);
     }
 }
