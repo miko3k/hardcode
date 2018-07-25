@@ -18,12 +18,19 @@ import java.util.function.Supplier;
 public class HardcodeTesting {
     private HardcodeTesting() { }
 
-    public static final SupplierCompiler SUPPLIER_COMPILER = new CachingSupplierCompiler(new ActualSupplierCompiler());
+    private static final SupplierCompiler RAW_COMPILER = new ActualSupplierCompiler();
+    private static final SupplierCompiler SUPPLIER_COMPILER = new CachingSupplierCompiler(RAW_COMPILER);
 
     public static <T> T supply(TypeSpec typeSpec) {
         Supplier<T> supplier = SUPPLIER_COMPILER.get(Collections.singletonList(typeSpec));
         return supplier.get();
     }
+
+    public static <T> T supplyUncached(TypeSpec typeSpec) {
+        Supplier<T> supplier = RAW_COMPILER.get(Collections.singletonList(typeSpec));
+        return supplier.get();
+    }
+
 
     public static <T> T supply(List<TypeSpec> typeSpec) {
         Supplier<T> supplier = SUPPLIER_COMPILER.get(typeSpec);

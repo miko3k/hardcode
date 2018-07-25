@@ -38,9 +38,19 @@ public class DrawGraphTests {
         Digraph<ObjectInfo, ParameterName> g = hc.buildGraph(o);
         new Graphviz<>(g).print(HardcodeTesting.outputFile(name.getMethodName() + ".gv"));
 
-        TypeSpec theClass = hc.createClassFromGraph("TheClass", g);
+        TypeSpec theClass = hc.createClassFromGraph(name.getMethodName(), g);
         return HardcodeTesting.supply(theClass);
     }
+
+    private <T> T runUncached(T o) {
+        Hardcode hc = Hardcode.builtinConfig();
+        Digraph<ObjectInfo, ParameterName> g = hc.buildGraph(o);
+        new Graphviz<>(g).print(HardcodeTesting.outputFile(name.getMethodName() + ".gv"));
+
+        TypeSpec theClass = hc.createClassFromGraph(name.getMethodName(), g);
+        return HardcodeTesting.supplyUncached(theClass);
+    }
+
 
 
     @Test
@@ -133,8 +143,15 @@ public class DrawGraphTests {
         linkedList.add("a");
         linkedList.add("b");
         Assert.assertEquals(linkedList, run(hc, linkedList));
+    }
 
+    @Test
+    public void optinal() {
+        Optional<Integer> a = Optional.empty();
+        Optional<Integer> b = Optional.empty();
 
+        Assert.assertEquals(a, runUncached(a));
+        Assert.assertEquals(b, runUncached(b));
 
     }
 

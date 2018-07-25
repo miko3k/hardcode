@@ -6,14 +6,10 @@ import org.deletethis.hardcode.graph.Digraph;
 import org.deletethis.hardcode.impl.*;
 import org.deletethis.hardcode.objects.NodeFactory;
 import org.deletethis.hardcode.objects.ParameterName;
-import org.deletethis.hardcode.objects.impl.CollectionNodeFactory;
-import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
-import org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory;
+import org.deletethis.hardcode.objects.impl.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.deletethis.hardcode.objects.impl.MapNodeFactory;
 
 /**
  * A class to hardcode structures into a code. For input {@link Object}, it is able to generate source code do
@@ -42,6 +38,7 @@ public class Hardcode {
         nodeFactoryList.add(new CollectionNodeFactory());
         nodeFactoryList.add(new MapNodeFactory());
         nodeFactoryList.add(new ObjectNodeFactory());
+        nodeFactoryList.add(new OptionalFactory());
         return nodeFactoryList;
     }
 

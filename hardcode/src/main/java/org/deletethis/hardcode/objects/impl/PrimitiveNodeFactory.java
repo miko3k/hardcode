@@ -88,7 +88,6 @@ public class PrimitiveNodeFactory implements NodeFactory {
         if(object.getClass().equals(Date.class)) {
             return complex(Date.class, object, CodeBlock.of("new $T($L)", Date.class, ((Date)object).getTime()), null);
         }
-
         return Optional.empty();
     }
 
