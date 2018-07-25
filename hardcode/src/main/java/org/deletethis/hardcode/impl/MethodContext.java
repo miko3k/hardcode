@@ -78,11 +78,13 @@ public class MethodContext implements CodegenContext, ProcedureContext {
 
     @Override
     public ProcedureContext createProcedure(String nameHint, String paramName, Class<?> paramType) {
+        ClassContext cc = classContext.getGlobalContext().getCurrentClassContext();
+
         ClassContext myClassContext;
-        if(classContext.isFull()) {
-            myClassContext = classContext.getGlobalContext().createAuxiliaryContext();
+        if(cc.isFull()) {
+            myClassContext = cc.getGlobalContext().createAuxiliaryContext();
         } else {
-            myClassContext = classContext;
+            myClassContext = cc;
         }
 
         MethodContext context = new MethodContext(myClassContext, myClassContext.allocateMethodName(nameHint));

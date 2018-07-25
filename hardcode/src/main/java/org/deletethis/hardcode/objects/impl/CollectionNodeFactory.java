@@ -26,7 +26,7 @@ public class CollectionNodeFactory implements NodeFactory {
         }
         SplitHelper splitHelper = SplitHelper.get(context, clz.getSimpleName(), objectContext.getSplit(), variable, clz);
         for (CodegenParameters.Argument arg : objectContext.getArgumentList()) {
-            splitHelper.addStatement("$L.add($L)", variable, arg.getCode());
+            splitHelper.addStatement("$L.add($L)", splitHelper.getBuilder(), arg.getCode());
         }
         splitHelper.finish();
         return Expression.simple(variable);
