@@ -22,7 +22,7 @@ public interface SplitHelper {
                 }
             };
         } else {
-            return new SplitHelperImpl(parentContext, "create" + typeNameHint, builder, builderType, split);
+            return new SplitHelperImpl(parentContext, builder, builderType, split);
         }
     }
 

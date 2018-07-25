@@ -1,18 +1,19 @@
 package org.deletethis.hardcode.util;
 
 import org.deletethis.hardcode.objects.CodegenContext;
+import org.deletethis.hardcode.objects.ProcedureContext;
 
 class SplitHelperImpl implements SplitHelper {
     private static final String PARAM = "out";
 
     private CodegenContext parentContext;
-    private CodegenContext currentContext;
+    private ProcedureContext currentContext;
     private int split;
     private String builder;
     private Class<?> builderType;
     private int currentFill;
 
-    SplitHelperImpl(CodegenContext parentContext, String nameHint, String builder, Class<?> builderType, int split) {
+    SplitHelperImpl(CodegenContext parentContext, String builder, Class<?> builderType, int split) {
         this.parentContext = parentContext;
         this.split = split;
         this.builder = builder;
@@ -25,7 +26,7 @@ class SplitHelperImpl implements SplitHelper {
     }
 
     private void addMethod() {
-        parentContext.addStatement("$L($L)", currentContext.getMethodName(), builder);
+        parentContext.addStatement("$L.$L($L)", currentContext.getClassName(), currentContext.getMethodName(), builder);
         currentContext.finish();
         currentContext = null;
 

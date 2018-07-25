@@ -16,26 +16,24 @@ import java.util.function.Supplier;
 class Printer {
     private final Digraph<ObjectInfo, ParameterName> graph;
     private final Map<ObjectInfo, Expression> exprMap = new HashMap<>();
-    private final NumberNameAllocator methodNameAllocator = new NumberNameAllocator();
-    private final TypeSpec.Builder clz;
+    private final GlobalContext globalContext;
     private static final String METHOD_NAME = "get";
 
-    private Expression printToContext(Context context, ObjectInfo n) {
+    private Expression printToContext(MethodContext context, ObjectInfo n) {
         List<CodegenParameters.Argument> args = new ArrayList<>();
-
 
         for (ConnectedVertex<ObjectInfo, ParameterName> conn : graph.getSuccessorConnections(n)) {
             Expression argument = print(context, conn.getVertex());
             args.add(new CodegenParametersImpl.CodegenArgument(argument, conn.getEdge()));
         }
-        context.addUnhandled(n.getFatalExceptions());
+        context.addFatalExceptions(n.getFatalExceptions());
         CodegenParametersImpl params = new CodegenParametersImpl(args, n.getSplit());
         Expression code = n.getCodeGenerator().getCode(context, params);
         params.verify();
         return code;
     }
 
-    private Expression print(Context context, ObjectInfo n) {
+    private Expression print(MethodContext context, ObjectInfo n) {
         Objects.requireNonNull(context);
         Objects.requireNonNull(n);
 
@@ -46,11 +44,12 @@ class Printer {
 
         Expression expression;
         if(n.isRoot()) {
-            Context child = createSubContext(n);
+            MethodContext child = createSubContext(n);
+
             Expression e = printToContext(child, n);
             child.finish(e);
 
-            expression = Expression.complex("$L()", child.getMethodName());
+            expression = Expression.complex("$L.$L()", child.getClassName(), child.getMethodName());
 
         } else {
             expression = printToContext(context, n);
@@ -67,13 +66,13 @@ class Printer {
     }
 
 
-    private Context createMainContext(Class<?> returnType, boolean supplier) {
-        String name = methodNameAllocator.newName(METHOD_NAME);
+    private MethodContext createMainContext(Class<?> returnType, boolean supplier) {
+        String name = globalContext.getMainClassContext().allocateMethodName(METHOD_NAME);
         if(!name.equals(METHOD_NAME)) {
             throw new IllegalArgumentException();
         }
 
-        Context context = new Context(methodNameAllocator, clz, graph.getRoot(), METHOD_NAME);
+        MethodContext context = new MethodContext(globalContext.getMainClassContext(), METHOD_NAME);
         MethodSpec.Builder mb = context.getMethodBuilder();
         mb.returns(returnType);
         mb.addModifiers(Modifier.PUBLIC);
@@ -83,39 +82,47 @@ class Printer {
         return context;
     }
 
-    private Context createSubContext(ObjectInfo root) {
+    private MethodContext createSubContext(ObjectInfo root) {
         Class<?> returnType = root.getType();
 
         String nameHint = "create" + returnType.getSimpleName();
 
-        Context context = new Context(methodNameAllocator, clz, root, methodNameAllocator.newName(nameHint));
+        ClassContext classContext = globalContext.getCurrentClassContext();
+        if(classContext.isFull()) {
+            classContext = globalContext.createAuxiliaryContext();
+        }
+
+        MethodContext context = new MethodContext(classContext, classContext.allocateMethodName(nameHint));
+
         context.getMethodBuilder().returns(returnType);
-        context.getMethodBuilder().addModifiers(Modifier.PRIVATE);
+        context.getMethodBuilder().addModifiers(Modifier.STATIC);
 
         return context;
     }
 
 
-    public TypeSpec run(boolean supplier) {
+    List<TypeSpec> run(boolean supplier) {
+
         Class<?> returnType = graph.getRoot().getType();
         if(returnType == null) {
             returnType = Object.class;
         }
+        ClassContext mainClassContext = globalContext.getMainClassContext();
+
         if(supplier) {
-            clz.addSuperinterface(ParameterizedTypeName.get(Supplier.class, returnType));
+            mainClassContext.getTypeBuilder().addSuperinterface(ParameterizedTypeName.get(Supplier.class, returnType));
         }
 
-        Context mainContext = createMainContext(returnType, supplier);
+        MethodContext mainContext = createMainContext(returnType, supplier);
         Expression mainMethod = print(mainContext, graph.getRoot());
         mainContext.finish(mainMethod);
-        return clz.build();
+
+        return globalContext.buildAll();
     }
 
-    public Printer(String className, Digraph<ObjectInfo, ParameterName> graph) {
-        TypeSpec.Builder result = TypeSpec.classBuilder(className)
-                .addModifiers(Modifier.PUBLIC);
+    Printer(String className, Digraph<ObjectInfo, ParameterName> graph, Integer maxLines) {
+        globalContext = new GlobalContext(maxLines, className);
 
         this.graph = graph;
-        this.clz = result;
     }
 }

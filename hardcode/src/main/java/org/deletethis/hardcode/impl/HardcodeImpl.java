@@ -24,6 +24,11 @@ public class HardcodeImpl {
     }
 
     public static TypeSpec print(String className, HardcodeConfiguration config, Digraph<ObjectInfo, ParameterName> digraph) {
-        return new Printer(className, digraph).run(config.generateSupplier());
+        return new Printer(className, digraph, null).run(config.generateSupplier()).get(0);
     }
+
+    public static List<TypeSpec> printLimited(String className, HardcodeConfiguration config, Digraph<ObjectInfo, ParameterName> digraph) {
+        return new Printer(className, digraph, config.getMethodLineCountHint()).run(config.generateSupplier());
+    }
+
 }

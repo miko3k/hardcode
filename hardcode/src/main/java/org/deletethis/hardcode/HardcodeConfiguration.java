@@ -71,4 +71,5 @@ public interface HardcodeConfiguration {
      */
     <T> T getAdditionalConfiguration(Class<T> clz);
 
+    int getMethodLineCountHint();
 }

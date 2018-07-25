@@ -11,6 +11,8 @@ import org.deletethis.hardcode.objects.impl.ObjectNodeFactory;
 import org.deletethis.hardcode.objects.impl.PrimitiveNodeFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.deletethis.hardcode.objects.impl.MapNodeFactory;
 
 /**
@@ -86,8 +88,24 @@ public class Hardcode {
         return createClassFromGraph(className, buildGraph(o));
     }
 
+    public List<TypeSpec> createClasses(String className, Object o) {
+        return createClassesFromGraph(className, buildGraph(o));
+    }
+
+    private JavaFile buildFile(String packageName, TypeSpec ts) {
+        return JavaFile.builder(packageName, ts).build();
+    }
+
+    private List<JavaFile> buildFiles(String packageName, List<TypeSpec> ts) {
+        return ts.stream().map(t -> buildFile(packageName, t)).collect(Collectors.toList());
+    }
+
     public JavaFile createJavaFile(String packageName, String className, Object o) {
-        return JavaFile.builder(packageName, createClass(className, o)).build();
+        return buildFile(packageName, createClass(className, o));
+    }
+
+    public List<JavaFile> createJavaFiles(String packageName, String className, Object o) {
+        return buildFiles(packageName, createClasses(className, o));
     }
 
     public TypeSpec createClassFromGraph(String className, Digraph<ObjectInfo, ParameterName> graph) {
@@ -95,7 +113,17 @@ public class Hardcode {
         return HardcodeImpl.print(className, configuration, graph);
     }
 
-    public JavaFile createJavaFileFromGraph(String packageName, String className, Digraph<ObjectInfo, ParameterName> graph) {
-        return JavaFile.builder(packageName, createClassFromGraph(className, graph)).build();
+    public List<TypeSpec> createClassesFromGraph(String className, Digraph<ObjectInfo, ParameterName> graph) {
+        verifyGraph(graph);
+        return HardcodeImpl.printLimited(className, configuration, graph);
     }
+
+    public JavaFile createJavaFileFromGraph(String packageName, String className, Digraph<ObjectInfo, ParameterName> graph) {
+        return buildFile(packageName, createClassFromGraph(className, graph));
+    }
+
+    public List<JavaFile> createJavaFilesFromGraph(String packageName, String className, Digraph<ObjectInfo, ParameterName> graph) {
+        return buildFiles(packageName, createClassesFromGraph(className, graph));
+    }
+
 }

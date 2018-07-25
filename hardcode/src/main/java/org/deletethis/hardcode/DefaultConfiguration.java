@@ -19,6 +19,7 @@ public class DefaultConfiguration implements HardcodeConfiguration {
     private boolean generateMultipleCatch = true;
     private final Map<Class<?>, Object> map = new HashMap<>();
     private final Map<Class<?>, ClassInfo> membersInfo = new HashMap<>();
+    private int methodLineCountHint = 5000;
 
     private ClassInfo classInfo(Class<?> clz) {
         ClassInfo ci = membersInfo.get(clz);
@@ -111,4 +112,12 @@ public class DefaultConfiguration implements HardcodeConfiguration {
     }
 
 
+    public void setMethodLineCountHint(int methodLineCountHint) {
+        this.methodLineCountHint = methodLineCountHint;
+    }
+
+    @Override
+    public int getMethodLineCountHint() {
+        return methodLineCountHint;
+    }
 }
