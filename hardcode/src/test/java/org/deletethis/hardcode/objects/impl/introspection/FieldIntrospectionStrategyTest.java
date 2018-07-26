@@ -5,9 +5,9 @@ import org.deletethis.hardcode.HardcodeIgnore;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlValue;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,9 +18,13 @@ public class FieldIntrospectionStrategyTest {
         private int realField = 42;
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    public static @interface A {}
+    @Retention(RetentionPolicy.RUNTIME)
+    public static @interface B {}
+
     private class Target extends Parent {
-        @XmlElement
-        @XmlValue
+        @A @B
         public String otherRealField = "hello";
         @HardcodeIgnore
         public String ingoredByAnnotation = "world";
@@ -37,7 +41,7 @@ public class FieldIntrospectionStrategyTest {
         List<Annotation> annotations = introspect.getMemberAnnotations("otherRealField");
         Assert.assertEquals(2, annotations.size());
         Set<? extends Class<? extends Annotation>> set = annotations.stream().map(Annotation::annotationType).collect(Collectors.toSet());
-        Assert.assertEquals(new HashSet<>(Arrays.asList(XmlElement.class, XmlValue.class)), set);
+        Assert.assertEquals(new HashSet<>(Arrays.asList(A.class, B.class)), set);
 
         Map<String, Object> memberValues = introspect.getMemberValues(new Target());
         Assert.assertEquals(2, memberValues.size());

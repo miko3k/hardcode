@@ -3,7 +3,6 @@ package org.deletethis.hardcode.testing;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -21,12 +20,18 @@ import java.util.function.Supplier;
  *
  */
 public class CachingSupplierCompiler implements SupplierCompiler {
+    private static final String HEX = "0123456789ABCDEF";
 
     private String sha(String input) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA1");
             byte[] array = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            return DatatypeConverter.printHexBinary(array);
+            StringBuilder bld = new StringBuilder(array.length*2);
+            for(byte b: array) {
+                bld.append(HEX.charAt((b>>4)&0xF));
+                bld.append(HEX.charAt(b&0xF));
+            }
+            return bld.toString();
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
