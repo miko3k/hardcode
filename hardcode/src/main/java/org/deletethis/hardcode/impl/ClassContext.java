@@ -1,29 +1,22 @@
 package org.deletethis.hardcode.impl;
 
-import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
-import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 class ClassContext {
     private GlobalContext globalContext;
     private NumberNameAllocator methodNameAllocator;
     private final String clzName;
-    private final TypeSpec.Builder clzBuilder;
     private int lineCountGuess;
+    private List<MethodContext> methods = new ArrayList<>();
 
-    ClassContext(GlobalContext globalContext, String clzName, boolean auxiliary) {
+
+    ClassContext(GlobalContext globalContext, String clzName) {
         this.globalContext = globalContext;
         this.methodNameAllocator = new NumberNameAllocator();
         this.clzName = clzName;
-
-        this.clzBuilder = TypeSpec.classBuilder(clzName);
-        if(auxiliary) {
-            // add private constructor to auxiliary classes as they will contain only static methods
-            this.clzBuilder.addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build());
-        } else {
-            this.clzBuilder.addModifiers(Modifier.PUBLIC);
-        }
         this.lineCountGuess = 0;
     }
 
@@ -31,17 +24,13 @@ class ClassContext {
         return clzName;
     }
 
-    void addMethod(MethodSpec methodSpec) {
-        lineCountGuess += methodSpec.toString().chars().filter(x -> x == '\n').count()+1;
-        clzBuilder.addMethod(methodSpec);
+    void addMethod(MethodContext methodContext) {
+        lineCountGuess += methodContext.getLineCount();
+        methods.add(methodContext);
     }
 
     String allocateMethodName(String nameHint) {
         return methodNameAllocator.newName(nameHint);
-    }
-
-    TypeSpec.Builder getTypeBuilder() {
-        return clzBuilder;
     }
 
     boolean isFull() {
@@ -54,5 +43,9 @@ class ClassContext {
 
     GlobalContext getGlobalContext() {
         return globalContext;
+    }
+
+    List<MethodContext> getMethods() {
+        return methods;
     }
 }

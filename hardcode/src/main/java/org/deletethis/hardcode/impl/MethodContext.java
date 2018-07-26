@@ -3,39 +3,30 @@ package org.deletethis.hardcode.impl;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import org.deletethis.hardcode.objects.CodegenContext;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.ProcedureContext;
 
 import javax.lang.model.element.Modifier;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class MethodContext implements CodegenContext, ProcedureContext {
     private final ClassContext classContext;
     private final NumberNameAllocator variableAllocator = new NumberNameAllocator();
-    private final MethodSpec.Builder methodBuilder;
     private final String methodName;
+    private final List<ParameterSpec> parameters = new ArrayList<>();
+    private AccessModifier accessModifier = AccessModifier.PRIVATE;
     private final Set<Class<? extends Throwable>> unhandledExceptions = new HashSet<>();
+    private final Class<?> returnType;
     private final CodeBlock.Builder code = CodeBlock.builder();
 
-    MethodContext(ClassContext classContext, String name) {
+
+    MethodContext(ClassContext classContext, String name, Class<?> returnType, ParameterSpec... parameters) {
         this.classContext = classContext;
         this.methodName = name;
-        this.methodBuilder = MethodSpec.methodBuilder(methodName);
-        this.methodBuilder.addAnnotation(unchecked());
-    }
-
-    private static AnnotationSpec unchecked() {
-        AnnotationSpec.Builder builder = AnnotationSpec.builder(SuppressWarnings.class);
-        builder.addMember("value", "$S", "unchecked");
-        return builder.build();
-    }
-
-    MethodSpec.Builder getMethodBuilder() {
-        return methodBuilder;
+        this.returnType = returnType;
+        this.parameters.addAll(Arrays.asList(parameters));
     }
 
     @Override
@@ -44,30 +35,12 @@ public class MethodContext implements CodegenContext, ProcedureContext {
     }
 
     void finish(Expression expression) {
-        String exceptionVariable = allocateVariable(Exception.class);
 
         if(expression != null) {
             code.addStatement("return $L", expression.getCode(classContext.getClassName()));
         }
 
-        if(!unhandledExceptions.isEmpty()) {
-            methodBuilder.beginControlFlow("try");
-        }
-
-        methodBuilder.addCode(code.build());
-
-        if(!unhandledExceptions.isEmpty()) {
-            // we are not using multi catch here - it would be more difficult and would make code require java 1.7
-            for(Class<?> c: unhandledExceptions) {
-                methodBuilder.nextControlFlow("catch($T $L)", c, exceptionVariable);
-                methodBuilder.addStatement("throw new $T($L)", IllegalStateException.class, exceptionVariable);
-            }
-            methodBuilder.endControlFlow();
-        }
-
-        MethodSpec methodSpec = methodBuilder.build();
-
-        classContext.addMethod(methodSpec);
+        classContext.addMethod(this);
     }
 
 
@@ -87,16 +60,32 @@ public class MethodContext implements CodegenContext, ProcedureContext {
             myClassContext = cc;
         }
 
-        MethodContext context = new MethodContext(myClassContext, myClassContext.allocateMethodName(nameHint));
+        MethodContext context = new MethodContext(
+                myClassContext,
+                myClassContext.allocateMethodName(nameHint),
+                Void.TYPE,
+                ParameterSpec.builder(paramType, paramName).build());
 
         if(!context.variableAllocator.newName(paramName).equals(paramName)) {
             throw new IllegalStateException("wtf?");
         }
-        context.getMethodBuilder().returns(Void.TYPE);
-        context.getMethodBuilder().addModifiers(Modifier.STATIC);
-        context.getMethodBuilder().addParameter(paramType, paramName);
         return context;
     }
+
+    AccessModifier getAccessModifier() {
+        return accessModifier;
+    }
+
+
+    int getLineCount() {
+        int cnt = (int)code.build().toString().chars().filter(x -> x == '\n').count();
+        cnt += 1;
+        if(!unhandledExceptions.isEmpty()) {
+            cnt += 4;
+        }
+        return cnt;
+    }
+
 
     @Override
     public String allocateVariable(Class<?> hint) {
@@ -120,12 +109,17 @@ public class MethodContext implements CodegenContext, ProcedureContext {
 
     @Override
     public Expression getCallExpression(String paramValue) {
+        assert parameters.size() == 1;
+
         return new Expression() {
             @Override
             public CodeBlock getCode(String className) {
                 if(className.equals(getClassName())) {
                     return CodeBlock.of("$L($L)", methodName, paramValue);
                 } else {
+                    if(accessModifier == AccessModifier.PRIVATE)
+                        accessModifier = AccessModifier.PACKAGE;
+
                     return CodeBlock.of("$L.$L($L)", getClassName(), methodName, paramValue);
                 }
             }
@@ -135,5 +129,21 @@ public class MethodContext implements CodegenContext, ProcedureContext {
                 return false;
             }
         };
+    }
+
+    Set<Class<? extends Throwable>> getUnhandledExceptions() {
+        return unhandledExceptions;
+    }
+
+    Class<?> getReturnType() {
+        return returnType;
+    }
+
+    CodeBlock.Builder getCode() {
+        return code;
+    }
+
+    List<ParameterSpec> getParameters() {
+        return parameters;
     }
 }

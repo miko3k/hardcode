@@ -65,20 +65,13 @@ class Printer {
         return expression;
     }
 
-
-    private MethodContext createMainContext(Class<?> returnType, boolean supplier) {
+    private MethodContext createMainContext(Class<?> returnType) {
         String name = globalContext.getMainClassContext().allocateMethodName(METHOD_NAME);
         if(!name.equals(METHOD_NAME)) {
             throw new IllegalArgumentException();
         }
 
-        MethodContext context = new MethodContext(globalContext.getMainClassContext(), METHOD_NAME);
-        MethodSpec.Builder mb = context.getMethodBuilder();
-        mb.returns(returnType);
-        mb.addModifiers(Modifier.PUBLIC);
-        if(supplier) {
-            mb.addAnnotation(Override.class);
-        }
+        MethodContext context = new MethodContext(globalContext.getMainClassContext(), METHOD_NAME, returnType);
         return context;
     }
 
@@ -92,12 +85,7 @@ class Printer {
             classContext = globalContext.createAuxiliaryContext();
         }
 
-        MethodContext context = new MethodContext(classContext, classContext.allocateMethodName(nameHint));
-
-        context.getMethodBuilder().returns(returnType);
-        context.getMethodBuilder().addModifiers(Modifier.STATIC);
-
-        return context;
+        return new MethodContext(classContext, classContext.allocateMethodName(nameHint), returnType);
     }
 
 
@@ -107,17 +95,13 @@ class Printer {
         if(returnType == null) {
             returnType = Object.class;
         }
-        ClassContext mainClassContext = globalContext.getMainClassContext();
 
-        if(supplier) {
-            mainClassContext.getTypeBuilder().addSuperinterface(ParameterizedTypeName.get(Supplier.class, returnType));
-        }
-
-        MethodContext mainContext = createMainContext(returnType, supplier);
+        MethodContext mainContext = createMainContext(returnType);
         Expression mainMethod = print(mainContext, graph.getRoot());
         mainContext.finish(mainMethod);
 
-        return globalContext.buildAll();
+
+        return globalContext.buildAll(mainContext, supplier);
     }
 
     Printer(String className, Digraph<ObjectInfo, ParameterName> graph, Integer maxLines) {
