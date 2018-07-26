@@ -18,7 +18,7 @@ public class GuavaCollectionFactory implements NodeFactory {
 
     private Expression getCode(TypeInfo typeInfo, CodegenContext context, CodegenParameters obj) {
         if (obj.getArgumentList().size() < typeInfo.getOfMax()) {
-            CodeBlock cb = GuavaUtil.printOf(typeInfo.getType(), obj);
+            CodeBlock cb = GuavaUtil.printOf(typeInfo.getType(), obj, context.getClassName());
             return Expression.complex(cb);
         } else {
             String variable = context.allocateVariable(typeInfo.getType());
@@ -26,7 +26,8 @@ public class GuavaCollectionFactory implements NodeFactory {
 
             SplitHelper splitHelper = SplitHelper.get(context, typeInfo.toString(), obj.getSplit(), variable, typeInfo.getBuilder());
             for (CodegenParameters.Argument arg : obj.getArgumentList()) {
-                splitHelper.addStatement("$L.add($L)", splitHelper.getBuilder(), arg.getCode());
+                splitHelper.prepareStatement();
+                splitHelper.addStatement("$L.add($L)", splitHelper.getBuilder(), arg.getCode(splitHelper.getClassName()));
             }
             splitHelper.finish();
             return Expression.complex("$L.build()", variable);

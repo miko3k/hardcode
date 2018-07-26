@@ -17,7 +17,7 @@ public class ObjectNodeFactory implements NodeFactory {
 
     private IntrospectionStartegy strategy = new FieldIntrospectionStrategy();
 
-    private Expression getCode(Class<?> clz, CodegenParameters obj) {
+    private Expression getCode(Class<?> clz, String className, CodegenParameters obj) {
         CodeBlock.Builder bld = CodeBlock.builder();
         bld.add("new $T(", clz);
         int n = 0;
@@ -26,7 +26,7 @@ public class ObjectNodeFactory implements NodeFactory {
                 bld.add(", ");
             }
             bld.add("/*$L*/ ", b.getName());
-            bld.add(b.getCode());
+            bld.add(b.getCode(className));
             ++n;
         }
         bld.add(")");
@@ -142,7 +142,7 @@ public class ObjectNodeFactory implements NodeFactory {
         NodeDefImpl nodeDef = NodeDefImpl.ref(
                 clz,
                 clz.getSimpleName(),
-                ((context, obj) -> getCode(clz, obj)));
+                ((context, obj) -> getCode(clz, context.getClassName(), obj)));
 
         for(Map.Entry<String, Object> e: cons.entrySet()) {
             String name = e.getKey();

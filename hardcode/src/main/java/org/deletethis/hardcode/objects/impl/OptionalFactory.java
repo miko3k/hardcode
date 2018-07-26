@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class OptionalFactory implements NodeFactory, CodeGenerator{
+public class OptionalFactory implements NodeFactory, CodeGenerator {
     private static final String VALUE = "value";
 
     @Override
@@ -21,7 +21,7 @@ public class OptionalFactory implements NodeFactory, CodeGenerator{
         if(obj.getArgumentList().isEmpty()) {
             cb = CodeBlock.of("$T.empty()", Optional.class);
         } else {
-            cb = CodeBlock.of("$T.of($L)", Optional.class, obj.getArgumentList().get(0).getCode());
+            cb = CodeBlock.of("$T.of($L)", Optional.class, obj.getArgumentList().get(0).getCode(context.getClassName()));
         }
         return Expression.complex(cb);
     }

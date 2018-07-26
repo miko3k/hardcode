@@ -1,5 +1,6 @@
 package org.deletethis.hardcode.impl;
 
+import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.CodegenParameters;
 import org.deletethis.hardcode.objects.ParameterName;
@@ -9,35 +10,38 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 class CodegenParametersImpl implements CodegenParameters {
-    static class CodegenArgument implements Argument {
+    static class ArgumentImpl implements Argument {
         private final Expression expression;
         private final ParameterName parameterName;
 
-        public CodegenArgument(Expression expression, ParameterName parameterName) {
+        ArgumentImpl(Expression expression, ParameterName parameterName) {
             this.expression = Objects.requireNonNull(expression);
             this.parameterName = Objects.requireNonNull(parameterName);
         }
 
         @Override
-        public Expression getExpression() {
-            return expression;
+        public boolean isSimple() {
+            return expression.isSimple();
         }
 
         @Override
         public ParameterName getName() {
             return parameterName;
         }
+
+        @Override
+        public CodeBlock getCode(String className) {
+            return expression.getCode(className);
+        }
     }
 
     private List<Argument> arguments;
     private Integer split;
-    private List<Expression> expressions;
     //private boolean splitRequested;
 
     CodegenParametersImpl(List<Argument> arguments, Integer split) {
         this.arguments = arguments;
         this.split = split;
-        this.expressions = arguments.stream().map(Argument::getExpression).collect(Collectors.toList());
     }
 
     @Override

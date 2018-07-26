@@ -4,62 +4,71 @@ import com.squareup.javapoet.CodeBlock;
 
 import java.util.Objects;
 
-public class Expression {
-    private final CodeBlock block;
-    private final boolean simple;
+public interface Expression {
+    class Simple implements Expression {
 
-    private Expression(CodeBlock block, boolean simple) {
-        this.block = Objects.requireNonNull(block);
-        this.simple = simple;
-    }
+        private Simple(CodeBlock block) {
+            this.block = block;
+        }
 
-    public String toString() {
-        if(simple) {
+        private final CodeBlock block;
+
+        @Override
+        public String toString() {
             return "simple(" + block + ")";
-        } else {
-            return "complex(" + block + ")";
+        }
+
+        @Override
+        public CodeBlock getCode(String className) {
+            return block;
+        }
+
+        @Override
+        public boolean isSimple() {
+            return true;
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Expression)) return false;
+    class Complex implements Expression {
+        private final CodeBlock block;
 
-        Expression that = (Expression) o;
+        private Complex(CodeBlock block) {
+            this.block = block;
+        }
 
-        if (simple != that.simple) return false;
-        return block.equals(that.block);
+        @Override
+        public String toString() {
+            return "complex(" + block + ")";
+        }
+
+        @Override
+        public CodeBlock getCode(String className) {
+            return block;
+        }
+
+        @Override
+        public boolean isSimple() {
+            return false;
+        }
     }
 
-    @Override
-    public int hashCode() {
-        int result = block.hashCode();
-        result = 31 * result + (simple ? 1 : 0);
-        return result;
+    String toString();
+    CodeBlock getCode(String className);
+    boolean isSimple();
+
+    static Expression simple(CodeBlock cb) {
+        return new Simple(cb);
     }
 
-    public CodeBlock getCode() {
-        return block;
+    static Expression complex(CodeBlock cb) {
+        return new Complex(cb);
     }
 
-    public boolean isSimple() {
-        return simple;
-    }
-
-    public static Expression simple(CodeBlock cb) {
-        return new Expression(cb, true);
-    }
-
-    public static Expression complex(CodeBlock cb) {
-        return new Expression(cb, false);
-    }
-
-    public static Expression simple(String cb, Object ... args) {
+    static Expression simple(String cb, Object ... args) {
         return simple(CodeBlock.of(cb, args));
     }
 
-    public static Expression complex(String cb, Object ... args) {
+    static Expression complex(String cb, Object ... args) {
         return complex(CodeBlock.of(cb, args));
     }
 }

@@ -27,7 +27,7 @@ public class GuavaImmutableMapFactory implements NodeFactory {
 
         // there are also longer variants, but's use builder for larger ones
         if (arguments.size() <= typeInfo.getOfMax()) {
-            CodeBlock cb = GuavaUtil.printOf(clz, obj);
+            CodeBlock cb = GuavaUtil.printOf(clz, obj, context.getClassName());
             return Expression.complex(cb);
         } else {
             String variable = context.allocateVariable(clz);
@@ -36,7 +36,11 @@ public class GuavaImmutableMapFactory implements NodeFactory {
             SplitHelper splitHelper = SplitHelper.get(context, typeInfo.toString(), obj.getSplit(), variable, builder);
 
             for (int i = 0; i < arguments.size(); i += 2) {
-                splitHelper.addStatement("$L.put($L, $L)", splitHelper.getBuilder(), arguments.get(i).getCode(), arguments.get(i + 1).getCode());
+                splitHelper.prepareStatement();
+                splitHelper.addStatement("$L.put($L, $L)",
+                        splitHelper.getBuilder(),
+                        arguments.get(i).getCode(splitHelper.getClassName()),
+                        arguments.get(i + 1).getCode(splitHelper.getClassName()));
             }
             splitHelper.finish();
 

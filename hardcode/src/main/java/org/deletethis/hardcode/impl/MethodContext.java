@@ -47,7 +47,7 @@ public class MethodContext implements CodegenContext, ProcedureContext {
         String exceptionVariable = allocateVariable(Exception.class);
 
         if(expression != null) {
-            code.addStatement("return $L", expression.getCode());
+            code.addStatement("return $L", expression.getCode(classContext.getClassName()));
         }
 
         if(!unhandledExceptions.isEmpty()) {
@@ -106,7 +106,7 @@ public class MethodContext implements CodegenContext, ProcedureContext {
 
     @Override
     public String getClassName() {
-        return classContext.getClzName();
+        return classContext.getClassName();
     }
 
     @Override
@@ -118,5 +118,22 @@ public class MethodContext implements CodegenContext, ProcedureContext {
         unhandledExceptions.addAll(exception);
     }
 
+    @Override
+    public Expression getCallExpression(String paramValue) {
+        return new Expression() {
+            @Override
+            public CodeBlock getCode(String className) {
+                if(className.equals(getClassName())) {
+                    return CodeBlock.of("$L($L)", methodName, paramValue);
+                } else {
+                    return CodeBlock.of("$L.$L($L)", getClassName(), methodName, paramValue);
+                }
+            }
 
+            @Override
+            public boolean isSimple() {
+                return false;
+            }
+        };
+    }
 }

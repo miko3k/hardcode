@@ -24,7 +24,7 @@ class Printer {
 
         for (ConnectedVertex<ObjectInfo, ParameterName> conn : graph.getSuccessorConnections(n)) {
             Expression argument = print(context, conn.getVertex());
-            args.add(new CodegenParametersImpl.CodegenArgument(argument, conn.getEdge()));
+            args.add(new CodegenParametersImpl.ArgumentImpl(argument, conn.getEdge()));
         }
         context.addFatalExceptions(n.getFatalExceptions());
         CodegenParametersImpl params = new CodegenParametersImpl(args, n.getSplit());
@@ -57,7 +57,7 @@ class Printer {
 
         if (!expression.isSimple() && graph.getInDegree(n) > 1) {
             String var = context.allocateVariable(n.getType());
-            context.addStatement("$T $L = $L", n.getType(), var, expression.getCode());
+            context.addStatement("$T $L = $L", n.getType(), var, expression.getCode(context.getClassName()));
             expression = Expression.simple(var);
         }
 

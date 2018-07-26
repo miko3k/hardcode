@@ -27,7 +27,7 @@ class ClassContext {
         this.lineCountGuess = 0;
     }
 
-    String getClzName() {
+    String getClassName() {
         return clzName;
     }
 

@@ -6,10 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public interface CodegenParameters {
-    interface Argument {
-        Expression getExpression();
+    interface Argument extends Expression {
         ParameterName getName();
-        default CodeBlock getCode() { return getExpression().getCode(); }
     }
 
     Integer getSplit();

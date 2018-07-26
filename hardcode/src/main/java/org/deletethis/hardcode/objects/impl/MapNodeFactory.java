@@ -29,7 +29,11 @@ public class MapNodeFactory implements NodeFactory {
         SplitHelper splitHelper = SplitHelper.get(context, clz.getSimpleName(), obj.getSplit(), variable, clz);
 
         for (int i = 0; i < arguments.size(); i += 2) {
-            splitHelper.addStatement("$L.put($L, $L)", splitHelper.getBuilder(), arguments.get(i).getCode(), arguments.get(i + 1).getCode());
+            splitHelper.prepareStatement();
+            splitHelper.addStatement("$L.put($L, $L)",
+                    splitHelper.getBuilder(),
+                    arguments.get(i).getCode(splitHelper.getClassName()),
+                    arguments.get(i + 1).getCode(splitHelper.getClassName()));
         }
         splitHelper.finish();
         return Expression.simple(variable);

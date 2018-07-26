@@ -1,6 +1,8 @@
 package org.deletethis.hardcode.util;
 
+import com.squareup.javapoet.CodeBlock;
 import org.deletethis.hardcode.objects.CodegenContext;
+import org.deletethis.hardcode.objects.Expression;
 import org.deletethis.hardcode.objects.ProcedureContext;
 
 class SplitHelperImpl implements SplitHelper {
@@ -12,6 +14,7 @@ class SplitHelperImpl implements SplitHelper {
     private String builder;
     private Class<?> builderType;
     private int currentFill;
+    private boolean inStatement;
 
     SplitHelperImpl(CodegenContext parentContext, String builder, Class<?> builderType, int split) {
         this.parentContext = parentContext;
@@ -19,6 +22,7 @@ class SplitHelperImpl implements SplitHelper {
         this.builder = builder;
         this.builderType = builderType;
         this.currentContext = null;
+        this.inStatement = false;
     }
 
     public String getBuilder() {
@@ -26,13 +30,26 @@ class SplitHelperImpl implements SplitHelper {
     }
 
     private void addMethod() {
-        parentContext.addStatement("$L.$L($L)", currentContext.getClassName(), currentContext.getMethodName(), builder);
+        Expression ex = currentContext.getCallExpression(builder);
+        parentContext.addStatement("$L", ex.getCode(parentContext.getClassName()));
         currentContext.finish();
         currentContext = null;
-
     }
 
-    public void addStatement(String format, Object... args) {
+    @Override
+    public String getClassName() {
+        if(!inStatement)
+            throw new IllegalStateException();
+
+        return currentContext.getClassName();
+    }
+
+
+    @Override
+    public void prepareStatement() {
+        if(inStatement)
+            throw new IllegalStateException();
+
         if(currentContext != null && currentFill >= split) {
             addMethod();
         }
@@ -42,11 +59,23 @@ class SplitHelperImpl implements SplitHelper {
             currentFill = 0;
         }
 
+        inStatement = true;
+    }
+
+    public void addStatement(String format, Object... args) {
+        if(!inStatement)
+            throw new IllegalStateException();
+
         currentContext.addStatement(format, args);
         ++currentFill;
+
+        inStatement = false;
     }
 
     public void finish() {
+        if(inStatement)
+            throw new IllegalStateException();
+
         if(currentContext != null) {
             addMethod();
         }
