@@ -49,7 +49,7 @@ class Printer {
             Expression e = printToContext(child, n);
             child.finish(e);
 
-            expression = Expression.complex("$L.$L()", child.getClassName(), child.getMethodName());
+            expression = new CallExpression(child);
 
         } else {
             expression = printToContext(context, n);

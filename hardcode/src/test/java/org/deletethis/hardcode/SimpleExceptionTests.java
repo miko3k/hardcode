@@ -6,9 +6,46 @@ import org.deletethis.hardcode.impl.ObjectInfo;
 import org.deletethis.hardcode.objects.ParameterName;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SimpleExceptionTests {
+    public static class Container<T> {
+        private T value;
+
+        public Container(T value) {
+            this.value = value;
+        }
+
+        public Container() {
+            this.value = null;
+        }
+
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Container)) return false;
+            Container<?> container = (Container<?>) o;
+            return Objects.equals(value, container.value);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(value);
+        }
+    }
+
     @Test(expected = CycleException.class)
     public void simpleCycle() {
         Container<Object> c1 = new Container<>();
@@ -52,6 +89,33 @@ public class SimpleExceptionTests {
         Hardcode.builtinConfig().verifyGraph(g);
     }
 
+    public static class ChildData implements Serializable {
+        private String value;
+        private ChildData more;
+
+        public ChildData(String value) {
+            this.value = value;
+        }
+
+        public ChildData(String value, ChildData more) {
+            this.value = value;
+            this.more = more;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ChildData)) return false;
+            ChildData childData = (ChildData) o;
+            return Objects.equals(value, childData.value) &&
+                    Objects.equals(more, childData.more);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value, more);
+        }
+    }
     @Test(expected = CrossRootReferenceException.class)
     public void split2() {
         ArrayList<ChildData> list = new ArrayList<>();

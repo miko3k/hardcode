@@ -76,6 +76,9 @@ public class MethodContext implements CodegenContext, ProcedureContext {
         return accessModifier;
     }
 
+    public void setAccessModifier(AccessModifier accessModifier) {
+        this.accessModifier = accessModifier;
+    }
 
     int getLineCount() {
         int cnt = (int)code.build().toString().chars().filter(x -> x == '\n').count();
@@ -109,26 +112,7 @@ public class MethodContext implements CodegenContext, ProcedureContext {
 
     @Override
     public Expression getCallExpression(String paramValue) {
-        assert parameters.size() == 1;
-
-        return new Expression() {
-            @Override
-            public CodeBlock getCode(String className) {
-                if(className.equals(getClassName())) {
-                    return CodeBlock.of("$L($L)", methodName, paramValue);
-                } else {
-                    if(accessModifier == AccessModifier.PRIVATE)
-                        accessModifier = AccessModifier.PACKAGE;
-
-                    return CodeBlock.of("$L.$L($L)", getClassName(), methodName, paramValue);
-                }
-            }
-
-            @Override
-            public boolean isSimple() {
-                return false;
-            }
-        };
+        return new CallExpression(this, paramValue);
     }
 
     Set<Class<? extends Throwable>> getUnhandledExceptions() {

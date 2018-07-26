@@ -1,6 +1,5 @@
 package org.deletethis.hardcode;
 
-import com.google.common.collect.*;
 import org.deletethis.hardcode.testing.HardcodeTesting;
 import org.junit.Assert;
 import org.junit.Rule;
