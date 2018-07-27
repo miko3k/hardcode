@@ -52,7 +52,7 @@ class CompilerRunner {
         }
     }
 
-    public static class Input {
+    private static class Input {
         private final String packageName;
         private final TypeSpec typeSpec;
 
